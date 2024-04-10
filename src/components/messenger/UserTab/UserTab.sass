@@ -1,0 +1,57 @@
+$tab_width: 320px
+$tab_height: 70px
+$tab_padding: 5px
+$notify-block-width: $tab_padding * 2.5
+
+.chat-tab
+  width: $tab_width
+  height: $tab_height
+  background: lightgray
+  border: 1px solid gray
+  display: flex
+  justify-content: space-between
+
+  &__icon
+    min-width: $tab_height - $tab_padding * 2
+    max-width: $tab_height - $tab_padding * 2
+    min-height: $tab_height - $tab_padding * 2
+    max-height: $tab_height - $tab_padding * 2
+    object-fit: cover
+    align-self: center
+    padding: $tab_padding
+    border-radius: 20%
+
+  &__desc
+    display: flex
+    flex-direction: column
+    justify-content: space-around
+    width: $tab_width - $tab_height - $tab_padding * 2 - $notify-block-width
+
+    p
+      padding: $tab_padding
+
+  &__title
+    font-weight: bold
+    line-height: 1em
+    font-size: 1.2em
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+
+  &__last-msg
+    overflow: hidden
+    line-height: 1em
+    font-size: 1.1em
+    white-space: nowrap
+    text-overflow: ellipsis
+
+  &__notify-block
+    width: $notify-block-width
+    padding-right: $tab_padding
+    display: flex
+    flex-direction: column
+    justify-content: space-around
+
+    svg
+      width: $tab_padding * 2.5
+      height: $tab_padding * 2.5

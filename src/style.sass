@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,400;0,700;1,200;1,400;1,700&display=swap')
+
+*
+  padding: 0
+  margin: 0
+  font-family: 'Nunito', sans-serif
+
+  &::-webkit-scrollbar
+    width: 5px
+
+  &::-webkit-scrollbar-thumb
+    background: #29beaa
+    border-radius: 5px
+
+  &::-webkit-scrollbar-track
+    background: #b7b7b7
+
+html
+  box-sizing: border-box
+
+html, body
+  height: 100%
+
+input
+  font-size: 1em
+
+#root
+  width: 100%
+  height: 100%
+  display: flex
+
+table
+  border-collapse: collapse
+  border: 2px solid black
+  min-width: 80%
+
+thead, tfoot
+  background-color: #87ffb4
+
+th, td
+  border: 1px solid black
+
+tbody > tr:nth-of-type(even)
+  background-color: #c2fcf2

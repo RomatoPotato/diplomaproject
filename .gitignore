@@ -1,0 +1,5 @@
+/build/
+/node_modules/
+/server/node_modules/
+/server/config.js
+/src/config.js

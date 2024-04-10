@@ -1,0 +1,55 @@
+.chat-tab {
+  width: 320px;
+  height: 70px;
+  background: lightgray;
+  border: 1px solid gray;
+  display: flex;
+  justify-content: space-between;
+}
+.chat-tab__icon {
+  min-width: 60px;
+  max-width: 60px;
+  min-height: 60px;
+  max-height: 60px;
+  object-fit: cover;
+  align-self: center;
+  padding: 5px;
+  border-radius: 20%;
+}
+.chat-tab__desc {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 227.5px;
+}
+.chat-tab__desc p {
+  padding: 5px;
+}
+.chat-tab__title {
+  font-weight: bold;
+  line-height: 1em;
+  font-size: 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-tab__last-msg {
+  overflow: hidden;
+  line-height: 1em;
+  font-size: 1.1em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-tab__notify-block {
+  width: 12.5px;
+  padding-right: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.chat-tab__notify-block svg {
+  width: 12.5px;
+  height: 12.5px;
+}
+
+/*# sourceMappingURL=UserTab.css.map */

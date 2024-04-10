@@ -1,0 +1,25 @@
+.chat-input {
+  width: inherit;
+  height: 35px;
+  background: #c4c4c4;
+  display: flex;
+  justify-content: flex-end;
+}
+.chat-input__input-field {
+  background: #89c2ba;
+  width: 100%;
+}
+.chat-input__file-button {
+  width: 35px;
+}
+.chat-input__file-button input[type=file] {
+  width: 0;
+}
+.chat-input__send-button {
+  width: 35px;
+}
+.chat-input__send-button input[type=submit] {
+  display: none;
+}
+
+/*# sourceMappingURL=ChatInput.css.map */

@@ -1,0 +1,39 @@
+$window-width: 100vw
+$window-height: 100vh
+$tab-width: 320px
+
+.messenger
+  width: 100%
+  height: 100%
+  overflow: hidden
+  display: flex
+
+  &__user-tabs
+    height: 100%
+    width: $tab-width
+    overflow-y: scroll
+    overflow-x: hidden
+    z-index: 2
+
+    a
+      text-decoration: none
+      color: black
+
+  &__chat-space
+    height: 100%
+    display: flex
+    flex-direction: column
+
+.chat
+  width: calc($window-width - $tab-width - 20px)
+  height: 100%
+  padding: 10px
+  background: lightgray
+  overflow-y: scroll
+  display: flex
+  flex-direction: column-reverse
+
+.chat-wrapper
+  width: 100%
+  display: flex
+  flex-direction: column

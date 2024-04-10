@@ -1,0 +1,36 @@
+.message {
+  width: 400px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.message__info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.message__user-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+.message__text {
+  background: #60dc5b;
+  padding: 5px;
+  border-radius: 15px;
+}
+.message__date {
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.self {
+  align-self: flex-end;
+}
+
+/*# sourceMappingURL=Message.css.map */
