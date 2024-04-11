@@ -8,32 +8,28 @@ $tab-width: 320px
   overflow: hidden
   display: flex
 
+.left-side
+  display: flex
+  flex-direction: column
+
+  &__user-info
+    padding: 5px
+    background-color: #76c0b9
+    border-bottom: 5px solid black
+    display: flex
+    justify-content: space-between
+
+    img
+      width: 40px
+      height: 40px
+
   &__user-tabs
     height: 100%
     width: $tab-width
-    overflow-y: scroll
+    overflow-y: auto
     overflow-x: hidden
     z-index: 2
 
     a
       text-decoration: none
       color: black
-
-  &__chat-space
-    height: 100%
-    display: flex
-    flex-direction: column
-
-.chat
-  width: calc($window-width - $tab-width - 20px)
-  height: 100%
-  padding: 10px
-  background: lightgray
-  overflow-y: scroll
-  display: flex
-  flex-direction: column-reverse
-
-.chat-wrapper
-  width: 100%
-  display: flex
-  flex-direction: column

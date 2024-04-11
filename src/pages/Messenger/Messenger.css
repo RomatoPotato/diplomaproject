@@ -4,37 +4,32 @@
   overflow: hidden;
   display: flex;
 }
-.messenger__user-tabs {
+
+.left-side {
+  display: flex;
+  flex-direction: column;
+}
+.left-side__user-info {
+  padding: 5px;
+  background-color: #76c0b9;
+  border-bottom: 5px solid black;
+  display: flex;
+  justify-content: space-between;
+}
+.left-side__user-info img {
+  width: 40px;
+  height: 40px;
+}
+.left-side__user-tabs {
   height: 100%;
   width: 320px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   z-index: 2;
 }
-.messenger__user-tabs a {
+.left-side__user-tabs a {
   text-decoration: none;
   color: black;
-}
-.messenger__chat-space {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat {
-  width: calc(100vw - 320px - 20px);
-  height: 100%;
-  padding: 10px;
-  background: lightgray;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column-reverse;
-}
-
-.chat-wrapper {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 /*# sourceMappingURL=Messenger.css.map */

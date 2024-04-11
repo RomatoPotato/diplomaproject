@@ -1,31 +1,16 @@
 import "./Messenger.css"
 import UserTab from "../../components/messenger/UserTab/UserTab";
-import ChatInput from "../../components/messenger/ChatInput/ChatInput";
 import {useEffect, useState} from "react";
 import socket from "../../util/socket";
-import Message from "../../components/messenger/Message/Message";
-import Header from "../../components/messenger/Header/Header";
-import {NavLink, useLoaderData, useSearchParams} from "react-router-dom";
+import {useLoaderData, useSearchParams} from "react-router-dom";
 import userService from "../../services/UserService";
+import Chat from "../../components/messenger/Chat/Chat";
 
 export default function Messenger() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
     const currentUser = useLoaderData();
-    const [searchParams, setSearchParams] = useSearchParams();
-
-    let convId = searchParams.get("conv");
-
-    if (convId && convId !== selectedUser?._id) {
-        userService.getUser(convId).then(user => {
-            for (const currUser of users) {
-                if (currUser._id === user._id) {
-                    setSelectedUser(currUser);
-                }
-            }
-        });
-    }
 
     useEffect(() => {
         socket.on("users", (allUsers) => {
@@ -75,7 +60,9 @@ export default function Messenger() {
                 ...temp
             ]);
         });
+    }, [users]);
 
+    useEffect(() => {
         socket.on("private message", ({text, from, date}) => {
             for (let i = 0; i < users.length; i++) {
                 const user = users[i];
@@ -132,37 +119,39 @@ export default function Messenger() {
         }
     }
 
+    function handleCloseContactClick() {
+        setSelectedUser(null);
+    }
+
     return (
         <div className="messenger">
-            <div className="messenger__user-tabs">
-                {
-                    users.map(
-                        user => user._id !== currentUser._id &&
-                            <UserTab
-                                onChatTabClick={() => {
-                                    setSearchParams({"conv": user._id});
-                                }}
-                                key={user._id}
-                                user={user}/>
-                    )
-                }
-            </div>
-            <div className="messenger__chat-space">
-                <Header selectedUser={selectedUser} currentUser={currentUser}/>
-                <div className="chat">
-                    <div className="chat-wrapper">
-                        {selectedUser && selectedUser.messages.map(message => {
-                            return <Message
-                                key={message.text}
-                                sender={message.fromSelf ? currentUser : selectedUser}
-                                text={message.text}
-                                self={message.fromSelf}
-                                date={message.date}/>
-                        })}
+            <div className="left-side">
+                <div className="left-side__user-info">
+                    <div>
+                        <p>{currentUser.name} {currentUser.surname}</p>
+                        <b>{currentUser.login}</b>
                     </div>
+                    <img src={currentUser.icon} alt=""/>
                 </div>
-                <ChatInput onMessageSubmit={handleMessageSubmit}/>
+                <div className="left-side__user-tabs">
+                    {
+                        users.map(
+                            user => user._id !== currentUser._id &&
+                                <UserTab
+                                    onChatTabClick={() => {
+                                        setSelectedUser(user);
+                                    }}
+                                    key={user._id}
+                                    user={user}/>
+                        )
+                    }
+                </div>
             </div>
+            <Chat
+                selectedContact={selectedUser}
+                currentUser={currentUser}
+                onMessageSubmit={handleMessageSubmit}
+                onCloseContactClick={handleCloseContactClick}/>
         </div>
     )
 };
