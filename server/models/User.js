@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         require: true
-    },
+    }
 });
 
 module.exports = mongoose.model("User", UserSchema);

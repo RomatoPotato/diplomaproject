@@ -7,6 +7,7 @@ const router = require("express").Router();
 const specialtiesRoute = "/specialties";
 const groupsRoute = "/groups";
 const vlssRoute = "/vlss";
+const chatsRoute = "/chats";
 
 router.get(specialtiesRoute, EIController.getAllSpecialties);
 router.post(specialtiesRoute, EIController.addSpecialty);
@@ -19,10 +20,13 @@ router.put(groupsRoute, EIController.editGroup);
 router.delete(`${groupsRoute}/:id`, EIController.deleteGroup);
 
 router.get(vlssRoute, EIController.getAllVLSs);
+router.get(`${vlssRoute}/:id`, EIController.getVLS);
 router.post(vlssRoute, EIController.addVLS);
 router.put(vlssRoute, EIController.editVLS);
 router.delete(`${vlssRoute}/:id`, EIController.deleteVLS);
 
 router.get("/generatePasswords/:id", EIController.generatePasswords);
+
+router.get(`${chatsRoute}/:userId`, EIController.getAllChats);
 
 module.exports = router;

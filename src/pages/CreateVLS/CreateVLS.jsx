@@ -5,7 +5,7 @@ import EIService from "../../services/EIService";
 
 export async function action({request}){
     const formData = await request.formData();
-    await EIService.addVLS(formData.get("group"));
+    await EIService.addVLS(formData.get("groupId"));
 
     return redirect("../virtual-learning-spaces");
 }
@@ -23,7 +23,7 @@ const CreateVLS = () => {
                 <label>
                     Выберите группу:
                     <select
-                        name="group"
+                        name="groupId"
                         onChange={(e) => {
                             const value = e.target.value;
 

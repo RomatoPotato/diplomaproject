@@ -1,93 +1,149 @@
 import "./Messenger.css"
-import UserTab from "../../components/messenger/UserTab/UserTab";
+import ChatTab from "../../components/messenger/ChatTab/ChatTab";
 import {useEffect, useState} from "react";
 import socket from "../../util/socket";
-import {useLoaderData, useSearchParams} from "react-router-dom";
-import userService from "../../services/UserService";
+import {redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
+import chatService from "../../services/ChatService";
+import authService from "../../services/AuthService";
+
+let nextMessageId = 0;
+
+export async function loader() {
+    const chatsInfo = new Map();
+
+    const currentUser = await authService.checkAuth();
+
+    if (!currentUser) {
+        return redirect("/login");
+    }
+
+    const chats = await chatService.getChats(currentUser._id);
+
+    for (const chat of chats) {
+        let interlocutor;
+        if (!chat.isGroup) {
+            interlocutor = chat.users[0]._id === currentUser._id ? chat.users[1] : chat.users[0];
+            interlocutor = {
+                _id: interlocutor._id,
+                name: interlocutor.name,
+                surname: interlocutor.surname,
+                online: false
+            }
+        }
+
+        const chatName = chat.isGroup ? chat.name : interlocutor.name + " " + interlocutor.surname;
+        let messages = await chatService.getMessages(chat._id);
+
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+
+            messages[i] = {
+                _id: message._id,
+                text: message.text,
+                sender: chat.isGroup ? message.from : message.from._id === currentUser._id ? currentUser : interlocutor,
+                chatId: message.chatId,
+                datetime: message.datetime
+            }
+        }
+
+        let users = new Map();
+        for (let user of chat.users) {
+            users.set(user._id, {
+                name: user.name,
+                surname: user.surname
+            });
+        }
+
+        chatsInfo.set(chat._id, {
+            _id: chat._id,
+            chatName: chatName,
+            isGroup: chat.isGroup,
+            users: users,
+            interlocutor: interlocutor,
+            messages: messages,
+            lastMessage: messages.at(-1)
+        });
+    }
+
+    console.log(chatsInfo)
+
+    return {
+        currentUser,
+        chatsInfo
+    };
+}
 
 export default function Messenger() {
-    const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
+    let {currentUser, chatsInfo} = useLoaderData();
 
-    const currentUser = useLoaderData();
-
-    useEffect(() => {
-        socket.on("users", (allUsers) => {
-            allUsers.forEach((user) => {
-                user.connected = true;
-            });
-
-            setUsers(allUsers);
-        });
-
-        socket.on("user connected", (newUser) => {
-            let temp = users;
-
-            for (let user of temp) {
-                if (user._id === newUser._id) {
-                    user.connected = true;
-
-                    setUsers([
-                        ...temp
-                    ]);
-                    return;
-                }
-            }
-
-            setUsers([
-                ...users,
-                {
-                    ...newUser,
-                    connected: true
-                }
-            ])
-        });
-
-        socket.on("user disconnected", (userId) => {
-            const temp = users;
-
-            for (let i = 0; i < temp.length; i++) {
-                const user = temp[i];
-
-                if (user._id === userId) {
-                    user.connected = false;
-                    break;
-                }
-            }
-
-            setUsers([
-                ...temp
-            ]);
-        });
-    }, [users]);
+    const [chats, setChats] = useState(chatsInfo);
+    const [selectedChat, setSelectedChat] = useState(null);
 
     useEffect(() => {
-        socket.on("private message", ({text, from, date}) => {
-            for (let i = 0; i < users.length; i++) {
-                const user = users[i];
+        socket.auth = {
+            user: {
+                _id: currentUser._id,
+                name: currentUser.name,
+                surname: currentUser.surname,
+                online: true
+            }
+        };
 
-                if (user._id === from) {
-                    user.messages.push({
-                        text: text,
-                        fromSelf: false,
-                        date: date
-                    });
+        socket.connect();
+        socket.emit("check users");
+    }, [currentUser]);
 
-                    if (user !== selectedUser) {
-                        user.hasNewMessages = true;
+    useEffect(() => {
+        chatService.getChats(currentUser._id).then((allChats) => {
+            for (const chat of allChats) {
+                socket.emit("join_room", chat._id);
+            }
+        });
+    }, [currentUser]);
+
+    useEffect(() => {
+        socket.on("users", (users) => {
+            const temp = chats;
+
+            for (let [key, value] of temp) {
+                for (let user of users) {
+                    if (!value.isGroup) {
+                        if (value.interlocutor._id === user._id) {
+                            value.interlocutor.online = true;
+                        }
                     }
                 }
             }
 
-            setUsers([
-                ...users
-            ]);
+            setChats(new Map(temp));
+        });
 
-            if (selectedUser) {
-                setSelectedUser({
-                    ...selectedUser
-                });
+        socket.on("user connected", (connectedUser) => {
+            const temp = chats;
+
+            for (let [key, value] of temp) {
+                if (!value.isGroup) {
+                    if (value.interlocutor._id === connectedUser._id) {
+                        value.interlocutor.online = true;
+                        setChats(new Map(temp));
+                        return;
+                    }
+                }
+            }
+        });
+
+        socket.on("user disconnected", (userId) => {
+            const temp = chats;
+
+            for (let [key, value] of temp) {
+                if (!value.isGroup) {
+                    if (value.interlocutor._id === userId) {
+                        value.interlocutor.online = false;
+                        setChats(new Map(temp));
+                        return;
+                    }
+                }
             }
         });
 
@@ -95,32 +151,73 @@ export default function Messenger() {
             socket.off("users");
             socket.off("user connected");
             socket.off("user disconnected");
-            socket.off("private message");
         }
-    }, [selectedUser, users]);
+    }, [chats]);
 
-    function handleMessageSubmit(message) {
-        if (selectedUser) {
-            socket.emit("private message", {
-                text: message,
-                to: selectedUser._id,
+    useEffect(() => {
+        socket.on("message", ({text, from, to, date}) => {
+            let temp = chats.get(to);
+
+            const receivedMessage = {
+                _id: nextMessageId++,
+                text: text,
+                sender: temp.users.get(from),
+                chatId: temp._id,
+                datetime: date
+            };
+
+            temp.messages.push(receivedMessage);
+            temp.lastMessage = receivedMessage;
+
+            const tempChats = chats;
+            tempChats.get(temp._id).lastMessage = receivedMessage;
+
+            if (selectedChat && selectedChat._id === temp._id) {
+                setSelectedChat({...temp});
+            }
+            setChats(new Map(tempChats));
+        });
+
+        return () => {
+            socket.off("message");
+        }
+    }, [selectedChat, chats]);
+
+    function handleMessageSubmit(text) {
+        if (selectedChat) {
+            socket.emit("message", {
+                text: text,
+                to: selectedChat._id,
                 date: Date.now()
             });
 
-            selectedUser.messages.push({
-                text: message,
-                fromSelf: true,
-                date: Date.now()
+            const temp = selectedChat;
+            const newMessage = {
+                _id: nextMessageId++,
+                text: text,
+                sender: currentUser,
+                chatId: selectedChat._id,
+                datetime: Date.now()
+            };
+
+            temp.messages.push(newMessage);
+
+            const to = selectedChat.isGroup ? selectedChat._id : selectedChat.interlocutor._id;
+            chatService.saveMessage(text, currentUser._id, to, selectedChat._id, Date.now()).then(message => {
+
             });
 
-            setUsers([
-                ...users
-            ]);
+            const tempChats = chats;
+            tempChats.get(selectedChat._id).lastMessage = newMessage;
+
+            setSelectedChat({...temp});
+            setChats(new Map(tempChats));
         }
     }
 
     function handleCloseContactClick() {
-        setSelectedUser(null);
+        //setSelectedUser(null);
+        setSelectedChat(null);
     }
 
     return (
@@ -135,20 +232,21 @@ export default function Messenger() {
                 </div>
                 <div className="left-side__user-tabs">
                     {
-                        users.map(
-                            user => user._id !== currentUser._id &&
-                                <UserTab
-                                    onChatTabClick={() => {
-                                        setSelectedUser(user);
-                                    }}
-                                    key={user._id}
-                                    user={user}/>
+                        Array.from(chats, ([key, value]) => (value)).map(chat =>
+                            <ChatTab
+                                key={chat._id}
+                                chat={chat}
+                                onChatTabClick={() => {
+                                    setSelectedChat({
+                                        ...chat
+                                    });
+                                }}/>
                         )
                     }
                 </div>
             </div>
             <Chat
-                selectedContact={selectedUser}
+                selectedChat={selectedChat}
                 currentUser={currentUser}
                 onMessageSubmit={handleMessageSubmit}
                 onCloseContactClick={handleCloseContactClick}/>

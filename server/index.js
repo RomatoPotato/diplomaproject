@@ -10,6 +10,7 @@ const config = require("./config");
 
 const usersRoute = require("./routes/users_route");
 const eiRoute = require("./routes/ei_route");
+const chatRoute = require("./routes/chat_route");
 const errorMiddleware = require("./middlewares/ErrorMiddleware");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(cors({
 
 app.use("/api/users", usersRoute);
 app.use("/api/ei", eiRoute);
+app.use("/api/chats", chatRoute);
 
 app.use(errorMiddleware);
 
@@ -45,24 +47,28 @@ const io = new Server(httpServer, {
 io.use((socket, next) => {
     const user = socket.handshake.auth.user;
 
-    socket.user = {
-        ...user,
-        messages: []
-    };
+    socket.user = user;
 
     next();
 });
 
 io.on("connection", (socket) => {
-    console.log(`User ${socket.user.name} connected!`);
+    console.log(`User ${socket.user.name} ${socket.user.surname} connected!`)
     socket.join(socket.user._id);
 
-    const users = [];
-    for (let [_, socket] of io.of("/").sockets){
-        users.push(socket.user);
-    }
+    socket.on("join_room", (room) => {
+        socket.join(room);
+    });
 
-    socket.emit("users", users);
+    socket.on("check users", () => {
+        const users = [];
+        for (let [_, socket] of io.of("/").sockets){
+            users.push(socket.user);
+        }
+
+        socket.emit("users", users);
+    });
+
     socket.broadcast.emit("user connected", socket.user);
 
     socket.on("disconnect", async () => {
@@ -71,17 +77,18 @@ io.on("connection", (socket) => {
 
         if (isDisconnected) {
             socket.broadcast.emit("user disconnected", socket.user._id);
-            console.log(`User ${socket.user.name} disconnected!`);
+            console.log(`User ${socket.user.name} ${socket.user.surname} disconnected!`)
         }
     });
 
-    socket.on("private message", ({text, to, date}) => {
-        socket.to(to).emit("private message", {
+    socket.on("message", ({text, to, date}) => {
+        socket.to(to).emit("message", {
             text: text,
             from: socket.user._id,
+            to: to,
             date: date
         });
-    })
+    });
 });
 
 httpServer.listen(config.server.port);

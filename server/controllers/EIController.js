@@ -2,6 +2,7 @@ const Specialty = require("../models/Specialty");
 const Group = require("../models/Group");
 const User = require("../models/User");
 const VLS = require("../models/VLS");
+const Chat = require("../models/Chat");
 const bcrypt = require("bcryptjs");
 
 const updateOptions = {
@@ -140,11 +141,41 @@ class EIController {
         }
     }
 
+    async getVLS(req, res, next){
+        try {
+            const id = req.params.id;
+
+            const vls = await VLS.findById(id).populate({
+                path: "group",
+                populate: ["students", "specialty"]
+            }).populate("chats");
+
+            res.json(vls);
+        }catch (err){
+            next(err);
+        }
+    }
+
     async addVLS(req, res, next){
         try {
-            const group = req.body.group;
+            const groupId = req.body.groupId;
+
+            const group = await Group.findById(groupId);
+            const mainChat = await Chat.create({
+                name: group.name,
+                users: group.students,
+                isMain: true
+            });
+
+            for (const student of group.students){
+                await User.findByIdAndUpdate(student._id, {
+                    chats: [mainChat]
+                });
+            }
+
             const added = await VLS.create({
-                group
+                group,
+                chats: [mainChat]
             });
 
             res.json(added);
@@ -203,6 +234,22 @@ class EIController {
             }
 
             res.json(loginsAndPasswords);
+        }catch (err){
+            next(err);
+        }
+    }
+
+    async getAllChats(req, res, next){
+        try {
+            const userId = req.params.userId;
+
+            const chats = await Chat.find({
+                users: {
+                    "_id": userId
+                }
+            });
+
+            res.json(chats);
         }catch (err){
             next(err);
         }

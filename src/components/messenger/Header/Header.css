@@ -7,14 +7,13 @@
   box-shadow: 0 3px 5px gray;
   z-index: 1;
 }
-.chat-header__username {
+.chat-header__name {
   color: #0167da;
 }
 .chat-header__icon {
   width: 25px;
 }
-
-.contact-info {
+.chat-header__info {
   display: flex;
 }
 

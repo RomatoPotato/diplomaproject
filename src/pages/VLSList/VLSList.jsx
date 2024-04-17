@@ -1,6 +1,6 @@
 import React from 'react';
 import EIService from "../../services/EIService";
-import {useLoaderData} from "react-router-dom";
+import {Form, useLoaderData} from "react-router-dom";
 
 export async function loader() {
     const vlss = await EIService.getVLSs();
@@ -9,7 +9,7 @@ export async function loader() {
     return vlss;
 }
 
-const VirtualLearningSpaces = () => {
+const VLSList = () => {
     const vlss = useLoaderData();
 
     return (
@@ -33,6 +33,9 @@ const VirtualLearningSpaces = () => {
                                 console.log(loginsAndPasswords);
                             }}>Сгенерировать пароли
                             </button>
+                            <Form action={vls._id}>
+                                <button>Открыть</button>
+                            </Form>
                         </td>
                     </tr>
                 )}
@@ -45,4 +48,4 @@ const VirtualLearningSpaces = () => {
     );
 };
 
-export default VirtualLearningSpaces;
+export default VLSList;

@@ -8,6 +8,7 @@ const apiEIPath = "api/ei/"
 const specialtiesRoute = apiEIPath + "specialties/";
 const groupsRoute = apiEIPath + "groups/";
 const vlssRoute = apiEIPath + "vlss/";
+const chatsRoute = apiEIPath + "chats/";
 
 export default class EIService {
     static async getSpecialties(){
@@ -58,9 +59,13 @@ export default class EIService {
         return (await axiosInstance.get(vlssRoute)).data;
     }
 
-    static async addVLS(group){
+    static async getVLS(id){
+        return (await axiosInstance.get(vlssRoute + id)).data;
+    }
+
+    static async addVLS(groupId){
         return (await axiosInstance.post(vlssRoute, {
-            group
+            groupId
         })).data;
     }
 

@@ -2,19 +2,22 @@ import React from 'react';
 import "./Header.css";
 
 import user_icon from "../../../images/user.png";
+import group_icon from "../../../images/group.png";
 
-const Header = ({selectedContact, onCloseButtonClick}) => {
-    let icon = selectedContact.icon;
+const Header = ({selectedChat, onCloseButtonClick}) => {
+    let icon = selectedChat.icon;
 
     if (!icon || icon === ""){
-        icon = user_icon;
+        icon = selectedChat.isGroup ? group_icon : user_icon;
     }
 
     return (
         <div className="chat-header">
-            <div className="contact-info">
-                <span className="chat-header__username">{selectedContact.name} {selectedContact.surname}</span>
+            <div className="chat-header__info">
                 <img className="chat-header__icon" alt="" src={icon}/>
+                <span className="chat-header__name">{
+                    selectedChat.chatName
+                }</span>
             </div>
             <button onClick={onCloseButtonClick}>Закрыть</button>
         </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import "./style.css"
-import Messenger from "./pages/Messenger/Messenger";
+import Messenger, {loader as messengerLoader} from "./pages/Messenger/Messenger";
 import Login from "./pages/Login/Login"
 import {AuthProvider} from "./contexts/AuthContext";
 import {
@@ -11,13 +11,14 @@ import {
 } from "react-router-dom";
 import authService from "./services/AuthService";
 import Chat from "./components/messenger/Chat/Chat";
-import socket from "./util/socket";
 import AdminPage from "./pages/AdminPage/AdminPage";
 import CreateVLS, {action as createVLSAction} from "./pages/CreateVLS/CreateVLS";
 import CreateGroup, {action as createGroupAction} from "./pages/CreateGroup/CreateGroup";
 import Specialties, {loader as specialtiesLoader} from "./pages/Specilaties/Specialties";
 import Groups, {loader as groupsLoader} from "./pages/Groups/Groups";
-import VirtualLearningSpaces, {loader as VLSsLoader} from "./pages/VirtualLearingSpaces/VirtualLearningSpaces";
+import VLSList, {loader as VLSsLoader} from "./pages/VLSList/VLSList";
+import VirtualLearningSpace, {loader as VLSLoader} from "./pages/VirtualLearningSpace/VirtualLearningSpace";
+import socket from "./util/socket";
 
 const router = createBrowserRouter([
     {
@@ -29,6 +30,15 @@ const router = createBrowserRouter([
             if (!user){
                 return redirect("/login");
             }
+            socket.auth = {
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    surname: user.surname,
+                    online: true
+                }
+            };
+            socket.connect();
 
             return redirect("/messenger");
         }
@@ -49,21 +59,7 @@ const router = createBrowserRouter([
     {
         path: "messenger",
         element: <Messenger/>,
-        async loader(){
-            const user = await authService.checkAuth();
-
-            if (!user){
-                return redirect("/login");
-            }
-
-            socket.auth = {
-                user
-            };
-
-            socket.connect();
-
-            return user;
-        },
+        loader: messengerLoader,
         children: [
             {
                 index: true,
@@ -87,8 +83,13 @@ const router = createBrowserRouter([
             },
             {
                 path: "virtual-learning-spaces",
-                element: <VirtualLearningSpaces/>,
+                element: <VLSList/>,
                 loader: VLSsLoader
+            },
+            {
+                path: "virtual-learning-spaces/:id",
+                element: <VirtualLearningSpace/>,
+                loader: VLSLoader
             },
             {
                 path: "create-group",
