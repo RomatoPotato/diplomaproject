@@ -1,11 +1,11 @@
-import axiosInstance from "../util/AxiosInstance";
+import axiosInstance from "../utils/AxiosInstance";
 
 export default class AuthService {
     static async login(login, password){
         return (await axiosInstance.post("api/users/login", {
             login,
             password
-        })).data;
+        }));
     }
 
     static async logout(){

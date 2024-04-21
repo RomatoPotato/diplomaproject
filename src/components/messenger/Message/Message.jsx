@@ -18,9 +18,10 @@ export default function Message({ sender, text, date, self }) {
             <p className="message__text">{text}</p>
             <p className={"message__date" + (self ? " self" : "")}>
                 {
-                    new Date(date).toLocaleDateString("ru-RU")
-                    + " "
-                    + new Date(date).toLocaleTimeString("ru-RU")
+                    new Date(date).toLocaleTimeString("ru-RU", {
+                        hour: "numeric",
+                        minute: "numeric"
+                    })
                 }
             </p>
         </div>

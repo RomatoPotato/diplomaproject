@@ -8,7 +8,7 @@ router.post("/login", usersController.login);
 router.post("/checkAuth", usersController.checkAuth);
 router.post("/logout", usersController.logout);
 router.get("/refresh", usersController.refresh);
-router.get("/", authMiddleware, usersController.getAllUsers);
-router.get("/:id", usersController.getUser);
+router.get("/:login", usersController.getUser);
+router.post("/updateLoginData", usersController.updateLoginData);
 
 module.exports = router;

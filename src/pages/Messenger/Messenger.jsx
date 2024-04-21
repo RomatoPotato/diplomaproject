@@ -1,8 +1,8 @@
 import "./Messenger.css"
 import ChatTab from "../../components/messenger/ChatTab/ChatTab";
 import {useEffect, useState} from "react";
-import socket from "../../util/socket";
-import {redirect, useLoaderData} from "react-router-dom";
+import socket from "../../utils/socket";
+import {Link, redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
 import chatService from "../../services/ChatService";
 import authService from "../../services/AuthService";
@@ -32,18 +32,35 @@ export async function loader() {
             }
         }
 
+        let lastMessage;
         const chatName = chat.isGroup ? chat.name : interlocutor.name + " " + interlocutor.surname;
-        let messages = await chatService.getMessages(chat._id);
+        let messagesMap = new Map(
+            (await chatService.getMessages(chat._id)).map(({_id, messages}) => {
+                lastMessage = messages.at(-1);
+                return [_id.datetime, messages]
+            })
+        );
 
-        for (let i = 0; i < messages.length; i++) {
-            const message = messages[i];
+        for (let i = 0; i < messagesMap.length; i++) {
+            const dateMessagesMap = new Map();
+            const datetime = messagesMap[i]._id.datetime;
+            const messages = messagesMap[i].messages
 
-            messages[i] = {
-                _id: message._id,
-                text: message.text,
-                sender: chat.isGroup ? message.from : message.from._id === currentUser._id ? currentUser : interlocutor,
-                chatId: message.chatId,
-                datetime: message.datetime
+            dateMessagesMap.set(datetime, messages);
+            messagesMap[i] = dateMessagesMap;
+
+            for (let j = 0; j < messages.length; j++) {
+                let message = messages[j];
+
+                messages[j] = {
+                    _id: message._id,
+                    text: message.text,
+                    sender: chat.isGroup ? message.from : message.from._id === currentUser._id ? currentUser : interlocutor,
+                    chatId: message.chatId,
+                    datetime: message.datetime
+                }
+
+                lastMessage = messages[j];
             }
         }
 
@@ -61,8 +78,8 @@ export async function loader() {
             isGroup: chat.isGroup,
             users: users,
             interlocutor: interlocutor,
-            messages: messages,
-            lastMessage: messages.at(-1)
+            messages: messagesMap,
+            lastMessage: lastMessage
         });
     }
 
@@ -166,15 +183,30 @@ export default function Messenger() {
                 datetime: date
             };
 
-            temp.messages.push(receivedMessage);
+            const formattedSendDate = new Date(date).toLocaleDateString("ru-RU", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric"
+            });
+
+            if (!temp.messages.get(formattedSendDate)){
+                temp.messages.set(formattedSendDate, [receivedMessage]);
+            }else {
+                temp.messages.get(formattedSendDate).push(receivedMessage);
+            }
             temp.lastMessage = receivedMessage;
 
             const tempChats = chats;
             tempChats.get(temp._id).lastMessage = receivedMessage;
 
+            if (!selectedChat || selectedChat._id !== temp._id) {
+                tempChats.get(temp._id).hasNewMessages = true;
+            }
+
             if (selectedChat && selectedChat._id === temp._id) {
                 setSelectedChat({...temp});
             }
+
             setChats(new Map(tempChats));
         });
 
@@ -185,10 +217,12 @@ export default function Messenger() {
 
     function handleMessageSubmit(text) {
         if (selectedChat) {
+            const sendDate = new Date();
+
             socket.emit("message", {
                 text: text,
                 to: selectedChat._id,
-                date: Date.now()
+                date: sendDate
             });
 
             const temp = selectedChat;
@@ -197,13 +231,23 @@ export default function Messenger() {
                 text: text,
                 sender: currentUser,
                 chatId: selectedChat._id,
-                datetime: Date.now()
+                datetime: sendDate
             };
 
-            temp.messages.push(newMessage);
+            const formattedSendDate = sendDate.toLocaleDateString("ru-RU", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric"
+            });
+
+            if (!temp.messages.get(formattedSendDate)){
+                temp.messages.set(formattedSendDate, [newMessage]);
+            }else {
+                temp.messages.get(formattedSendDate).push(newMessage);
+            }
 
             const to = selectedChat.isGroup ? selectedChat._id : selectedChat.interlocutor._id;
-            chatService.saveMessage(text, currentUser._id, to, selectedChat._id, Date.now()).then(message => {
+            chatService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate).then(message => {
 
             });
 
@@ -228,21 +272,20 @@ export default function Messenger() {
                         <p>{currentUser.name} {currentUser.surname}</p>
                         <b>{currentUser.login}</b>
                     </div>
-                    <img src={currentUser.icon} alt=""/>
+                    <Link to="../account" ><img src={currentUser.icon} alt=""/></Link>
                 </div>
                 <div className="left-side__user-tabs">
-                    {
-                        Array.from(chats, ([key, value]) => (value)).map(chat =>
-                            <ChatTab
-                                key={chat._id}
-                                chat={chat}
-                                onChatTabClick={() => {
-                                    setSelectedChat({
-                                        ...chat
-                                    });
-                                }}/>
-                        )
-                    }
+                    {Array.from(chats, ([key, value]) => (value)).map(chat =>
+                        <ChatTab
+                            key={chat._id}
+                            chat={chat}
+                            onChatTabClick={() => {
+                                chat.hasNewMessages = false;
+                                setSelectedChat({
+                                    ...chat
+                                });
+                            }}/>
+                    )}
                 </div>
             </div>
             <Chat

@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import Message from "../Message/Message";
 import Header from "../Header/Header";
 import ChatInput from "../ChatInput/ChatInput";
 import "./Chat.css";
 import ChatService from "../../../services/ChatService";
+import DateHelper from "../../../utils/DateHelper";
 
-const Chat = ({ selectedChat, currentUser, onMessageSubmit, onCloseContactClick}) => {
+const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseContactClick}) => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
@@ -16,46 +17,26 @@ const Chat = ({ selectedChat, currentUser, onMessageSubmit, onCloseContactClick}
 
     return (
         <div className="chat">
-            {/*selectedContact ?
-                <>
-                    <Header selectedContact={selectedContact} onCloseButtonClick={onCloseContactClick}/>
-                    <div className="chat__space">
-                        <div className="chat__wrapper">
-                            {selectedContact && selectedContact.messages.map(message => {
-                                return <Message
-                                    key={message.text}
-                                    sender={message.fromSelf ? currentUser : selectedContact}
-                                    text={message.text}
-                                    self={message.fromSelf}
-                                    date={message.date}/>
-                            })}
-                        </div>
-                    </div>
-                    <ChatInput onMessageSubmit={onMessageSubmit}/>
-                </> :*/}
             {selectedChat ?
                 <>
                     <Header selectedChat={selectedChat} onCloseButtonClick={onCloseContactClick}/>
                     <div className="chat__space">
                         <div className="chat__wrapper">
-                            {/*{selectedChat && selectedChat.messages.map(message => {
-                                return <Message
-                                    key={message.text}
-                                    sender={message.fromSelf && currentUser}
-                                    text={message.text}
-                                    self={message.fromSelf}
-                                    date={message.date}/>
-                            })}*/}
-                            {
-                                messages.map(message => {
-                                    return <Message
-                                        key={message._id}
-                                        sender={message.sender}
-                                        text={message.text}
-                                        self={message.sender._id === currentUser._id}
-                                        date={message.datetime}/>
-                                })
-                            }
+                            {Array.from(messages, ([datetime, messages]) => ({datetime, messages})).map(msg =>
+                                <Fragment key={msg.datetime}>
+                                    <h2 style={{textAlign: "center"}}><b><i>{DateHelper.getDayMonth(msg.datetime)}</i></b></h2>
+                                    {
+                                        msg.messages.map(message => {
+                                            return <Message
+                                                key={message._id}
+                                                sender={message.sender}
+                                                text={message.text}
+                                                self={message.sender._id === currentUser._id}
+                                                date={message.datetime}/>
+                                        })
+                                    }
+                                </Fragment>
+                            )}
                         </div>
                     </div>
                     <ChatInput onMessageSubmit={onMessageSubmit}/>

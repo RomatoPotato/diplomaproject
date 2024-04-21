@@ -1,4 +1,4 @@
-import axiosInstance from "../util/AxiosInstance";
+import axiosInstance from "../utils/AxiosInstance";
 
 export default class ChatService{
     static async createChat(user1Id, user2id){

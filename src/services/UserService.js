@@ -1,11 +1,15 @@
-import axiosInstance from "../util/AxiosInstance";
+import axiosInstance from "../utils/AxiosInstance";
 
 export default class UserService {
-    static async getUsers(){
-        return (await axiosInstance.get("api/users")).data;
+    static async getUser(login){
+        return (await axiosInstance.get("api/users/" + login)).data;
     }
 
-    static async getUser(userId){
-        return (await axiosInstance.get("api/users/" + userId)).data;
+    static async updateLoginData(userId, login, password){
+        return (await axiosInstance.post("api/users/updateLoginData", {
+            userId,
+            login,
+            password
+        }));
     }
 }

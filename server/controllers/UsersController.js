@@ -6,12 +6,9 @@ class UsersController {
     async registration(req, res, next){
         try {
             const {name, surname, login, password} = req.body;
-            const user = await usersService.registration(name, surname, login, password);
+            const registered = await usersService.registration(name, surname, login, password);
 
-            res.status(200).json({
-                message: `User with login '${login}' is registered!`,
-                user
-            });
+            res.json(registered);
         }catch (err){
             next(err);
         }
@@ -22,7 +19,11 @@ class UsersController {
             const login = req.body.login;
             const password = req.body.password;
 
-            const user = await usersService.login(login, password);
+            const user = await usersService.checkLoginData(login, password);
+
+            if (user.isFirstLogin){
+                await usersService.setIsFirstLoginFalse(user._id);
+            }
 
             const accessToken = tokenService.generateAccessToken(getPayload(user));
             const refreshToken = tokenService.generateRefreshToken(getPayload(user));
@@ -30,7 +31,7 @@ class UsersController {
             res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
             res.cookie("access_token", accessToken, accessTokenCookieOptions);
 
-            res.status(200).json(user);
+            res.json(user);
         }catch (err){
             next(err);
         }
@@ -41,7 +42,7 @@ class UsersController {
             const refreshToken = req.cookies.refresh_token;
             const user = await usersService.checkAuth(refreshToken);
 
-            res.status(200).json(user);
+            res.json(user);
         }catch (err){
             next(err);
         }
@@ -50,8 +51,10 @@ class UsersController {
     async logout(req, res, next){
         try {
             res.clearCookie("refresh_token");
+            res.clearCookie("access_token");
 
             res.status(200);
+            res.end();
         }catch (err){
             next(err);
         }
@@ -68,22 +71,26 @@ class UsersController {
         }
     }
 
-    async getAllUsers(req, res, next){
+    async getUser(req, res, next){
         try {
-            const users = await usersService.getAllUsers();
+            const user = await usersService.getUser(req.params.login);
 
-            res.status(200).json(users);
-        }catch (err){
+            res.json(user);
+        } catch (err) {
             next(err);
         }
     }
 
-    async getUser(req, res, next){
-        try {
-            const user = await usersService.getUser(req.params.id);
+    async updateLoginData(req, res, next){
+        try{
+            const userId = req.body.userId;
+            const login = req.body.login;
+            const password = req.body.password;
 
-            res.status(200).json(user);
-        } catch (err) {
+            const updated = await usersService.updateLoginData(userId, login, password);
+
+            res.json(updated);
+        }catch (err){
             next(err);
         }
     }

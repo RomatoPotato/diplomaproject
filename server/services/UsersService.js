@@ -4,6 +4,11 @@ const User = require("../models/User");
 const ApiError = require("../utils/exceptions/ApiError");
 const tokenService = require("../services/TokensService");
 
+const updateOptions = {
+    returnDocument: "after",
+    upsert: false // вставляет новый документ, если этот не найден
+}
+
 class UsersService {
     async registration(name, surname, login, password) {
         const checkedUser = await User.findOne({login});
@@ -11,8 +16,7 @@ class UsersService {
             throw ApiError.BadRequest(`User with login ${login} already exists!`);
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(password, salt);
+        const hash = generatePasswordHash(password);
 
         const user = await User.create({
             name,
@@ -24,7 +28,7 @@ class UsersService {
         return user;
     }
 
-    async login(login, password){
+    async checkLoginData(login, password){
         const user = await User.findOne({login});
         if (!user) {
             throw ApiError.NotFound(`User with login ${login} not found!`)
@@ -64,19 +68,45 @@ class UsersService {
             throw ApiError.UnauthorizedError();
         }
 
-        const user = await this.getUser(userData.id);
+        const user = await User.findById(userData.id);
         const accessToken = tokenService.generateAccessToken(getPayload(user));
 
         return accessToken;
     }
-
+/*
     async getAllUsers(){
         return User.find();
+    }*/
+
+    async getUser(login){
+        const user = await User.findOne({login})
+        return user;
     }
 
-    async getUser(id){
-        return User.findById(id);
+    async setIsFirstLoginFalse(id){
+        const user = await User.findByIdAndUpdate(id, {
+            isFirstLogin: false
+        }, updateOptions);
+        return user;
     }
+
+    async updateLoginData(id, login, password){
+        const hash = generatePasswordHash(password);
+
+        const updated = await User.findByIdAndUpdate(id, {
+            login,
+            password: hash
+        }, updateOptions);
+
+        return updated;
+    }
+}
+
+function generatePasswordHash(password){
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+
+    return hash;
 }
 
 module.exports = new UsersService();

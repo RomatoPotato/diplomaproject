@@ -2,7 +2,7 @@
     Educational Institute Service - сервис для управления всем связанным с учебным заведением функционалом
  */
 
-import axiosInstance from "../util/AxiosInstance";
+import axiosInstance from "../utils/AxiosInstance";
 
 const apiEIPath = "api/ei/"
 const specialtiesRoute = apiEIPath + "specialties/";

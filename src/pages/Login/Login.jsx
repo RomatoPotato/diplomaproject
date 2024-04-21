@@ -1,70 +1,30 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Navigate} from "react-router-dom";
+import React from 'react';
 import './Login.css'
+import {Form, redirect} from "react-router-dom";
+import AuthService from "../../services/AuthService";
 
-import {useAuth, useAuthDispatch} from "../../contexts/AuthContext";
-import socket from "../../util/socket";
-import authService from "../../services/AuthService";
+export async function action({request}){
+    const formData = await request.formData();
+    const login = formData.get("login");
+    const password = formData.get("password");
 
-const Login = () => {
-    const [hasUser, setHasUser] = useState(true);
+    const loginRequest = await AuthService.login(login, password);
 
-    const authDispatch = useAuthDispatch();
-    const auth = useAuth();
+    if (loginRequest.status === 200){
+        if (loginRequest.data.isFirstLogin){
+            return redirect("../change_user_data");
+        }
 
-    // useEffect(() => {
-    //     let ignore = false;
-    //
-    //     if (login !== "") {
-    //         (async () => {
-    //             const user = authService.login();
-    //
-    //             if (user && !ignore) {
-    //                 setHasUser(true);
-    //
-    //                 authDispatch({
-    //                     type: "auth_succeed",
-    //                     user: user
-    //                 });
-    //
-    //                 socket.auth = {username: user.name, user: user}
-    //                 socket.connect();
-    //             } else {
-    //                 setHasUser(false);
-    //             }
-    //         })();
-    //     }
-    //
-    //     return () => {
-    //         ignore = true;
-    //     }
-    // }, [ authDispatch]);
-
-    if (auth?.user !== null) {
-        return <Navigate to="/messenger"/>;
+        return redirect("../messenger");
     }
 
+    return null;
+}
+
+const Login = () => {
     return (
         <div className="registration-form">
-            <form onSubmit={async (e) => {
-                e.preventDefault();
-                const login = e.target.login.value;
-                const password = e.target.password.value;
-
-                //console.log(authService.checkAuth());
-
-                const user = (await authService.login(login, password));
-
-                if (user) {
-                    setHasUser(true);
-
-                    authDispatch({
-                        type: "auth_succeed",
-                        user: user
-                    });
-                }
-
-            }}>
+            <Form method="post">
                 <input
                     name="login"
                     autoFocus={true}
@@ -76,7 +36,7 @@ const Login = () => {
                     className="username-input"
                     placeholder="Введите наисекретнейший пароль" />
                 <input type="submit"/>
-            </form>
+            </Form>
             {/*{(!hasUser && login !== "") && <div className="error-message">Пользователя {login} не существует!</div>}*/}
         </div>
     );
