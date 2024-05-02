@@ -5,7 +5,7 @@ const { host, port } = config.server;
 
 const instance = axios.create({
     withCredentials: true,
-    baseURL: `${host}:${port}`
+    baseURL: `${host}:${port}/api`
 });
 
 instance.interceptors.request.use((axiosRequestConfig) => {

@@ -3,31 +3,9 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const ApiError = require("../utils/exceptions/ApiError");
 const tokenService = require("../services/TokensService");
-
-const updateOptions = {
-    returnDocument: "after",
-    upsert: false // вставляет новый документ, если этот не найден
-}
+const config = require("../config");
 
 class UsersService {
-    async registration(name, surname, login, password) {
-        const checkedUser = await User.findOne({login});
-        if (checkedUser) {
-            throw ApiError.BadRequest(`User with login ${login} already exists!`);
-        }
-
-        const hash = generatePasswordHash(password);
-
-        const user = await User.create({
-            name,
-            surname,
-            login,
-            password: hash
-        });
-
-        return user;
-    }
-
     async checkLoginData(login, password){
         const user = await User.findOne({login});
         if (!user) {
@@ -73,20 +51,11 @@ class UsersService {
 
         return accessToken;
     }
-/*
-    async getAllUsers(){
-        return User.find();
-    }*/
-
-    async getUser(login){
-        const user = await User.findOne({login})
-        return user;
-    }
 
     async setIsFirstLoginFalse(id){
         const user = await User.findByIdAndUpdate(id, {
             isFirstLogin: false
-        }, updateOptions);
+        }, config.updateOptions);
         return user;
     }
 
@@ -96,7 +65,7 @@ class UsersService {
         const updated = await User.findByIdAndUpdate(id, {
             login,
             password: hash
-        }, updateOptions);
+        }, config.updateOptions);
 
         return updated;
     }

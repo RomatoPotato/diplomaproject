@@ -6,7 +6,11 @@ const VLSSchema = mongoose.Schema({
         ref: "Group",
         unique: true
     },
-    chats: [{
+    mainChat: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Chat"
+    },
+    currentSemesterChats: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat"
     }]

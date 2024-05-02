@@ -15,6 +15,11 @@ const GroupSchema = mongoose.Schema({
         type: Number,
         require: true
     },
+    curator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Teacher",
+        require: true
+    },
     students: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"

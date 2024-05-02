@@ -13,24 +13,42 @@ const AdminPage = () => {
                 <div className="menu-buttons">
                     <p>Виртуальные учебные пространства</p>
                     <Form action="virtual-learning-spaces">
-                        <button type="submit">Список</button>
+                        <input type="submit" value="Список" />
                     </Form>
                     <Form action="create-vls">
-                        <button type="submit">Создать пространство</button>
+                        <input type="submit" value="Создать пространство" />
+                    </Form>
+                    <Form action="admins">
+                        <input type="submit" value="Админы" />
                     </Form>
                     <p>Группы</p>
                     <Form action="groups">
-                        <button type="submit">Все группы</button>
+                        <input type="submit" value="Все группы" />
                     </Form>
                     <Form action="create-group">
-                        <button type="submit">Добавить группу</button>
+                        <input type="submit" value="Добавить группу" />
                     </Form>
                     <Form action="specialties">
-                        <button type="submit">Специальности</button>
+                        <input type="submit" value="Специальности" />
+                    </Form>
+                    <p>ВУЗ</p>
+                    <Form action="teachers">
+                        <input type="submit" value="Преподаватели" />
+                    </Form>
+                    <Form action="academic_disciplines">
+                        <input type="submit" value="Учебные дисциплины" />
+                    </Form>
+                    <Form action="curriculums">
+                        <input type="submit" value="Учебные планы" />
+                    </Form>
+                    <Form action="staff">
+                        <input type="submit" value="Сотрудники университета" />
                     </Form>
                 </div>
             </div>
-            <Outlet />
+            <div className="content">
+                <Outlet />
+            </div>
         </div>
     );
 };

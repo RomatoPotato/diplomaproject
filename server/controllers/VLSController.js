@@ -1,0 +1,175 @@
+const VLS = require("../models/VLS");
+const config = require("../config");
+const Group = require("../models/Group");
+const Chat = require("../models/Chat");
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const VLSService = require("../services/VLSService");
+const groupServce = require("../services/GroupsService");
+
+class VLSController {
+    async getAllVLSs(req, res, next) {
+        try {
+            const VLSs = await VLS.aggregate([
+                {
+                    $lookup: {
+                        from: "groups",
+                        localField: "group",
+                        foreignField: "_id",
+                        as: "group"
+                    }
+                },
+                {
+                    $unwind: "$group"
+                },
+                {
+                    $lookup: {
+                        from: "chats",
+                        localField: "mainChat",
+                        foreignField: "_id",
+                        as: "mainChat"
+                    }
+                },
+                {
+                    $unwind: "$mainChat"
+                },
+                {
+                    $lookup: {
+                        from: "chats",
+                        localField: "currentSemesterChats",
+                        foreignField: "_id",
+                        as: "currentSemesterChats"
+                    }
+                },
+            ]);
+
+            res.json(VLSs);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async getVLS(req, res, next) {
+        try {
+            const id = req.params.id;
+
+            const vls = await VLSService.getVLS(id);
+
+            res.json(vls);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async addVLS(req, res, next) {
+        try {
+            const groupId = req.body.groupId;
+            const admins = req.body.admins;
+
+            const group = await Group.findById(groupId);
+
+            const mainChat = await Chat.create({
+                name: group.name,
+                users: group.students.concat(admins).concat([group.curator._id]),
+                isGroup: true
+            });
+
+            const added = await VLS.create({
+                group,
+                mainChat: mainChat
+            });
+
+            res.json(added);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async editVLS(req, res, next) {
+        try {
+            const id = req.body.id;
+            const group = req.body.group;
+            const edited = await VLS.findByIdAndUpdate(id, {
+                group
+            }, config.updateOptions);
+
+            res.json(edited);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async deleteVLS(req, res, next) {
+        try {
+            const id = req.params.id;
+            const deleted = await VLS.findByIdAndDelete(id);
+
+            res.json(deleted);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async generatePasswords(req, res, next) {
+        try {
+            const groupId = req.params.id;
+            const students = (await groupServce.getGroup(groupId)).students;
+
+            const loginsAndPasswords = [];
+            for (const student of students) {
+                const middlename = student.middlename ? student.middlename : "";
+
+                if (student.isFirstLogin) {
+                    const salt = await bcrypt.genSalt(10);
+                    const hash = await bcrypt.hash(student._id.toString(), salt);
+
+                    await User.findByIdAndUpdate(student._id, {
+                        login: student._id,
+                        password: hash
+                    }, config.updateOptions);
+
+                    loginsAndPasswords.push({
+                        student: (student.surname + " " + student.name + " " + middlename).trim(),
+                        login: student._id,
+                        password: student._id
+                    })
+                }
+            }
+
+            res.json(loginsAndPasswords);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async addStudyChats(req, res, next){
+        try {
+            const vlsId = req.body.vlsId;
+            const disciplines = req.body.disciplines;
+            const teachers = req.body.teachers;
+            const vls = await VLSService.getVLS(vlsId);
+
+            const studyChats = [];
+            for (let i = 0; i < disciplines.length; i++){
+                const newChat = await Chat.create({
+                    name: disciplines[i],
+                    users: vls.group.students.concat([teachers[i]]),
+                    isGroup: true
+                });
+                studyChats.push(newChat._id);
+            }
+
+            const added = await VLS.findByIdAndUpdate(vlsId, {
+                $addToSet: {
+                    currentSemesterChats: studyChats
+                }
+            }, config.updateOptions);
+
+            res.json(added);
+        }catch (err){
+            next(err);
+        }
+    }
+}
+
+module.exports = new VLSController();

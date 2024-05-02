@@ -1,10 +1,9 @@
 import React from 'react';
 import {useLoaderData} from "react-router-dom";
-import EIService from "../../services/EIService";
+import GroupsService from "../../services/GroupsService";
 
 export async function loader() {
-    const groups = await EIService.getGroups();
-    groups.sort((s1, s2) => s1.year - s2.year);
+    const groups = await GroupsService.getGroups();
     return groups;
 }
 
@@ -21,6 +20,7 @@ const Groups = () => {
                     <th>Наименование</th>
                     <th>Специальность</th>
                     <th>Студенты</th>
+                    <th>Куратор</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -31,9 +31,15 @@ const Groups = () => {
                         <td>{group.specialty.name}</td>
                         <td>
                             {group.students.map(student =>
-                                <p key={student._id}>{student.name} {student.surname}</p>
+                                <p key={student._id}>
+                                    {student.name} {student.surname}{student.middlename && ` ${student.middlename}`}
+                                    {student.roles.map(role => role === "headman" &&
+                                        <b><i> (Староста)</i></b>
+                                    )}
+                                </p>
                             )}
                         </td>
+                        <td>{group.curator.surname} {group.curator.name} {group.curator.middlename}</td>
                     </tr>
                 )}
                 </tbody>

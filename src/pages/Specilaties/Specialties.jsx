@@ -1,19 +1,10 @@
 import React, {useRef, useState} from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import "./Specialties.css";
-
-import EIService from "../../services/EIService";
+import SpecialtiesService from "../../services/SpecialtiesService";
 
 export async function loader() {
-    const specialties = await EIService.getSpecialties();
-    specialties.sort((s1, s2) => {
-        const name1 = s1.name.toLowerCase();
-        const name2 = s2.name.toLowerCase();
-
-        if (name1 < name2) return -1;
-        if (name1 > name2) return 1;
-        return 0;
-    });
+    const specialties = await SpecialtiesService.getSpecialties();
 
     return specialties;
 }
@@ -49,7 +40,7 @@ const Specialties = () => {
 
                                         if (specialty.name === editedSpecialtyName) return;
 
-                                        await EIService.editSpecialty(specialty._id, editedSpecialtyName);
+                                        await SpecialtiesService.editSpecialty(specialty._id, editedSpecialtyName);
                                     }}>
                                         <input
                                             autoFocus
@@ -70,7 +61,7 @@ const Specialties = () => {
                             </Form>
                             <Form style={{display: "inline"}}>
                                 <button onClick={async () => {
-                                    await EIService.deleteSpecialty(specialty._id);
+                                    await SpecialtiesService.deleteSpecialty(specialty._id);
                                 }}>Удалить
                                 </button>
                             </Form>
@@ -86,7 +77,7 @@ const Specialties = () => {
                                     setIsAdding(false);
                                     setAddedSpecialtyName("");
 
-                                   await EIService.addSpecialty(addedSpecialtyName);
+                                   await SpecialtiesService.addSpecialty(addedSpecialtyName);
                                 }
                             }}>
                                 <label>Название:&nbsp;

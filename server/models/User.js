@@ -9,6 +9,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
+    middlename: {
+        type: String
+    },
     login: {
         type: String,
         unique: true
@@ -20,10 +23,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    role: {
+    roles: [{
         type: String,
         require: true
-    }
+    }]
 });
 
 module.exports = mongoose.model("User", UserSchema);

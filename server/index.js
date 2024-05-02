@@ -9,8 +9,15 @@ require("dotenv").config();
 const config = require("./config");
 
 const usersRoute = require("./routes/users_route");
-const eiRoute = require("./routes/ei_route");
-const chatRoute = require("./routes/chat_route");
+const vlssRoute = require("./routes/vlss_route");
+const chatsRoute = require("./routes/chats_route");
+const groupsRoute = require("./routes/groups_route");
+const adsRoute = require("./routes/ads_route");
+const specialtiesRoute = require("./routes/specialties_route");
+const teachersRoute = require("./routes/teachers_route");
+const curriculumRoute = require("./routes/curriculum_route");
+const staffRoute = require("./routes/staff_route");
+const rolesRoute = require("./routes/roles_route");
 const errorMiddleware = require("./middlewares/ErrorMiddleware");
 
 const app = express();
@@ -25,8 +32,15 @@ app.use(cors({
 }));
 
 app.use("/api/users", usersRoute);
-app.use("/api/ei", eiRoute);
-app.use("/api/chats", chatRoute);
+app.use("/api/vlss", vlssRoute);
+app.use("/api/chats", chatsRoute);
+app.use("/api/groups", groupsRoute);
+app.use("/api/academicDisciplines", adsRoute);
+app.use("/api/specialties", specialtiesRoute);
+app.use("/api/teachers", teachersRoute);
+app.use("/api/curriculums", curriculumRoute);
+app.use("/api/staff", staffRoute);
+app.use("/api/roles", rolesRoute);
 
 app.use(errorMiddleware);
 

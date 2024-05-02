@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import "./style.css"
+import "./style.css";
+import socket from "./utils/socket";
 import Messenger, {loader as messengerLoader} from "./pages/Messenger/Messenger";
 import Login, {action as loginAction} from "./pages/Login/Login"
 import {
@@ -10,15 +11,44 @@ import {
 } from "react-router-dom";
 import authService from "./services/AuthService";
 import AdminPage from "./pages/AdminPage/AdminPage";
-import CreateVLS, {action as createVLSAction} from "./pages/CreateVLS/CreateVLS";
-import CreateGroup, {action as createGroupAction} from "./pages/CreateGroup/CreateGroup";
+import CreateVLS, {
+    loader as createVLSLoader,
+    action as createVLSAction
+} from "./pages/CreateVLS/CreateVLS";
+import CreateGroup, {
+    loader as createGroupLoader,
+    action as createGroupAction
+} from "./pages/CreateGroup/CreateGroup";
 import Specialties, {loader as specialtiesLoader} from "./pages/Specilaties/Specialties";
 import Groups, {loader as groupsLoader} from "./pages/Groups/Groups";
 import VLSList, {loader as VLSsLoader} from "./pages/VLSList/VLSList";
-import VirtualLearningSpace, {loader as VLSLoader} from "./pages/VirtualLearningSpace/VirtualLearningSpace";
-import socket from "./utils/socket";
+import VirtualLearningSpace, {
+    loader as VLSLoader,
+    action as VLSAction
+} from "./pages/VirtualLearningSpace/VirtualLearningSpace";
 import AccountPage from "./pages/AccountPage/AccountPage";
 import ChangeUserData, {action as changeUserDataAction} from "./pages/ChangeUserData/ChangeUserData";
+import Teachers, {
+    loader as teachersLoader,
+    action as teachersAction
+} from "./pages/Teachers/Teachers";
+import AcademicDisciplines, {
+    loader as disciplinesLoader,
+    action as disciplinesAction
+} from "./pages/AcademicDisciplines/AcademicDisciplines";
+import Curriculums, {
+    loader as curriculumsLoader,
+    action as curriculumsAction
+} from "./pages/Curriculums/Curriculums";
+import Admins, {
+    loader as adminsModeratorsLoader,
+    action as adminsModeratorsAction
+} from "./pages/Admins/Admins";
+import UniversityStaff, {
+    loader as staffLoader,
+    action as staffAction
+} from "./pages/UniversityStaff/UniversityStaff";
+import Curriculum, {loader as curriculumLoader} from "./pages/Curriculum/Curriculum";
 
 const router = createBrowserRouter([
     {
@@ -60,7 +90,7 @@ const router = createBrowserRouter([
     {
         path: "change_user_data",
         element: <ChangeUserData/>,
-        async loader(){
+        async loader() {
             return await authService.checkAuth();
         },
         action: changeUserDataAction
@@ -77,7 +107,7 @@ const router = createBrowserRouter([
             {
                 path: "create-vls",
                 element: <CreateVLS/>,
-                loader: groupsLoader,
+                loader: createVLSLoader,
                 action: createVLSAction
             },
             {
@@ -88,12 +118,13 @@ const router = createBrowserRouter([
             {
                 path: "virtual-learning-spaces/:id",
                 element: <VirtualLearningSpace/>,
-                loader: VLSLoader
+                loader: VLSLoader,
+                action: VLSAction
             },
             {
                 path: "create-group",
                 element: <CreateGroup/>,
-                loader: specialtiesLoader,
+                loader: createGroupLoader,
                 action: createGroupAction
             },
             {
@@ -105,13 +136,48 @@ const router = createBrowserRouter([
                 path: "specialties",
                 element: <Specialties/>,
                 loader: specialtiesLoader
+            },
+            {
+                path: "teachers",
+                element: <Teachers/>,
+                loader: teachersLoader,
+                action: teachersAction
+            },
+            {
+                path: "academic_disciplines",
+                element: <AcademicDisciplines/>,
+                loader: disciplinesLoader,
+                action: disciplinesAction
+            },
+            {
+                path: "curriculums",
+                element: <Curriculums />,
+                loader: curriculumsLoader,
+                action: curriculumsAction
+            },
+            {
+                path: "curriculums/:id",
+                element: <Curriculum />,
+                loader: curriculumLoader
+            },
+            {
+                path: "admins",
+                element: <Admins />,
+                loader: adminsModeratorsLoader,
+                action: adminsModeratorsAction
+            },
+            {
+                path: "staff",
+                element: <UniversityStaff />,
+                loader: staffLoader,
+                action: staffAction
             }
         ]
     },
     {
         path: "account",
         element: <AccountPage/>,
-        async loader(){
+        async loader() {
             const user = await authService.checkAuth();
 
             if (!user) {

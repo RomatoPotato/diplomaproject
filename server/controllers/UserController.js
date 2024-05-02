@@ -1,19 +1,10 @@
 const usersService = require("../services/UsersService");
 const config = require("../config");
 const tokenService = require("../services/TokensService");
+const User = require("../models/User");
+const mongoose = require("mongoose");
 
-class UsersController {
-    async registration(req, res, next){
-        try {
-            const {name, surname, login, password} = req.body;
-            const registered = await usersService.registration(name, surname, login, password);
-
-            res.json(registered);
-        }catch (err){
-            next(err);
-        }
-    }
-
+class UserController {
     async login(req, res, next){
         try {
             const login = req.body.login;
@@ -73,10 +64,34 @@ class UsersController {
 
     async getUser(req, res, next){
         try {
-            const user = await usersService.getUser(req.params.login);
+            const login = req.params.login;
+            const user = await User.findOne({login});
 
             res.json(user);
         } catch (err) {
+            next(err);
+        }
+    }
+
+    async addUserWithRoles(req, res, next){
+        try {
+            const name = req.body.name;
+            const surname = req.body.surname;
+            const middlename = req.body.middlename;
+            const roles = req.body.roles;
+
+            const _id = new mongoose.Types.ObjectId();
+            const added = await User.create({
+                _id,
+                name,
+                surname,
+                middlename,
+                login: _id.toString(),
+                roles
+            });
+
+            res.json(added);
+        }catch (err){
             next(err);
         }
     }
@@ -114,4 +129,4 @@ function getPayload(user){
     }
 }
 
-module.exports = new UsersController();
+module.exports = new UserController();

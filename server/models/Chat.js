@@ -8,10 +8,6 @@ const ChatSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    isMain: {
-        type: Boolean,
-        default: false
-    },
     isGroup: {
         type: Boolean,
         require: true,

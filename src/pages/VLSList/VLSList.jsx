@@ -1,10 +1,9 @@
 import React from 'react';
-import EIService from "../../services/EIService";
 import {Form, useLoaderData} from "react-router-dom";
+import VLSService from "../../services/VLSService";
 
 export async function loader() {
-    const vlss = await EIService.getVLSs();
-    vlss.sort((v1, v2) => v1.group.year - v2.group.year);
+    const vlss = await VLSService.getVLSs();
 
     return vlss;
 }
@@ -28,10 +27,21 @@ const VLSList = () => {
                         <td>{vls.group.name}</td>
                         <td>
                             <button onClick={async () => {
-                                const loginsAndPasswords = await EIService.generatePasswords(vls.group._id);
+                                const loginsAndPasswords = await VLSService.generatePasswords(vls.group._id);
+
+                                const dataToSave = [];
+                                for (const data of loginsAndPasswords) {
+                                    dataToSave.push(`${data.student}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
+                                }
+
+                                const file = new Blob(dataToSave, {type: "text/plain"});
+                                const element = document.createElement("a");
+                                element.href = URL.createObjectURL(file, { oneTimeOnly: true });
+                                element.download = `Логины и пароли для студентов группы ${vls.group.name}.txt`;
+                                element.click();
 
                                 console.log(loginsAndPasswords);
-                            }}>Сгенерировать пароли
+                            }}>Сгенерировать пароли для студентов
                             </button>
                             <Form action={vls._id}>
                                 <button>Открыть</button>
