@@ -32,9 +32,9 @@ const Groups = () => {
                         <td>
                             {group.students.map(student =>
                                 <p key={student._id}>
-                                    {student.name} {student.surname}{student.middlename && ` ${student.middlename}`}
+                                    {student.surname} {student.name}{student.middlename && ` ${student.middlename}`}
                                     {student.roles.map(role => role === "headman" &&
-                                        <b><i> (Староста)</i></b>
+                                        <b key={role}><i> (Староста)</i></b>
                                     )}
                                 </p>
                             )}

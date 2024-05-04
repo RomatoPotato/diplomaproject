@@ -137,7 +137,7 @@ const AddStudent = ({onAddStudent}) => {
             />
             <button onClick={(e) => {
                 e.preventDefault();
-                if (name?.length !== 0 && surname?.length !== 0 && middlename?.length !== 0) {
+                if (name?.length !== 0 && surname?.length !== 0) {
                     setName("");
                     setSurname("");
                     setMiddleName("");

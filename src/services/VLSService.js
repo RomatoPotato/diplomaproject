@@ -27,10 +27,6 @@ export default class VLSService {
         return (await axiosInstance.delete("vlss/" + id)).data;
     }
 
-    static async generatePasswords(groupId){
-        return (await axiosInstance.get("vlss/generatePasswords/" + groupId)).data;
-    }
-
     static async addStudyChats(vlsId, disciplines, teachers){
         return (await axiosInstance.post("vlss/studyChats", {
             vlsId,

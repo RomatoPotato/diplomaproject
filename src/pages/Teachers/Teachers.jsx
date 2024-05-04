@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import ADService from "../../services/ADService";
 import TeachersService from "../../services/TeachersService";
+import UserService from "../../services/UserService";
 
 export async function loader() {
     const disciplines = await ADService.getAcademicDisciplines();
@@ -78,6 +79,7 @@ const Teachers = () => {
                 <tr>
                     <th>ФИО препода</th>
                     <th>Дисциплины</th>
+                    <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -88,6 +90,28 @@ const Teachers = () => {
                             {teacher.disciplines.map(discipline =>
                                 <p>{discipline.name}</p>
                             )}
+                        </td>
+                        <td>
+                            <button onClick={async () => {
+                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords([teacher.userId]);
+
+                                const dataToSave = [];
+                                for (const data of loginsAndPasswords) {
+                                    if (data.alreadyLoggedIn) {
+                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему`)
+                                    }
+                                    else {
+                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
+                                    }
+                                }
+
+                                const file = new Blob(dataToSave, {type: "text/plain"});
+                                const element = document.createElement("a");
+                                element.href = URL.createObjectURL(file);
+                                element.download = `${teacher.surname} ${teacher.name} ${teacher.middlename} логин и пароль.txt`;
+                                element.click();
+                                URL.revokeObjectURL(element.href);
+                            }}>Сгенерировать пароль</button>
                         </td>
                     </tr>
                 )}

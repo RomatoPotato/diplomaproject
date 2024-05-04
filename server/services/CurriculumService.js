@@ -68,19 +68,28 @@ class CurriculumService {
                     from: "teachers",
                     localField: "data.teacher",
                     foreignField: "_id",
-                    as: "data.teacher"
+                    as: "data.temp_teacher"
                 }
             },
             {
                 $lookup: {
                     from: "users",
-                    localField: "data.teacher.user",
+                    localField: "data.temp_teacher.user",
                     foreignField: "_id",
                     as: "data.teacher"
                 }
             },
             {
+                $unwind: "$data.temp_teacher"
+            },
+            {
                 $unwind: "$data.teacher"
+            },
+            {
+                $set: {
+                    "data.teacher.userId": "$data.teacher._id",
+                    "data.teacher._id": "$data.temp_teacher._id"
+                }
             },
             {
                 $group: {
@@ -102,6 +111,7 @@ class CurriculumService {
             {
                 $project: {
                     data: {
+                        temp_teacher: 0,
                         teacher: {
                             isFirstLogin: 0,
                             __v: 0,

@@ -50,7 +50,7 @@ const Curriculums = () => {
             <h1>Учебные планы</h1>
             <div style={{display: "flex", gap: "5px"}}>
                 {curriculums.map(curriculum =>
-                    <div style={{border: "2px solid black"}}>
+                    <div key={curriculum._id._id} style={{border: "2px solid black"}}>
                         <p>{curriculum._id.name}</p>
                         <p>{curriculum.academicStartYear}-{curriculum.academicStartYear + curriculum.semestersNumber / 2}гг.</p>
                         <Form action={`${curriculum._id._id}`}>

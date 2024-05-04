@@ -7,6 +7,10 @@ import Chat from "../../components/messenger/Chat/Chat";
 import chatService from "../../services/ChatService";
 import authService from "../../services/AuthService";
 
+import chat_icon from "../../images/group.png";
+import user_icon from "../../images/user.png";
+import Controls from "../../components/messenger/Controls/Controls";
+
 let nextMessageId = 0;
 
 export async function loader() {
@@ -18,11 +22,15 @@ export async function loader() {
         return redirect("/login");
     }
 
+    if (!currentUser.icon || currentUser.icon === "") {
+        currentUser.icon = user_icon;
+    }
+
     const chats = await chatService.getChats(currentUser._id);
 
     for (const chat of chats) {
         let interlocutor;
-        if (!chat.isGroup) {
+        if (chat.type === "dialog") {
             interlocutor = chat.users[0]._id === currentUser._id ? chat.users[1] : chat.users[0];
             interlocutor = {
                 _id: interlocutor._id,
@@ -33,7 +41,7 @@ export async function loader() {
         }
 
         let lastMessage;
-        const chatName = chat.isGroup ? chat.name : interlocutor.name + " " + interlocutor.surname;
+        const chatName = chat.type === "dialog" ? interlocutor.name + " " + interlocutor.surname : chat.name;
         let messagesMap = new Map(
             (await chatService.getMessages(chat._id)).map(({_id, messages}) => {
                 lastMessage = messages.at(-1);
@@ -55,7 +63,7 @@ export async function loader() {
                 messages[j] = {
                     _id: message._id,
                     text: message.text,
-                    sender: chat.isGroup ? message.from : message.from._id === currentUser._id ? currentUser : interlocutor,
+                    sender: chat.type === "dialog" ? message.from._id === currentUser._id ? currentUser : interlocutor : message.from,
                     chatId: message.chatId,
                     datetime: message.datetime
                 }
@@ -66,17 +74,15 @@ export async function loader() {
 
         let users = new Map();
         for (let user of chat.users) {
-            users.set(user._id, {
-                name: user.name,
-                surname: user.surname
-            });
+            users.set(user._id, user);
         }
 
         chatsInfo.set(chat._id, {
             _id: chat._id,
-            chatName: chatName,
-            isGroup: chat.isGroup,
+            name: chatName,
+            type: chat.type,
             users: users,
+            group: chat.group,
             interlocutor: interlocutor,
             messages: messagesMap,
             lastMessage: lastMessage
@@ -96,6 +102,7 @@ export default function Messenger() {
 
     const [chats, setChats] = useState(chatsInfo);
     const [selectedChat, setSelectedChat] = useState(null);
+    const [showChatInfo, setShowChatInfo] = useState(false);
 
     useEffect(() => {
         socket.auth = {
@@ -125,7 +132,7 @@ export default function Messenger() {
 
             for (let [key, value] of temp) {
                 for (let user of users) {
-                    if (!value.isGroup) {
+                    if (value.type === "dialog") {
                         if (value.interlocutor._id === user._id) {
                             value.interlocutor.online = true;
                         }
@@ -140,7 +147,7 @@ export default function Messenger() {
             const temp = chats;
 
             for (let [key, value] of temp) {
-                if (!value.isGroup) {
+                if (value.type === "dialog") {
                     if (value.interlocutor._id === connectedUser._id) {
                         value.interlocutor.online = true;
                         setChats(new Map(temp));
@@ -154,7 +161,7 @@ export default function Messenger() {
             const temp = chats;
 
             for (let [key, value] of temp) {
-                if (!value.isGroup) {
+                if (value.type === "dialog") {
                     if (value.interlocutor._id === userId) {
                         value.interlocutor.online = false;
                         setChats(new Map(temp));
@@ -189,9 +196,9 @@ export default function Messenger() {
                 year: "numeric"
             });
 
-            if (!temp.messages.get(formattedSendDate)){
+            if (!temp.messages.get(formattedSendDate)) {
                 temp.messages.set(formattedSendDate, [receivedMessage]);
-            }else {
+            } else {
                 temp.messages.get(formattedSendDate).push(receivedMessage);
             }
             temp.lastMessage = receivedMessage;
@@ -240,13 +247,13 @@ export default function Messenger() {
                 year: "numeric"
             });
 
-            if (!temp.messages.get(formattedSendDate)){
+            if (!temp.messages.get(formattedSendDate)) {
                 temp.messages.set(formattedSendDate, [newMessage]);
-            }else {
+            } else {
                 temp.messages.get(formattedSendDate).push(newMessage);
             }
 
-            const to = selectedChat.isGroup ? selectedChat._id : selectedChat.interlocutor._id;
+            const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
             chatService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate).then(message => {
 
             });
@@ -259,40 +266,118 @@ export default function Messenger() {
         }
     }
 
-    function handleCloseContactClick() {
-        //setSelectedUser(null);
-        setSelectedChat(null);
-    }
-
     return (
         <div className="messenger">
-            <div className="left-side">
-                <div className="left-side__user-info">
-                    <div>
-                        <p>{currentUser.name} {currentUser.surname}</p>
-                        <b>{currentUser.login}</b>
+            <Controls />
+            <div className="messenger__wrapper">
+                <div className="left-side">
+                    <div className="left-side__user-info">
+                        <div>
+                            <p>{currentUser.name} {currentUser.surname}</p>
+                            <b>{currentUser.login}</b>
+                        </div>
+                        <Link to="../account"><img src={currentUser.icon} alt=""/></Link>
                     </div>
-                    <Link to="../account" ><img src={currentUser.icon} alt=""/></Link>
+                    <div className="left-side__user-tabs">
+                        {Array.from(chats, ([key, value]) => (value)).map(chat =>
+                            <ChatTab
+                                key={chat._id}
+                                chat={chat}
+                                onChatTabClick={() => {
+                                    chat.hasNewMessages = false;
+                                    setSelectedChat({
+                                        ...chat
+                                    });
+                                }}/>
+                        )}
+                    </div>
                 </div>
-                <div className="left-side__user-tabs">
-                    {Array.from(chats, ([key, value]) => (value)).map(chat =>
-                        <ChatTab
-                            key={chat._id}
-                            chat={chat}
-                            onChatTabClick={() => {
-                                chat.hasNewMessages = false;
-                                setSelectedChat({
-                                    ...chat
-                                });
-                            }}/>
-                    )}
-                </div>
+                <Chat
+                    selectedChat={selectedChat}
+                    currentUser={currentUser}
+                    onMessageSubmit={handleMessageSubmit}
+                    onCloseChatClick={() => setSelectedChat(null)}
+                    onShowChatInfoClick={() => setShowChatInfo(true)}/>
             </div>
-            <Chat
-                selectedChat={selectedChat}
-                currentUser={currentUser}
-                onMessageSubmit={handleMessageSubmit}
-                onCloseContactClick={handleCloseContactClick}/>
+            {showChatInfo &&
+                <div className="chat-info" onClick={() => {
+                    setShowChatInfo(false);
+                }}>
+                    <div className="chat-info__content" onClick={(e) => {
+                        e.stopPropagation();
+                    }}>
+                        <div className="info-header">
+                            <div className="info-header__icon-area">
+                                <img src={selectedChat.icon ? selectedChat.icon : chat_icon}/>
+                            </div>
+                            <div className="info-header__text-area">
+                                <h2>{selectedChat.name}</h2>
+                                {selectedChat.type === "mainGroup" ?
+                                    <h3>Основная группа</h3>:
+                                    <h3>{selectedChat.group.name}</h3>
+                                }
+                            </div>
+                        </div>
+                        <div className="info-body">
+                            {selectedChat.type === "mainGroup" &&
+                                <>
+                                    <h3>Админы</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("admin"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                    <h3>Куратор</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("curator"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                    <h3>Староста</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("headman"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                    <h3>Студентота</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("student"))
+                                        .filter(([id, user]) => !user.roles.includes("headman"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                </>
+                            }
+                            {selectedChat.type === "studyGroup" &&
+                                <>
+                                    <h3>Преподаватель</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("teacher"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                    <h3>Староста</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("headman"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                    <h3>Студентота</h3>
+                                    {Array.from(selectedChat.users.entries())
+                                        .filter(([id, user]) => user.roles.includes("student"))
+                                        .filter(([id, user]) => !user.roles.includes("headman"))
+                                        .map(([id, user]) =>
+                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
+                                        )}
+                                </>
+                            }
+                        </div>
+                        <div className="info-footer">
+
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     )
 };

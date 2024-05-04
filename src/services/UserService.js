@@ -21,4 +21,10 @@ export default class UserService {
             password
         }));
     }
+
+    static async generateLoginsAndPasswords(users){
+        return (await axiosInstance.post("users/generate", {
+            users
+        })).data;
+    }
 }

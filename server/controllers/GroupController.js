@@ -1,6 +1,7 @@
 const Group = require("../models/Group");
 const config = require("../config");
 const User = require("../models/User");
+const Teacher = require("../models/Teacher");
 const mongoose = require("mongoose");
 const groupServce = require("../services/GroupsService");
 
@@ -128,6 +129,13 @@ class GroupController {
 
                 studentIds.push(_id);
             }
+
+            const teacherUser = await Teacher.findById(curator);
+            await User.findByIdAndUpdate(teacherUser.user._id, {
+                $addToSet: {
+                    roles: ["curator"]
+                }
+            });
 
             const added = await Group.create({
                 name,

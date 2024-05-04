@@ -66,12 +66,13 @@ class VLSController {
             const groupId = req.body.groupId;
             const admins = req.body.admins;
 
-            const group = await Group.findById(groupId);
+            const group = await groupServce.getGroup(groupId);
 
             const mainChat = await Chat.create({
                 name: group.name,
                 users: group.students.concat(admins).concat([group.curator._id]),
-                isGroup: true
+                type: "mainGroup",
+                group: groupId
             });
 
             const added = await VLS.create({
@@ -110,38 +111,6 @@ class VLSController {
         }
     }
 
-    async generatePasswords(req, res, next) {
-        try {
-            const groupId = req.params.id;
-            const students = (await groupServce.getGroup(groupId)).students;
-
-            const loginsAndPasswords = [];
-            for (const student of students) {
-                const middlename = student.middlename ? student.middlename : "";
-
-                if (student.isFirstLogin) {
-                    const salt = await bcrypt.genSalt(10);
-                    const hash = await bcrypt.hash(student._id.toString(), salt);
-
-                    await User.findByIdAndUpdate(student._id, {
-                        login: student._id,
-                        password: hash
-                    }, config.updateOptions);
-
-                    loginsAndPasswords.push({
-                        student: (student.surname + " " + student.name + " " + middlename).trim(),
-                        login: student._id,
-                        password: student._id
-                    })
-                }
-            }
-
-            res.json(loginsAndPasswords);
-        } catch (err) {
-            next(err);
-        }
-    }
-
     async addStudyChats(req, res, next){
         try {
             const vlsId = req.body.vlsId;
@@ -154,7 +123,8 @@ class VLSController {
                 const newChat = await Chat.create({
                     name: disciplines[i],
                     users: vls.group.students.concat([teachers[i]]),
-                    isGroup: true
+                    type: "studyGroup",
+                    group: vls.group._id
                 });
                 studyChats.push(newChat._id);
             }

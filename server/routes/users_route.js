@@ -10,5 +10,6 @@ router.get("/refresh", usersController.refresh);
 router.get("/:login", usersController.getUser);
 router.post("/", usersController.addUserWithRoles);
 router.post("/updateLoginData", usersController.updateLoginData);
+router.post("/generate", usersController.generateLoginsAndPasswords);
 
 module.exports = router;

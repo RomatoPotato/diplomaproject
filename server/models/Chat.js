@@ -8,10 +8,20 @@ const ChatSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    isGroup: {
-        type: Boolean,
-        require: true,
-        default: false
+    type: {
+        type: String
+    },
+    /*
+        Тип чата:
+            dialog - чат между 2 людьми
+            group - группа, беседа
+            mainGroup - главная учебная группа (с админами и куратором)
+            studyGroup - учебная группа (где только 1 учитель, а остальные - студенты)
+     */
+    group: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+        default: null
     }
 });
 

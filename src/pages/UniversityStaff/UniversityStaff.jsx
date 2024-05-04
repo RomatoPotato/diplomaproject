@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import StaffService from "../../services/StaffService";
 import {Form, useLoaderData} from "react-router-dom";
+import UserService from "../../services/UserService";
 
 export async function loader() {
     const staff = await StaffService.getStaff();
@@ -78,6 +79,7 @@ const UniversityStaff = () => {
                 <tr>
                     <th>ФИО</th>
                     <th>Должность</th>
+                    <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,6 +87,28 @@ const UniversityStaff = () => {
                     <tr key={s._id}>
                         <td>{s.surname} {s.name} {s.middlename}</td>
                         <td>{s.appointment}</td>
+                        <td>
+                            <button onClick={async () => {
+                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords([s.userId]);
+
+                                const dataToSave = [];
+                                for (const data of loginsAndPasswords) {
+                                    if (data.alreadyLoggedIn) {
+                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему`)
+                                    }
+                                    else {
+                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
+                                    }
+                                }
+
+                                const file = new Blob(dataToSave, {type: "text/plain"});
+                                const element = document.createElement("a");
+                                element.href = URL.createObjectURL(file);
+                                element.download = `${s.surname} ${s.name} ${s.middlename} логин и пароль.txt`;
+                                element.click();
+                                URL.revokeObjectURL(element.href);
+                            }}>Сгенерировать пароль</button>
+                        </td>
                     </tr>
                 )}
                 </tbody>

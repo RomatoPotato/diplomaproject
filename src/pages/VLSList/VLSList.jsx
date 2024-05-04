@@ -36,11 +36,10 @@ const VLSList = () => {
 
                                 const file = new Blob(dataToSave, {type: "text/plain"});
                                 const element = document.createElement("a");
-                                element.href = URL.createObjectURL(file, { oneTimeOnly: true });
+                                element.href = URL.createObjectURL(file);
                                 element.download = `Логины и пароли для студентов группы ${vls.group.name}.txt`;
                                 element.click();
-
-                                console.log(loginsAndPasswords);
+                                URL.revokeObjectURL(element.href);
                             }}>Сгенерировать пароли для студентов
                             </button>
                             <Form action={vls._id}>

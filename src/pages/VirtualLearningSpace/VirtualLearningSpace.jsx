@@ -60,7 +60,10 @@ const VirtualLearningSpace = () => {
                 </tbody>
             </table>
             <h2>Учебные чаты</h2>
-            {vls.currentSemesterChats.length === 0 ? !isCreatingStudyChat &&
+            {!curriculumCheck.exists &&
+                <p>Создайте учебный план чтобы добавить учебные чаты!</p>
+            }
+            {vls.currentSemesterChats.length === 0 ? !isCreatingStudyChat && curriculumCheck.exists &&
                 <p>
                     <i>Пусто </i>
                     <button onClick={() => setIsCreatingStudyChat(true)}>
@@ -119,7 +122,7 @@ const VirtualLearningSpace = () => {
                                 </td>
                                 <td>
                                     {data.teacher.surname} {data.teacher.name} {data.teacher.middlename}
-                                    <input type="hidden" name="teachers" value={data.teacher._id}/>
+                                    <input type="hidden" name="teachers" value={data.teacher.userId}/>
                                 </td>
                             </tr>
                         )}
@@ -137,6 +140,10 @@ const VirtualLearningSpace = () => {
 };
 
 function getCurrentSemesterData(curriculum, semester) {
+    if (!curriculum){
+        return 0;
+    }
+
     let start = 0;
     let end = 0;
     let foundSemester = false;

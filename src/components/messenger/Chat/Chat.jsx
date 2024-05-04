@@ -3,10 +3,9 @@ import Message from "../Message/Message";
 import Header from "../Header/Header";
 import ChatInput from "../ChatInput/ChatInput";
 import "./Chat.css";
-import ChatService from "../../../services/ChatService";
 import DateHelper from "../../../utils/DateHelper";
 
-const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseContactClick}) => {
+const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onShowChatInfoClick}) => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
@@ -19,7 +18,10 @@ const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseContactClick})
         <div className="chat">
             {selectedChat ?
                 <>
-                    <Header selectedChat={selectedChat} onCloseButtonClick={onCloseContactClick}/>
+                    <Header
+                        selectedChat={selectedChat}
+                        onCloseButtonClick={onCloseChatClick}
+                        onChatInfoClick={onShowChatInfoClick}/>
                     <div className="chat__space">
                         <div className="chat__wrapper">
                             {Array.from(messages, ([datetime, messages]) => ({datetime, messages})).map(msg =>

@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    icon: {
+        type: String,
+        require: true,
+        default: null
+    },
     roles: [{
         type: String,
         require: true

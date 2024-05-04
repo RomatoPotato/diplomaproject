@@ -40,7 +40,10 @@ class VLSService {
                 }
             },
             {
-                $unwind: "$currentSemesterChats"
+                $unwind: {
+                    path: "$currentSemesterChats",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $lookup: {
@@ -51,7 +54,7 @@ class VLSService {
                 }
             },
             {
-                $project: {
+                $project : {
                     group: 1,
                     mainChat: 1,
                     currentSemesterChats: {
@@ -70,7 +73,10 @@ class VLSService {
                 }
             },
             {
-                $unwind: "$currentSemesterChats.teacher"
+                $unwind: {
+                    path: "$currentSemesterChats.teacher",
+                    preserveNullAndEmptyArrays: true,
+                }
             },
             {
                 $project: {
@@ -80,7 +86,18 @@ class VLSService {
                             isFirstLogin: 0,
                             login: 0,
                             __v: 0
-                        }
+                        },
+                    }
+                }
+            },
+            {
+                $project: {
+                    group: 1,
+                    mainChat: 1,
+                    currentSemesterChats: {
+                        $cond: [{
+                            $eq: ["$currentSemesterChats", {}]
+                        }, "$$REMOVE", "$currentSemesterChats"]
                     }
                 }
             },

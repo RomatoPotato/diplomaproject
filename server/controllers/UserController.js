@@ -3,6 +3,8 @@ const config = require("../config");
 const tokenService = require("../services/TokensService");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const groupServce = require("../services/GroupsService");
+const bcrypt = require("bcryptjs");
 
 class UserController {
     async login(req, res, next){
@@ -106,6 +108,43 @@ class UserController {
 
             res.json(updated);
         }catch (err){
+            next(err);
+        }
+    }
+
+    async generateLoginsAndPasswords(req, res, next) {
+        try {
+            const users = req.body.users; // user ids
+
+            const loginsAndPasswords = [];
+            for (const userId of users) {
+                const user = await User.findById(userId);
+                const middlename = user.middlename ? user.middlename : "";
+
+                if (user.isFirstLogin) {
+                    const salt = await bcrypt.genSalt(10);
+                    const hash = await bcrypt.hash(userId, salt);
+
+                    await User.findByIdAndUpdate(userId, {
+                        login: userId,
+                        password: hash
+                    }, config.updateOptions);
+
+                    loginsAndPasswords.push({
+                        user: (user.surname + " " + user.name + " " + middlename).trim(),
+                        login: userId,
+                        password: userId
+                    });
+                }else {
+                    loginsAndPasswords.push({
+                        user: (user.surname + " " + user.name + " " + middlename).trim(),
+                        alreadyLoggedIn: true
+                    })
+                }
+            }
+
+            res.json(loginsAndPasswords);
+        } catch (err) {
             next(err);
         }
     }

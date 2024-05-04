@@ -13,7 +13,7 @@ export default function Message({ sender, text, date, self }) {
         <div className={"message" + (self ? " self" : "")}>
             <div className={"message__info" + (self ? " self" : "")}>
                 <img src={icon} alt="" className="message__user-icon"/>
-                <span className="message__user-name">{sender?.name}</span>
+                <span className="message__user-name">{sender.surname} {sender.name}</span>
             </div>
             <p className="message__text">{text}</p>
             <p className={"message__date" + (self ? " self" : "")}>
