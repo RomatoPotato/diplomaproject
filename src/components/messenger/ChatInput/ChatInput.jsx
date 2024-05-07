@@ -3,12 +3,13 @@ import "./ChatInput.css"
 import attach_icon from "../../../images/attach-file.png"
 import send_icon from "../../../images/send.png"
 import {useState} from "react";
+import {Form} from "react-router-dom";
 
 export default function ChatInput({onMessageSubmit}) {
     const [message, setMessage] = useState("");
 
     return (
-        <form
+        <Form
             className="chat-input"
             onSubmit={(e) => {
                 e.preventDefault();
@@ -32,6 +33,6 @@ export default function ChatInput({onMessageSubmit}) {
                 <input type="submit"/>
                 <img src={send_icon} alt="Отправить"/>
             </label>
-        </form>
+        </Form>
     )
 };

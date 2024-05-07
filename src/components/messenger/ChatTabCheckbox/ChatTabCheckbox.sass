@@ -1,0 +1,51 @@
+$tab_width: 100%
+$tab_height: 50px
+$tab_padding: 5px
+$icon_size: $tab_height - $tab_padding * 2
+$checkbox-width: $tab_padding * 2.5
+
+.chat-tab-checkbox
+  width: $tab_width
+  height: $tab_height
+  background: lightgray
+  border: 1px solid gray
+  user-select: none
+
+  &__label
+    display: flex
+    justify-content: space-between
+
+  &__icon
+    min-width: $icon_size
+    max-width: $icon_size
+    min-height: $icon_size
+    max-height: $icon_size
+    object-fit: cover
+    align-self: center
+    padding: $tab_padding
+    border-radius: 20%
+
+  &__desc
+    display: flex
+    flex-direction: column
+    width: calc($tab_width - $tab_height - $tab_padding * 2 - $checkbox-width * 2)
+
+    p
+      padding: $tab_padding
+
+  &__title
+    width: 100%
+    font-weight: bold
+    line-height: 0.8em
+    font-size: 1.2em
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+
+  &__group_name
+    font-weight: bold
+    line-height: 0.8em
+    font-size: 1.1em
+
+  &__checkbox
+    margin: $checkbox-width / 2

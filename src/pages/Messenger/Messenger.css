@@ -37,6 +37,9 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
+.left-side__user-tabs::-webkit-scrollbar {
+  display: none;
+}
 .left-side__user-tabs a {
   text-decoration: none;
   color: black;

@@ -1,0 +1,40 @@
+.mailing-window {
+  width: 60%;
+}
+.mailing-window .content {
+  display: flex;
+  height: 100%;
+}
+.mailing-window__left-side {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  background-color: #b6b6b6;
+}
+.mailing-window__chats-list {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.mailing-window__main-area {
+  overflow-y: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.mailing-window__messages {
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+}
+.mailing-window__send-area {
+  display: flex;
+}
+
+.messages-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/*# sourceMappingURL=MailingWindow.css.map */

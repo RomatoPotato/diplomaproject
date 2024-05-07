@@ -1,14 +1,15 @@
 import React, {useState} from 'react';
 import "./Controls.sass";
+import MailingWindow from "../../windows/MailingWindow/MailingWindow";
 
 const actions = {
     mailing: 0
 }
 
-const Controls = () => {
+const Controls = ({chats, currentUser, onSendMailingClick}) => {
     const [selectedAction, setSelectedAction] = useState(-1);
 
-    function handleCloseWindow(){
+    function handleCloseWindow() {
         setSelectedAction(-1);
     }
 
@@ -21,20 +22,14 @@ const Controls = () => {
                 </button>
             </div>
             {selectedAction === actions.mailing &&
-                <ControlWindow onCloseWindow={handleCloseWindow} />
+                <MailingWindow
+                    onCloseMailingWindow={handleCloseWindow}
+                    chats={chats}
+                    currentUser={currentUser}
+                    onSendMailingClick={onSendMailingClick}/>
             }
         </>
     );
 };
-
-function ControlWindow({onCloseWindow}) {
-    return (
-        <div className="control-window mailing-window" onClick={onCloseWindow}>
-            <div className="control-window__content">
-
-            </div>
-        </div>
-    )
-}
 
 export default Controls;

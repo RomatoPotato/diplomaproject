@@ -53,6 +53,17 @@ class ChatController {
                     $unwind: "$group"
                 },
                 {
+                    $lookup: {
+                        from: "specialties",
+                        localField: "group.specialty",
+                        foreignField: "_id",
+                        as: "group.specialty"
+                    }
+                },
+                {
+                    $unwind: "$group.specialty"
+                },
+                {
                     $project: {
                         users: {
                             isFirstLogin: 0,
@@ -62,9 +73,10 @@ class ChatController {
                         group: {
                             students: 0,
                             __v: 0,
-                            specialty: 0,
-                            year: 0,
-                            curator: 0
+                            curator: 0,
+                            specialty: {
+                                __v: 0
+                            }
                         }
                     }
                 },

@@ -20,6 +20,14 @@ export default function ChatTab({chat, onChatTabClick}) {
             <img className="chat-tab__icon" src={icon}  alt=""/>
             <div className="chat-tab__desc">
                 <p className="chat-tab__title">{chat.name}</p>
+                {chat.type !== "dialog" &&
+                    <p className="chat-tab__group_name">
+                        {chat.type === "mainGroup" ?
+                            "Главная группа" :
+                            chat.group.name
+                        }
+                    </p>
+                }
                 <p className="chat-tab__last-msg">
                     {chat.lastMessage &&
                         <><b>{chat.lastMessage.sender.name}: </b>{chat.lastMessage.text}</>

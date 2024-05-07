@@ -1,0 +1,48 @@
+.chat-tab-checkbox {
+  width: 100%;
+  height: 50px;
+  background: lightgray;
+  border: 1px solid gray;
+  user-select: none;
+}
+.chat-tab-checkbox__label {
+  display: flex;
+  justify-content: space-between;
+}
+.chat-tab-checkbox__icon {
+  min-width: 40px;
+  max-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  object-fit: cover;
+  align-self: center;
+  padding: 5px;
+  border-radius: 20%;
+}
+.chat-tab-checkbox__desc {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 50px - 10px - 25px);
+}
+.chat-tab-checkbox__desc p {
+  padding: 5px;
+}
+.chat-tab-checkbox__title {
+  width: 100%;
+  font-weight: bold;
+  line-height: 0.8em;
+  font-size: 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-tab-checkbox__group_name {
+  font-weight: bold;
+  line-height: 0.8em;
+  font-size: 1.1em;
+}
+.chat-tab-checkbox__checkbox {
+  margin: 6.25px;
+}
+
+/*# sourceMappingURL=ChatTabCheckbox.css.map */

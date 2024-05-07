@@ -1,6 +1,7 @@
 import React from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import VLSService from "../../services/VLSService";
+import UserService from "../../services/UserService";
 
 export async function loader() {
     const vlss = await VLSService.getVLSs();
@@ -27,11 +28,16 @@ const VLSList = () => {
                         <td>{vls.group.name}</td>
                         <td>
                             <button onClick={async () => {
-                                const loginsAndPasswords = await VLSService.generatePasswords(vls.group._id);
+                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords(vls.group.students);
 
                                 const dataToSave = [];
                                 for (const data of loginsAndPasswords) {
-                                    dataToSave.push(`${data.student}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
+                                    if (data.alreadyLoggedIn) {
+                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему\n\n`)
+                                    }
+                                    else {
+                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
+                                    }
                                 }
 
                                 const file = new Blob(dataToSave, {type: "text/plain"});

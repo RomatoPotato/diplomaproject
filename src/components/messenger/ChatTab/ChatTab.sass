@@ -24,7 +24,6 @@ $notify-block-width: $tab_padding * 2.5
   &__desc
     display: flex
     flex-direction: column
-    justify-content: space-around
     width: $tab_width - $tab_height - $tab_padding * 2 - $notify-block-width
 
     p
@@ -32,16 +31,20 @@ $notify-block-width: $tab_padding * 2.5
 
   &__title
     font-weight: bold
-    line-height: 1em
+    line-height: 0.8em
     font-size: 1.2em
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
 
+  &__group_name
+    font-weight: bold
+    line-height: 0.8em
+    font-size: 1.1em
+
   &__last-msg
     overflow: hidden
-    line-height: 1em
-    font-size: 1.1em
+    line-height: 0.8em
     white-space: nowrap
     text-overflow: ellipsis
 
@@ -55,3 +58,8 @@ $notify-block-width: $tab_padding * 2.5
     svg
       width: $tab_padding * 2.5
       height: $tab_padding * 2.5
+
+  &__choose_block
+    width: 30px
+    display: flex
+    justify-content: center

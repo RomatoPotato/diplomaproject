@@ -19,7 +19,6 @@
 .chat-tab__desc {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   width: 227.5px;
 }
 .chat-tab__desc p {
@@ -27,16 +26,20 @@
 }
 .chat-tab__title {
   font-weight: bold;
-  line-height: 1em;
+  line-height: 0.8em;
   font-size: 1.2em;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.chat-tab__group_name {
+  font-weight: bold;
+  line-height: 0.8em;
+  font-size: 1.1em;
+}
 .chat-tab__last-msg {
   overflow: hidden;
-  line-height: 1em;
-  font-size: 1.1em;
+  line-height: 0.8em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -50,6 +53,11 @@
 .chat-tab__notify-block svg {
   width: 12.5px;
   height: 12.5px;
+}
+.chat-tab__choose_block {
+  width: 30px;
+  display: flex;
+  justify-content: center;
 }
 
 /*# sourceMappingURL=ChatTab.css.map */

@@ -1,0 +1,22 @@
+.filter {
+  width: 100%;
+}
+.filter__search {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.filter__search input[type=text] {
+  width: 100%;
+}
+.filter__area input[type=number] {
+  width: 100%;
+}
+.filter__area div {
+  display: flex;
+}
+.filter__area select {
+  width: 100%;
+}
+
+/*# sourceMappingURL=ChatsFilter.css.map */

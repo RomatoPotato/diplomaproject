@@ -10,6 +10,7 @@ import authService from "../../services/AuthService";
 import chat_icon from "../../images/group.png";
 import user_icon from "../../images/user.png";
 import Controls from "../../components/messenger/Controls/Controls";
+import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
 
 let nextMessageId = 0;
 
@@ -98,11 +99,12 @@ export async function loader() {
 }
 
 export default function Messenger() {
-    let {currentUser, chatsInfo} = useLoaderData();
+    const {currentUser, chatsInfo} = useLoaderData();
 
     const [chats, setChats] = useState(chatsInfo);
     const [selectedChat, setSelectedChat] = useState(null);
     const [showChatInfo, setShowChatInfo] = useState(false);
+    const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
 
     useEffect(() => {
         socket.auth = {
@@ -268,7 +270,53 @@ export default function Messenger() {
 
     return (
         <div className="messenger">
-            <Controls />
+            {(currentUser.roles.includes("admin") || currentUser.roles.includes("teacher"))  &&
+                <Controls
+                    chats={chats}
+                    currentUser={currentUser}
+                    onSendMailingClick={(messages, chatIds) => {
+                        const tempChats = chats;
+
+                        for (const chatId of chatIds) {
+                            for (const message of messages) {
+                                socket.emit("message", {
+                                    text: message.text,
+                                    to: chatId,
+                                    date: message.date
+                                });
+
+                                const newMessage = {
+                                    _id: nextMessageId++,
+                                    text: message.text,
+                                    sender: currentUser,
+                                    chatId: chatId,
+                                    datetime: message.date
+                                };
+
+                                const formattedSendDate = message.date.toLocaleDateString("ru-RU", {
+                                    day: "numeric",
+                                    month: "numeric",
+                                    year: "numeric"
+                                });
+
+                                const chat = chats.get(chatId);
+                                if (!chat.messages.get(formattedSendDate)) {
+                                    chat.messages.set(formattedSendDate, [newMessage]);
+                                } else {
+                                    chat.messages.get(formattedSendDate).push(newMessage);
+                                }
+
+                                chatService.saveMessage(message.text, currentUser._id, chatId, chatId, message.date).then(message => {
+
+                                });
+
+                                tempChats.get(chatId).lastMessage = newMessage;
+                            }
+                        }
+
+                        setChats(new Map(tempChats));
+                    }}/>
+            }
             <div className="messenger__wrapper">
                 <div className="left-side">
                     <div className="left-side__user-info">
@@ -278,8 +326,12 @@ export default function Messenger() {
                         </div>
                         <Link to="../account"><img src={currentUser.icon} alt=""/></Link>
                     </div>
+                    <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)} />
                     <div className="left-side__user-tabs">
-                        {Array.from(chats, ([key, value]) => (value)).map(chat =>
+                        {Array.from(chats, ([key, value]) => (value)).filter(chatsFilter).length === 0 &&
+                            <p>Чаты не найдены(</p>
+                        }
+                        {Array.from(chats, ([key, value]) => (value)).filter(chatsFilter).map(chat =>
                             <ChatTab
                                 key={chat._id}
                                 chat={chat}
@@ -300,12 +352,8 @@ export default function Messenger() {
                     onShowChatInfoClick={() => setShowChatInfo(true)}/>
             </div>
             {showChatInfo &&
-                <div className="chat-info" onClick={() => {
-                    setShowChatInfo(false);
-                }}>
-                    <div className="chat-info__content" onClick={(e) => {
-                        e.stopPropagation();
-                    }}>
+                <div className="chat-info" onClick={() => setShowChatInfo(false)}>
+                    <div className="chat-info__content" onClick={(e) => e.stopPropagation()}>
                         <div className="info-header">
                             <div className="info-header__icon-area">
                                 <img src={selectedChat.icon ? selectedChat.icon : chat_icon}/>
@@ -313,7 +361,7 @@ export default function Messenger() {
                             <div className="info-header__text-area">
                                 <h2>{selectedChat.name}</h2>
                                 {selectedChat.type === "mainGroup" ?
-                                    <h3>Основная группа</h3>:
+                                    <h3>Главная группа</h3>:
                                     <h3>{selectedChat.group.name}</h3>
                                 }
                             </div>

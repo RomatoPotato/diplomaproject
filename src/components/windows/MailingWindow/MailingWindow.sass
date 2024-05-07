@@ -1,0 +1,36 @@
+.mailing-window
+  width: 60%
+
+  .content
+    display: flex
+    height: 100%
+
+  &__left-side
+    width: 30%
+    display: flex
+    flex-direction: column
+    background-color: #b6b6b6
+
+  &__chats-list
+    height: 100%
+    overflow-x: hidden
+    overflow-y: auto
+
+  &__main-area
+    overflow-y: hidden
+    width: 100%
+    display: flex
+    flex-direction: column
+
+  &__messages
+    height: 100%
+    display: flex
+    flex-direction: column-reverse
+    overflow-y: auto
+
+  &__send-area
+    display: flex
+
+.messages-wrap
+  display: flex
+  flex-direction: column
