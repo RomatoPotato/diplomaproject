@@ -18,6 +18,7 @@ const teachersRoute = require("./routes/teachers_route");
 const curriculumRoute = require("./routes/curriculum_route");
 const staffRoute = require("./routes/staff_route");
 const rolesRoute = require("./routes/roles_route");
+const messagesRoute = require("./routes/messages_route");
 const errorMiddleware = require("./middlewares/ErrorMiddleware");
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/teachers", teachersRoute);
 app.use("/api/curriculums", curriculumRoute);
 app.use("/api/staff", staffRoute);
 app.use("/api/roles", rolesRoute);
+app.use("/api/messages", messagesRoute);
 
 app.use(errorMiddleware);
 

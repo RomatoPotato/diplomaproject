@@ -64,7 +64,7 @@ const ChatsFilter = ({onSearchGroup}) => {
             {isFilterOpen &&
                 <div className="filter__area">
                     <div>
-                        <label htmlFor="groupNumber">Группа:&nbsp;</label>
+                        <label htmlFor="groupNumber">Курс:&nbsp;</label>
                         <input
                             id="groupNumber"
                             type="number"

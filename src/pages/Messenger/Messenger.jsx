@@ -1,23 +1,24 @@
 import "./Messenger.css"
 import ChatTab from "../../components/messenger/ChatTab/ChatTab";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import socket from "../../utils/socket";
 import {Link, redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
-import chatService from "../../services/ChatService";
-import authService from "../../services/AuthService";
-
+import ChatService from "../../services/ChatService";
+import AuthService from "../../services/AuthService";
 import chat_icon from "../../images/group.png";
 import user_icon from "../../images/user.png";
 import Controls from "../../components/messenger/Controls/Controls";
 import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
+import {ContextMenu} from "../../components/ui/ContextMenu/ContextMenu";
+import MessagesService from "../../services/MessagesService";
 
 let nextMessageId = 0;
 
 export async function loader() {
     const chatsInfo = new Map();
 
-    const currentUser = await authService.checkAuth();
+    const currentUser = await AuthService.checkAuth();
 
     if (!currentUser) {
         return redirect("/login");
@@ -27,7 +28,7 @@ export async function loader() {
         currentUser.icon = user_icon;
     }
 
-    const chats = await chatService.getChats(currentUser._id);
+    const chats = await ChatService.getChats(currentUser._id);
 
     for (const chat of chats) {
         let interlocutor;
@@ -44,34 +45,11 @@ export async function loader() {
         let lastMessage;
         const chatName = chat.type === "dialog" ? interlocutor.name + " " + interlocutor.surname : chat.name;
         let messagesMap = new Map(
-            (await chatService.getMessages(chat._id)).map(({_id, messages}) => {
+            (await MessagesService.getMessages(chat._id)).map(({_id, messages}) => {
                 lastMessage = messages.at(-1);
                 return [_id.datetime, messages]
             })
         );
-
-        for (let i = 0; i < messagesMap.length; i++) {
-            const dateMessagesMap = new Map();
-            const datetime = messagesMap[i]._id.datetime;
-            const messages = messagesMap[i].messages
-
-            dateMessagesMap.set(datetime, messages);
-            messagesMap[i] = dateMessagesMap;
-
-            for (let j = 0; j < messages.length; j++) {
-                let message = messages[j];
-
-                messages[j] = {
-                    _id: message._id,
-                    text: message.text,
-                    sender: chat.type === "dialog" ? message.from._id === currentUser._id ? currentUser : interlocutor : message.from,
-                    chatId: message.chatId,
-                    datetime: message.datetime
-                }
-
-                lastMessage = messages[j];
-            }
-        }
 
         let users = new Map();
         for (let user of chat.users) {
@@ -121,7 +99,7 @@ export default function Messenger() {
     }, [currentUser]);
 
     useEffect(() => {
-        chatService.getChats(currentUser._id).then((allChats) => {
+        ChatService.getChats(currentUser._id).then((allChats) => {
             for (const chat of allChats) {
                 socket.emit("join_room", chat._id);
             }
@@ -256,7 +234,7 @@ export default function Messenger() {
             }
 
             const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
-            chatService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate).then(message => {
+            MessagesService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate).then(message => {
 
             });
 
@@ -306,7 +284,7 @@ export default function Messenger() {
                                     chat.messages.get(formattedSendDate).push(newMessage);
                                 }
 
-                                chatService.saveMessage(message.text, currentUser._id, chatId, chatId, message.date).then(message => {
+                                ChatService.saveMessage(message.text, currentUser._id, chatId, chatId, message.date).then(message => {
 
                                 });
 
@@ -426,6 +404,44 @@ export default function Messenger() {
                     </div>
                 </div>
             }
+            <div className="messenger__context-menus">
+                <ContextMenu contextMenuItems={[
+                    {
+                        text: "Переслать"
+                    },
+                    {
+                        text: "Выбрать"
+                    },
+                    {
+                        text: "Копировать",
+                        onClick(data){
+                            navigator.clipboard.writeText(data.message.text)
+                                .then(() => console.log("Copied!\n" + data.message.text));
+                        }
+                    },
+                    {
+                        text: "Редактировать"
+                    },
+                    {
+                        text: "Удалить",
+                        isDanger: true,
+                        async onClick(data) {
+                            const temp = chats;
+                            const msgs = temp.get(data.message.chatId).messages.get(data.messageDate)
+                                .filter(message => message._id !== data.message._id);
+                            temp.get(data.message.chatId).messages.set(data.messageDate, msgs);
+
+                            if (temp.get(data.message.chatId).lastMessage._id === data.message._id){
+                                temp.get(data.message.chatId).lastMessage = temp.get(data.message.chatId).messages.get(data.messageDate).at(-1);
+                            }
+
+                            setChats(new Map(temp));
+
+                            await MessagesService.deleteMessage(data.message._id);
+                        }
+                    }
+                ]} />
+            </div>
         </div>
     )
 };

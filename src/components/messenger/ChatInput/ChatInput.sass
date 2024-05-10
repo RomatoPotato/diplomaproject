@@ -1,22 +1,30 @@
 .chat-input
   width: 100%
-  height: 35px
   background: #c4c4c4
   display: flex
   justify-content: flex-end
+  align-items: flex-end
 
-  &__input-field
-    background: #89c2ba
+  &__textarea
+    resize: none
+    font-size: 1em
+    line-height: 1em
+    background: #b2b2b2
     width: 100%
+
+    &::-webkit-scrollbar
+      display: none
 
   &__file-button
     width: 35px
+    height: 35px
 
     input[type=file]
       width: 0
 
   &__send-button
     width: 35px
+    height: 35px
 
     input[type=submit]
       display: none

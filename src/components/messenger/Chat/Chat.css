@@ -15,6 +15,7 @@
 .chat__wrapper {
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 .chat__unselected-alert-space {
   height: inherit;
@@ -22,6 +23,15 @@
   justify-content: center;
   align-items: center;
   font-weight: bold;
+}
+.chat__date {
+  font-weight: bold;
+  font-size: 1.5em;
+  align-self: center;
+  margin: 5px;
+  padding: 0 5px;
+  background-color: #bdbdbd;
+  border-radius: 5px;
 }
 
 /*# sourceMappingURL=Chat.css.map */

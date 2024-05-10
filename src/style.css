@@ -29,6 +29,10 @@ html, body {
   height: 100%;
 }
 
+body {
+  overflow: hidden;
+}
+
 input {
   font-size: 1em;
 }

@@ -11,18 +11,4 @@ export default class ChatService{
     static async getChats(userId){
         return (await (axiosInstance.get("chats/" + userId))).data;
     }
-
-    static async getMessages(chatId){
-        return (await (axiosInstance.get("chats/messages/" + chatId))).data;
-    }
-
-    static async saveMessage(text, from, to, chatId, datetime){
-        return (await (axiosInstance.post("chats/messages", {
-            text,
-            from,
-            to,
-            chatId,
-            datetime
-        })));
-    }
 }

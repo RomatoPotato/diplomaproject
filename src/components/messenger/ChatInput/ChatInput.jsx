@@ -5,6 +5,8 @@ import send_icon from "../../../images/send.png"
 import {useState} from "react";
 import {Form} from "react-router-dom";
 
+const maxLinesNumber = 10;
+
 export default function ChatInput({onMessageSubmit}) {
     const [message, setMessage] = useState("");
 
@@ -19,12 +21,15 @@ export default function ChatInput({onMessageSubmit}) {
                     setMessage("");
                 }
             }}>
-            <input className="chat-input__input-field"
-                   value={message}
-                   type="text"
-                   onChange={(e) => {
-                       setMessage(e.target.value);
-                   }}/>
+            <textarea
+                className="chat-input__textarea"
+                spellCheck="false"
+                value={message}
+                onChange={(e) => {
+                    e.target.style.height = "auto";
+                    e.target.style.height = Math.min(e.target.scrollHeight, maxLinesNumber * parseInt(getComputedStyle(e.target).fontSize)) + "px";
+                    setMessage(e.target.value);
+                }}/>
             <label className="chat-input__file-button">
                 <input type="file"/>
                 <img src={attach_icon} alt="Прикрепить файл"/>

@@ -1,29 +1,38 @@
 import "./Message.css";
 
 import user_icon from "../../../images/user.png";
+import {ContextMenuTrigger} from "../../ui/ContextMenu/ContextMenu";
 
-export default function Message({ sender, text, date, self }) {
-    let icon = sender.icon;
+export default function Message({message, messageDate, lastSender, self}) {
+    let icon = message.sender.icon;
 
-    if (!icon || icon === ""){
+    if (!icon || icon === "") {
         icon = user_icon;
     }
 
     return (
-        <div className={"message" + (self ? " self" : "")}>
-            <div className={"message__info" + (self ? " self" : "")}>
-                <img src={icon} alt="" className="message__user-icon"/>
-                <span className="message__user-name">{sender.surname} {sender.name}</span>
-            </div>
-            <p className="message__text">{text}</p>
-            <p className={"message__date" + (self ? " self" : "")}>
-                {
-                    new Date(date).toLocaleTimeString("ru-RU", {
-                        hour: "numeric",
-                        minute: "numeric"
-                    })
+        <ContextMenuTrigger
+            className={"message" + (self ? " message_self" : "")}
+            data={{message, messageDate}}>
+            <div className={"message__info" + (self ? " message__info_self" : "")}>
+                {lastSender?._id !== message.sender._id &&
+                    <>
+                        <img src={icon} alt="" className="message__user-icon"/>
+                        <span className="message__user-name">{message.sender.surname} {message.sender.name}</span>
+                    </>
                 }
-            </p>
-        </div>
+            </div>
+            <div className={"message__text" + (self ? " message__text_self" : "")}>
+                <p>{message.text}</p>
+                <p className={"message__date" + (self ? " message__date_self" : "")}>
+                    {
+                        new Date(message.datetime).toLocaleTimeString("ru-RU", {
+                            hour: "numeric",
+                            minute: "numeric"
+                        })
+                    }
+                </p>
+            </div>
+        </ContextMenuTrigger>
     )
 };
