@@ -4,7 +4,6 @@ import Header from "../Header/Header";
 import ChatInput from "../ChatInput/ChatInput";
 import "./Chat.css";
 import DateHelper from "../../../utils/DateHelper";
-import {ContextMenu} from "../../ui/ContextMenu/ContextMenu";
 
 const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onShowChatInfoClick}) => {
     const [messages, setMessages] = useState([]);
@@ -17,31 +16,29 @@ const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onS
 
     let lastSender = null;
     let messageDate;
-    const msgs = (
-        Array.from(messages, ([datetime, messages]) => ({datetime, messages})).map(msg => {
-                lastSender = null;
-                messageDate = DateHelper.getDayMonth(msg.datetime);
+    const msgs = Array.from(messages, ([datetime, messages]) => ({datetime, messages})).map(msg => {
+            lastSender = null;
+            messageDate = DateHelper.getDayMonth(msg.datetime);
 
-                return <Fragment key={msg.datetime}>
-                    <p className="chat__date">{messageDate}</p>
-                    {
-                        Array.from(msg.messages.values()).map(message => {
-                            const m =
-                                <Message
-                                    key={message._id}
-                                    message={message}
-                                    messageDate={msg.datetime}
-                                    lastSender={lastSender}
-                                    self={message.sender._id === currentUser._id} />
+            return <Fragment key={msg.datetime}>
+                <p className="chat__date">{messageDate}</p>
+                {
+                    Array.from(msg.messages.values()).map(message => {
+                        const m =
+                            <Message
+                                key={message._id}
+                                message={message}
+                                messageDate={msg.datetime}
+                                lastSender={lastSender}
+                                self={message.sender._id === currentUser._id} />
 
-                            lastSender = message.sender;
+                        lastSender = message.sender;
 
-                            return m;
-                        })
-                    }
-                </Fragment>
-            }
-        )
+                        return m;
+                    })
+                }
+            </Fragment>
+        }
     )
 
     return (

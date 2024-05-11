@@ -76,9 +76,8 @@ const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingC
                         {messages.map(message =>
                             <Message
                                 key={messageId++}
-                                text={message.text}
-                                sender={currentUser}
-                                date={message.date}
+                                message={message}
+                                messageDate={message.date}
                                 self={true}/>
                         )}
                     </div>
@@ -89,7 +88,8 @@ const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingC
                             ...messages,
                             {
                                 text,
-                                date: new Date()
+                                sender: currentUser,
+                                datetime: new Date()
                             }
                         ]);
                     }}/>

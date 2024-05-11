@@ -13,7 +13,11 @@ export default function Message({message, messageDate, lastSender, self}) {
     return (
         <ContextMenuTrigger
             className={"message" + (self ? " message_self" : "")}
-            data={{message, messageDate}}>
+            data={{
+                date: messageDate,
+                _id: message._id,
+                chatId: message.chatId
+            }}>
             <div className={"message__info" + (self ? " message__info_self" : "")}>
                 {lastSender?._id !== message.sender._id &&
                     <>

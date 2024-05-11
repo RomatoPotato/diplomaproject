@@ -1,7 +1,6 @@
 import "./Messenger.css"
 import ChatTab from "../../components/messenger/ChatTab/ChatTab";
 import React, {useEffect, useState} from "react";
-import socket from "../../utils/socket";
 import {Link, redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
 import ChatService from "../../services/ChatService";
@@ -12,8 +11,8 @@ import Controls from "../../components/messenger/Controls/Controls";
 import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
 import {ContextMenu} from "../../components/ui/ContextMenu/ContextMenu";
 import MessagesService from "../../services/MessagesService";
-
-let nextMessageId = 0;
+import socketHelper from "../../utils/MessengerSocketHelper";
+import chatsStateManager from "../../utils/ChatsStateManager";
 
 export async function loader() {
     const chatsInfo = new Map();
@@ -85,214 +84,51 @@ export default function Messenger() {
     const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
 
     useEffect(() => {
-        socket.auth = {
-            user: {
-                _id: currentUser._id,
-                name: currentUser.name,
-                surname: currentUser.surname,
-                online: true
-            }
-        };
-
-        socket.connect();
-        socket.emit("check users");
+        socketHelper.connectUser(currentUser);
     }, [currentUser]);
 
     useEffect(() => {
         ChatService.getChats(currentUser._id).then((allChats) => {
             for (const chat of allChats) {
-                socket.emit("join_room", chat._id);
+                socketHelper.emitJoinRoom(chat);
             }
         });
     }, [currentUser]);
 
     useEffect(() => {
-        socket.on("users", (users) => {
-            const temp = chats;
-
-            for (let [key, value] of temp) {
-                for (let user of users) {
-                    if (value.type === "dialog") {
-                        if (value.interlocutor._id === user._id) {
-                            value.interlocutor.online = true;
-                        }
-                    }
-                }
-            }
-
-            setChats(new Map(temp));
-        });
-
-        socket.on("user connected", (connectedUser) => {
-            const temp = chats;
-
-            for (let [key, value] of temp) {
-                if (value.type === "dialog") {
-                    if (value.interlocutor._id === connectedUser._id) {
-                        value.interlocutor.online = true;
-                        setChats(new Map(temp));
-                        return;
-                    }
-                }
-            }
-        });
-
-        socket.on("user disconnected", (userId) => {
-            const temp = chats;
-
-            for (let [key, value] of temp) {
-                if (value.type === "dialog") {
-                    if (value.interlocutor._id === userId) {
-                        value.interlocutor.online = false;
-                        setChats(new Map(temp));
-                        return;
-                    }
-                }
-            }
-        });
+        socketHelper.addUsersListeners(setChats, chats);
 
         return () => {
-            socket.off("users");
-            socket.off("user connected");
-            socket.off("user disconnected");
+            socketHelper.removeUsersListeners();
         }
     }, [chats]);
 
     useEffect(() => {
-        socket.on("message", ({text, from, to, date}) => {
-            let temp = chats.get(to);
-
-            const receivedMessage = {
-                _id: nextMessageId++,
-                text: text,
-                sender: temp.users.get(from),
-                chatId: temp._id,
-                datetime: date
-            };
-
-            const formattedSendDate = new Date(date).toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "numeric",
-                year: "numeric"
-            });
-
-            if (!temp.messages.get(formattedSendDate)) {
-                temp.messages.set(formattedSendDate, [receivedMessage]);
-            } else {
-                temp.messages.get(formattedSendDate).push(receivedMessage);
-            }
-            temp.lastMessage = receivedMessage;
-
-            const tempChats = chats;
-            tempChats.get(temp._id).lastMessage = receivedMessage;
-
-            if (!selectedChat || selectedChat._id !== temp._id) {
-                tempChats.get(temp._id).hasNewMessages = true;
-            }
-
-            if (selectedChat && selectedChat._id === temp._id) {
-                setSelectedChat({...temp});
-            }
-
-            setChats(new Map(tempChats));
-        });
+        socketHelper.addMessagesListeners(setChats, chats);
 
         return () => {
-            socket.off("message");
+            socketHelper.removeMessagesListeners();
         }
     }, [selectedChat, chats]);
 
-    function handleMessageSubmit(text) {
+    async function handleMessageSubmit(text) {
         if (selectedChat) {
-            const sendDate = new Date();
-
-            socket.emit("message", {
-                text: text,
-                to: selectedChat._id,
-                date: sendDate
-            });
-
-            const temp = selectedChat;
-            const newMessage = {
-                _id: nextMessageId++,
-                text: text,
-                sender: currentUser,
-                chatId: selectedChat._id,
-                datetime: sendDate
-            };
-
-            const formattedSendDate = sendDate.toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "numeric",
-                year: "numeric"
-            });
-
-            if (!temp.messages.get(formattedSendDate)) {
-                temp.messages.set(formattedSendDate, [newMessage]);
-            } else {
-                temp.messages.get(formattedSendDate).push(newMessage);
-            }
-
-            const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
-            MessagesService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate).then(message => {
-
-            });
-
-            const tempChats = chats;
-            tempChats.get(selectedChat._id).lastMessage = newMessage;
-
-            setSelectedChat({...temp});
-            setChats(new Map(tempChats));
+            await socketHelper.sendMessage(setChats, chats, selectedChat, currentUser, text);
         }
     }
 
     return (
         <div className="messenger">
-            {(currentUser.roles.includes("admin") || currentUser.roles.includes("teacher"))  &&
+            {(currentUser.roles.includes("admin") || currentUser.roles.includes("teacher")) &&
                 <Controls
                     chats={chats}
                     currentUser={currentUser}
-                    onSendMailingClick={(messages, chatIds) => {
-                        const tempChats = chats;
-
+                    onSendMailingClick={async (messages, chatIds) => {
                         for (const chatId of chatIds) {
                             for (const message of messages) {
-                                socket.emit("message", {
-                                    text: message.text,
-                                    to: chatId,
-                                    date: message.date
-                                });
-
-                                const newMessage = {
-                                    _id: nextMessageId++,
-                                    text: message.text,
-                                    sender: currentUser,
-                                    chatId: chatId,
-                                    datetime: message.date
-                                };
-
-                                const formattedSendDate = message.date.toLocaleDateString("ru-RU", {
-                                    day: "numeric",
-                                    month: "numeric",
-                                    year: "numeric"
-                                });
-
-                                const chat = chats.get(chatId);
-                                if (!chat.messages.get(formattedSendDate)) {
-                                    chat.messages.set(formattedSendDate, [newMessage]);
-                                } else {
-                                    chat.messages.get(formattedSendDate).push(newMessage);
-                                }
-
-                                ChatService.saveMessage(message.text, currentUser._id, chatId, chatId, message.date).then(message => {
-
-                                });
-
-                                tempChats.get(chatId).lastMessage = newMessage;
+                                await socketHelper.sendMessage(setChats, chats, chats.get(chatId), currentUser, message.text);
                             }
                         }
-
-                        setChats(new Map(tempChats));
                     }}/>
             }
             <div className="messenger__wrapper">
@@ -304,7 +140,7 @@ export default function Messenger() {
                         </div>
                         <Link to="../account"><img src={currentUser.icon} alt=""/></Link>
                     </div>
-                    <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)} />
+                    <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)}/>
                     <div className="left-side__user-tabs">
                         {Array.from(chats, ([key, value]) => (value)).filter(chatsFilter).length === 0 &&
                             <p>Чаты не найдены(</p>
@@ -339,7 +175,7 @@ export default function Messenger() {
                             <div className="info-header__text-area">
                                 <h2>{selectedChat.name}</h2>
                                 {selectedChat.type === "mainGroup" ?
-                                    <h3>Главная группа</h3>:
+                                    <h3>Главная группа</h3> :
                                     <h3>{selectedChat.group.name}</h3>
                                 }
                             </div>
@@ -414,7 +250,7 @@ export default function Messenger() {
                     },
                     {
                         text: "Копировать",
-                        onClick(data){
+                        onClick(data) {
                             navigator.clipboard.writeText(data.message.text)
                                 .then(() => console.log("Copied!\n" + data.message.text));
                         }
@@ -426,21 +262,11 @@ export default function Messenger() {
                         text: "Удалить",
                         isDanger: true,
                         async onClick(data) {
-                            const temp = chats;
-                            const msgs = temp.get(data.message.chatId).messages.get(data.messageDate)
-                                .filter(message => message._id !== data.message._id);
-                            temp.get(data.message.chatId).messages.set(data.messageDate, msgs);
-
-                            if (temp.get(data.message.chatId).lastMessage._id === data.message._id){
-                                temp.get(data.message.chatId).lastMessage = temp.get(data.message.chatId).messages.get(data.messageDate).at(-1);
-                            }
-
-                            setChats(new Map(temp));
-
-                            await MessagesService.deleteMessage(data.message._id);
+                            chatsStateManager.deleteMessage(setChats, chats, data);
+                            await socketHelper.deleteMessage(data);
                         }
                     }
-                ]} />
+                ]}/>
             </div>
         </div>
     )

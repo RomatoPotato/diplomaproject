@@ -105,6 +105,10 @@ io.on("connection", (socket) => {
             date: date
         });
     });
+
+    socket.on("delete message", (data) => {
+        socket.broadcast.emit("delete message", data)
+    })
 });
 
 httpServer.listen(config.server.port);
