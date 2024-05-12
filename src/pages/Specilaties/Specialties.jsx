@@ -4,9 +4,7 @@ import "./Specialties.css";
 import SpecialtiesService from "../../services/SpecialtiesService";
 
 export async function loader() {
-    const specialties = await SpecialtiesService.getSpecialties();
-
-    return specialties;
+    return await SpecialtiesService.getSpecialties();
 }
 
 const Specialties = () => {

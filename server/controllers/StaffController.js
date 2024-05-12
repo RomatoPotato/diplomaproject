@@ -50,7 +50,7 @@ class StaffController {
 
             const _id = new mongoose.Types.ObjectId();
 
-            let newUser = await User.create({
+            await User.create({
                 _id,
                 name,
                 surname,

@@ -61,9 +61,7 @@ const io = new Server(httpServer, {
 })();
 
 io.use((socket, next) => {
-    const user = socket.handshake.auth.user;
-
-    socket.user = user;
+    socket.user = socket.handshake.auth.user;
 
     next();
 });
@@ -78,7 +76,7 @@ io.on("connection", (socket) => {
 
     socket.on("check users", () => {
         const users = [];
-        for (let [_, socket] of io.of("/").sockets){
+        for (let [, socket] of io.of("/").sockets){
             users.push(socket.user);
         }
 

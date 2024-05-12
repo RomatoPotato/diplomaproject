@@ -3,8 +3,7 @@ import {useLoaderData} from "react-router-dom";
 import GroupsService from "../../services/GroupsService";
 
 export async function loader() {
-    const groups = await GroupsService.getGroups();
-    return groups;
+    return await GroupsService.getGroups();
 }
 
 const Groups = () => {

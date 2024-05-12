@@ -31,9 +31,7 @@ class UsersService {
             throw ApiError.UnauthorizedError();
         }
 
-        const user = await User.findById(userData.userId);
-
-        return user;
+        return (await User.findById(userData.userId));
     }
 
     async refresh(refreshToken, getPayload){
@@ -47,35 +45,29 @@ class UsersService {
         }
 
         const user = await User.findById(userData.id);
-        const accessToken = tokenService.generateAccessToken(getPayload(user));
 
-        return accessToken;
+        return tokenService.generateAccessToken(getPayload(user));
     }
 
     async setIsFirstLoginFalse(id){
-        const user = await User.findByIdAndUpdate(id, {
+        return (await User.findByIdAndUpdate(id, {
             isFirstLogin: false
-        }, config.updateOptions);
-        return user;
+        }, config.updateOptions));
     }
 
     async updateLoginData(id, login, password){
         const hash = generatePasswordHash(password);
 
-        const updated = await User.findByIdAndUpdate(id, {
+        return (await User.findByIdAndUpdate(id, {
             login,
             password: hash
-        }, config.updateOptions);
-
-        return updated;
+        }, config.updateOptions));
     }
 }
 
 function generatePasswordHash(password){
     const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
-
-    return hash;
+    return bcrypt.hashSync(password, salt);
 }
 
 module.exports = new UsersService();

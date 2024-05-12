@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import "./ContextMenu.css";
-import listener from "../../../utils/GlobalEventListener";
+import listener from "../../../utils/GlobalEventListeners/ContextMenuEventListener";
 
 let nextItemId = 0;
 
@@ -83,6 +83,8 @@ export const ContextMenu = ({contextMenuItems}) => {
 export const ContextMenuTrigger = ({children, data, ...attrs}) => {
     return (
         <div {...attrs} onContextMenu={(e) => {
+            hide();
+
             e.preventDefault();
             e.stopPropagation();
 

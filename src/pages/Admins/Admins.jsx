@@ -3,7 +3,6 @@ import {Form, useLoaderData} from "react-router-dom";
 import StaffService from "../../services/StaffService";
 import TeachersService from "../../services/TeachersService";
 import RolesService from "../../services/RolesService";
-import UserService from "../../services/UserService";
 
 export async function loader() {
     const staff = await StaffService.getStaff();
@@ -20,15 +19,13 @@ export async function action({request}) {
     switch (addingMethod) {
         case "fromStaff":
             const staffId = formData.get("staff");
-            const staff = await RolesService.addRoleToUser(staffId, "admin");
-            return staff;
+            return await RolesService.addRoleToUser(staffId, "admin");
         case "fromTeachers":
             const teacherId = formData.get("teacher");
-            const teacher = await RolesService.addRoleToUser(teacherId, "admin");
-            return teacher;
+            return await RolesService.addRoleToUser(teacherId, "admin");
+        default:
+            return null;
     }
-
-    return null;
 }
 
 const Admins = () => {

@@ -32,9 +32,7 @@ export async function action({request}) {
         counts.push(disciplines.length);
     }
 
-    const added = await CurriculumService.addCurriculum(group, startYear, semestersNumber, allDisciplines, allTeachers, counts);
-
-    return added;
+    return await CurriculumService.addCurriculum(group, startYear, semestersNumber, allDisciplines, allTeachers, counts);
 }
 
 const Curriculums = () => {
@@ -77,7 +75,7 @@ const Curriculums = () => {
                         name="studyDuration"
                         value={studyDuration}
                         onChange={(e) => {
-                            setStudyDuration(e.target.value);
+                            setStudyDuration(parseInt(e.target.value));
 
                             let temp = [];
                             for (let i = 1; i <= Number(e.target.value); i++){

@@ -2,11 +2,11 @@ import React, {useState} from 'react';
 import StaffService from "../../services/StaffService";
 import {Form, useLoaderData} from "react-router-dom";
 import UserService from "../../services/UserService";
+import FilesManager from "../../utils/FilesManager";
+import AdminManager from "../../utils/AdminManager";
 
 export async function loader() {
-    const staff = await StaffService.getStaff();
-
-    return staff;
+    return await StaffService.getStaff();
 }
 
 export async function action({request}) {
@@ -16,9 +16,7 @@ export async function action({request}) {
     const middlename = formData.get("staffMiddlename").trim();
     const appointment = formData.get("appointment").trim();
 
-    const added = await StaffService.addStaff(surname, name, middlename, appointment);
-
-    return added;
+    return await StaffService.addStaff(surname, name, middlename, appointment);
 }
 
 const UniversityStaff = () => {
@@ -89,24 +87,7 @@ const UniversityStaff = () => {
                         <td>{s.appointment}</td>
                         <td>
                             <button onClick={async () => {
-                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords([s.userId]);
-
-                                const dataToSave = [];
-                                for (const data of loginsAndPasswords) {
-                                    if (data.alreadyLoggedIn) {
-                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему`)
-                                    }
-                                    else {
-                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
-                                    }
-                                }
-
-                                const file = new Blob(dataToSave, {type: "text/plain"});
-                                const element = document.createElement("a");
-                                element.href = URL.createObjectURL(file);
-                                element.download = `${s.surname} ${s.name} ${s.middlename} логин и пароль.txt`;
-                                element.click();
-                                URL.revokeObjectURL(element.href);
+                                await AdminManager.generateLoginAndPasswordForOne(s, s.userId);
                             }}>Сгенерировать пароль</button>
                         </td>
                     </tr>

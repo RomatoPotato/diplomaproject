@@ -1,7 +1,6 @@
 import "./ChatTabCheckbox.css"
 import chat_icon from "../../../images/group.png";
 import user_icon from "../../../images/user.png";
-import {useState} from "react";
 
 export default function ChatTabCheckbox({chat, checked, onChange}) {
     //const [isChecked, setIsChecked] = useState(checked);

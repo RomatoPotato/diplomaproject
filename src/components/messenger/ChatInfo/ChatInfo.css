@@ -1,0 +1,21 @@
+.chat-info {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.34);
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.chat-info__content {
+  width: 40%;
+  height: 80%;
+  border-radius: 6px;
+  background-color: #06c09d;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+/*# sourceMappingURL=ChatInfo.css.map */

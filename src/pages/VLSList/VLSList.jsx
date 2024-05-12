@@ -1,12 +1,10 @@
 import React from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import VLSService from "../../services/VLSService";
-import UserService from "../../services/UserService";
+import AdminManager from "../../utils/AdminManager";
 
 export async function loader() {
-    const vlss = await VLSService.getVLSs();
-
-    return vlss;
+    return await VLSService.getVLSs();
 }
 
 const VLSList = () => {
@@ -28,24 +26,7 @@ const VLSList = () => {
                         <td>{vls.group.name}</td>
                         <td>
                             <button onClick={async () => {
-                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords(vls.group.students);
-
-                                const dataToSave = [];
-                                for (const data of loginsAndPasswords) {
-                                    if (data.alreadyLoggedIn) {
-                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему\n\n`)
-                                    }
-                                    else {
-                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
-                                    }
-                                }
-
-                                const file = new Blob(dataToSave, {type: "text/plain"});
-                                const element = document.createElement("a");
-                                element.href = URL.createObjectURL(file);
-                                element.download = `Логины и пароли для студентов группы ${vls.group.name}.txt`;
-                                element.click();
-                                URL.revokeObjectURL(element.href);
+                                await AdminManager.generateLoginAndPasswordForMany(vls.group.students, `Логины и пароли для студентов группы ${vls.group.name}.txt`);
                             }}>Сгенерировать пароли для студентов
                             </button>
                             <Form action={vls._id}>

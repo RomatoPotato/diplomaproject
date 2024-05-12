@@ -3,7 +3,6 @@ const config = require("../config");
 const tokenService = require("../services/TokensService");
 const User = require("../models/User");
 const mongoose = require("mongoose");
-const groupServce = require("../services/GroupsService");
 const bcrypt = require("bcryptjs");
 
 class UserController {

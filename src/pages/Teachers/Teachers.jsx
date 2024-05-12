@@ -3,6 +3,8 @@ import {Form, useLoaderData} from "react-router-dom";
 import ADService from "../../services/ADService";
 import TeachersService from "../../services/TeachersService";
 import UserService from "../../services/UserService";
+import FilesManager from "../../utils/FilesManager";
+import AdminManager from "../../utils/AdminManager";
 
 export async function loader() {
     const disciplines = await ADService.getAcademicDisciplines();
@@ -23,7 +25,7 @@ export async function action({request}) {
     const [surname, name, middlename] = formData.get("fullTeacherName").split(" ");
     const disciplines = formData.getAll("disciplines");
 
-    const added = await TeachersService.addTeacher(surname, name, middlename, disciplines);
+    await TeachersService.addTeacher(surname, name, middlename, disciplines);
 
     return null;
 }
@@ -93,24 +95,7 @@ const Teachers = () => {
                         </td>
                         <td>
                             <button onClick={async () => {
-                                const loginsAndPasswords = await UserService.generateLoginsAndPasswords([teacher.userId]);
-
-                                const dataToSave = [];
-                                for (const data of loginsAndPasswords) {
-                                    if (data.alreadyLoggedIn) {
-                                        dataToSave.push(`${data.user}\nПользователь уже входил в систему`)
-                                    }
-                                    else {
-                                        dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);
-                                    }
-                                }
-
-                                const file = new Blob(dataToSave, {type: "text/plain"});
-                                const element = document.createElement("a");
-                                element.href = URL.createObjectURL(file);
-                                element.download = `${teacher.surname} ${teacher.name} ${teacher.middlename} логин и пароль.txt`;
-                                element.click();
-                                URL.revokeObjectURL(element.href);
+                                await AdminManager.generateLoginAndPasswordForOne(teacher, teacher.userId);
                             }}>Сгенерировать пароль</button>
                         </td>
                     </tr>

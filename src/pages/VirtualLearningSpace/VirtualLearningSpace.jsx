@@ -19,9 +19,7 @@ export async function action({request}){
     const teachers = formData.getAll("teachers");
     const vlsId = formData.get("vlsId");
 
-    const added = await VLSService.addStudyChats(vlsId, disciplines, teachers);
-
-    return added;
+    return await VLSService.addStudyChats(vlsId, disciplines, teachers);
 }
 
 const VirtualLearningSpace = () => {

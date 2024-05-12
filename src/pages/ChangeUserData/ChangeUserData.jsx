@@ -10,7 +10,7 @@ export async function action({request}) {
     const login = formData.get("login");
     const password = formData.get("password");
 
-    const updatedLoginData = await UserService.updateLoginData(userId, login, password);
+    await UserService.updateLoginData(userId, login, password);
 
     return redirect("../messenger");
 }

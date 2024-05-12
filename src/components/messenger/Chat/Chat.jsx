@@ -1,4 +1,4 @@
-import React, {Fragment, useEffect, useRef, useState} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import Message from "../Message/Message";
 import Header from "../Header/Header";
 import ChatInput from "../ChatInput/ChatInput";

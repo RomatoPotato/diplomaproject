@@ -118,7 +118,7 @@ class GroupController {
 
                 const _id = new mongoose.Types.ObjectId();
 
-                const newStudent = await User.create({
+                await User.create({
                     _id,
                     name,
                     surname,

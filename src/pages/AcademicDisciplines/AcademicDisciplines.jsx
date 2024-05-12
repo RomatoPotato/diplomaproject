@@ -3,9 +3,7 @@ import {Form, useActionData, useLoaderData} from "react-router-dom";
 import ADService from "../../services/ADService";
 
 export async function loader() {
-    const academicDisciplines = await ADService.getAcademicDisciplines();
-
-    return academicDisciplines;
+    return await ADService.getAcademicDisciplines();
 }
 
 export async function action({request}) {
@@ -27,6 +25,9 @@ export async function action({request}) {
                         error = "Данная дисциплина уже существует!";
                     }
                 });
+            break;
+        default:
+            return null;
     }
 
     return {

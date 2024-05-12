@@ -5,13 +5,14 @@ import {Link, redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
 import ChatService from "../../services/ChatService";
 import AuthService from "../../services/AuthService";
-import chat_icon from "../../images/group.png";
 import user_icon from "../../images/user.png";
 import Controls from "../../components/messenger/Controls/Controls";
 import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
 import {ContextMenu} from "../../components/ui/ContextMenu/ContextMenu";
 import MessagesService from "../../services/MessagesService";
 import socketHelper from "../../utils/MessengerSocketHelper";
+import DialogMenu, {show as dialogMenuShow} from "../../components/ui/DialogMenu/DialogMenu";
+import ChatInfo from "../../components/messenger/ChatInfo/ChatInfo";
 import chatsStateManager from "../../utils/ChatsStateManager";
 
 export async function loader() {
@@ -142,10 +143,10 @@ export default function Messenger() {
                     </div>
                     <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)}/>
                     <div className="left-side__user-tabs">
-                        {Array.from(chats, ([key, value]) => (value)).filter(chatsFilter).length === 0 &&
+                        {Array.from(chats.values()).filter(chatsFilter).length === 0 &&
                             <p>Чаты не найдены(</p>
                         }
-                        {Array.from(chats, ([key, value]) => (value)).filter(chatsFilter).map(chat =>
+                        {Array.from(chats.values()).filter(chatsFilter).map(chat =>
                             <ChatTab
                                 key={chat._id}
                                 chat={chat}
@@ -165,82 +166,8 @@ export default function Messenger() {
                     onCloseChatClick={() => setSelectedChat(null)}
                     onShowChatInfoClick={() => setShowChatInfo(true)}/>
             </div>
-            {showChatInfo &&
-                <div className="chat-info" onClick={() => setShowChatInfo(false)}>
-                    <div className="chat-info__content" onClick={(e) => e.stopPropagation()}>
-                        <div className="info-header">
-                            <div className="info-header__icon-area">
-                                <img src={selectedChat.icon ? selectedChat.icon : chat_icon}/>
-                            </div>
-                            <div className="info-header__text-area">
-                                <h2>{selectedChat.name}</h2>
-                                {selectedChat.type === "mainGroup" ?
-                                    <h3>Главная группа</h3> :
-                                    <h3>{selectedChat.group.name}</h3>
-                                }
-                            </div>
-                        </div>
-                        <div className="info-body">
-                            {selectedChat.type === "mainGroup" &&
-                                <>
-                                    <h3>Админы</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("admin"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                    <h3>Куратор</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("curator"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                    <h3>Староста</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("headman"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                    <h3>Студентота</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("student"))
-                                        .filter(([id, user]) => !user.roles.includes("headman"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                </>
-                            }
-                            {selectedChat.type === "studyGroup" &&
-                                <>
-                                    <h3>Преподаватель</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("teacher"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                    <h3>Староста</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("headman"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                    <h3>Студентота</h3>
-                                    {Array.from(selectedChat.users.entries())
-                                        .filter(([id, user]) => user.roles.includes("student"))
-                                        .filter(([id, user]) => !user.roles.includes("headman"))
-                                        .map(([id, user]) =>
-                                            <p key={id}>{user.surname} {user.name} {user.middlename}</p>
-                                        )}
-                                </>
-                            }
-                        </div>
-                        <div className="info-footer">
-
-                        </div>
-                    </div>
-                </div>
-            }
-            <div className="messenger__context-menus">
+            {showChatInfo && <ChatInfo selectedChat={selectedChat} onCloseChatInfo={() => setShowChatInfo(false)} />}
+            <div className="messenger__menus">
                 <ContextMenu contextMenuItems={[
                     {
                         text: "Переслать"
@@ -251,8 +178,7 @@ export default function Messenger() {
                     {
                         text: "Копировать",
                         onClick(data) {
-                            navigator.clipboard.writeText(data.message.text)
-                                .then(() => console.log("Copied!\n" + data.message.text));
+                            navigator.clipboard.writeText(data.message.text).then(() => console.log("Copied!\n" + data.message.text));
                         }
                     },
                     {
@@ -262,11 +188,17 @@ export default function Messenger() {
                         text: "Удалить",
                         isDanger: true,
                         async onClick(data) {
-                            chatsStateManager.deleteMessage(setChats, chats, data);
-                            await socketHelper.deleteMessage(data);
+                            dialogMenuShow(data);
                         }
                     }
                 ]}/>
+                <DialogMenu
+                    title="Удалить сообщение?"
+                    warningText="Сообщение будет безвозвратно удалено!"
+                    positiveButtonClick={async (data) => {
+                        chatsStateManager.deleteMessage(setChats, chats, data);
+                        await socketHelper.deleteMessage(data);
+                    }}/>
             </div>
         </div>
     )

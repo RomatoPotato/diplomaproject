@@ -4,10 +4,7 @@ import {useLoaderData} from "react-router-dom";
 
 export async function loader({params}) {
     const groupId = params.id;
-
-    const curriculum = await CurriculumService.getCurriculum(groupId);
-
-    return curriculum;
+    return await CurriculumService.getCurriculum(groupId);
 }
 
 const Curriculum = () => {

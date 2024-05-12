@@ -15,7 +15,7 @@ const months = [
 
 export default class DateHelper {
     static getDayMonth(stringDate){
-        const [day, month, year] = stringDate.split(".");
+        const [day, month, ] = stringDate.split(".");
 
         return `${day} ${months[Number(month) - 1]}`;
     }
