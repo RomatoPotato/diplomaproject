@@ -3,6 +3,8 @@ import "./Message.css";
 import user_icon from "../../../images/user.png";
 import {ContextMenuTrigger} from "../../ui/ContextMenu/ContextMenu";
 
+let paragraphId = 0;
+
 export default function Message({message, messageDate, lastSender, self}) {
     let icon = message.sender.icon;
 
@@ -27,7 +29,11 @@ export default function Message({message, messageDate, lastSender, self}) {
                 }
             </div>
             <div className={"message__text" + (self ? " message__text_self" : "")}>
-                <p>{message.text}</p>
+                <div>
+                    {message.text.split("\n").map(text =>
+                        <p key={paragraphId++}>{text}</p>
+                    )}
+                </div>
                 <p className={"message__date" + (self ? " message__date_self" : "")}>
                     {
                         new Date(message.datetime).toLocaleTimeString("ru-RU", {

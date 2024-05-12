@@ -1,5 +1,5 @@
 .chat-tab {
-  width: 320px;
+  width: 100%;
   height: 70px;
   background: lightgray;
   border: 1px solid gray;
@@ -19,7 +19,7 @@
 .chat-tab__desc {
   display: flex;
   flex-direction: column;
-  width: 227.5px;
+  width: calc(100% - 70px - 10px - 12.5px);
 }
 .chat-tab__desc p {
   padding: 5px;
@@ -36,6 +36,9 @@
   font-weight: bold;
   line-height: 0.8em;
   font-size: 1.1em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .chat-tab__last-msg {
   overflow: hidden;

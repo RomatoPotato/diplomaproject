@@ -134,7 +134,7 @@ export default function Messenger() {
             }
             <div className="messenger__wrapper">
                 <div className="left-side">
-                    <div className="left-side__user-info">
+                    <div className="left-side__chat-info">
                         <div>
                             <p>{currentUser.name} {currentUser.surname}</p>
                             <b>{currentUser.login}</b>
@@ -142,7 +142,7 @@ export default function Messenger() {
                         <Link to="../account"><img src={currentUser.icon} alt=""/></Link>
                     </div>
                     <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)}/>
-                    <div className="left-side__user-tabs">
+                    <div className="left-side__chat-tabs">
                         {Array.from(chats.values()).filter(chatsFilter).length === 0 &&
                             <p>Чаты не найдены(</p>
                         }

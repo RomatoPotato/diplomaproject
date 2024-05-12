@@ -22,31 +22,32 @@
 }
 
 .left-side {
+  width: 30%;
   display: flex;
   flex-direction: column;
   background-color: #b6b6b6;
 }
-.left-side__user-info {
+.left-side__chat-info {
   padding: 5px;
   background-color: #76c0b9;
   border-bottom: 5px solid black;
   display: flex;
   justify-content: space-between;
+  z-index: 2;
 }
-.left-side__user-info img {
+.left-side__chat-info img {
   width: 40px;
   height: 40px;
 }
-.left-side__user-tabs {
+.left-side__chat-tabs {
   height: 100%;
-  width: 320px;
-  overflow-y: auto;
   overflow-x: hidden;
+  overflow-y: auto;
 }
-.left-side__user-tabs::-webkit-scrollbar {
+.left-side__chat-tabs::-webkit-scrollbar {
   display: none;
 }
-.left-side__user-tabs a {
+.left-side__chat-tabs a {
   text-decoration: none;
   color: black;
 }

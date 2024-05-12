@@ -1,6 +1,7 @@
-$tab_width: 320px
+$tab_width: 100%
 $tab_height: 70px
 $tab_padding: 5px
+$icon_size: $tab_height - $tab_padding * 2
 $notify-block-width: $tab_padding * 2.5
 
 .chat-tab
@@ -12,10 +13,10 @@ $notify-block-width: $tab_padding * 2.5
   justify-content: space-between
 
   &__icon
-    min-width: $tab_height - $tab_padding * 2
-    max-width: $tab_height - $tab_padding * 2
-    min-height: $tab_height - $tab_padding * 2
-    max-height: $tab_height - $tab_padding * 2
+    min-width: $icon_size
+    max-width: $icon_size
+    min-height: $icon_size
+    max-height: $icon_size
     object-fit: cover
     align-self: center
     padding: $tab_padding
@@ -24,7 +25,7 @@ $notify-block-width: $tab_padding * 2.5
   &__desc
     display: flex
     flex-direction: column
-    width: $tab_width - $tab_height - $tab_padding * 2 - $notify-block-width
+    width: calc($tab_width - $tab_height - $tab_padding * 2 - $notify-block-width)
 
     p
       padding: $tab_padding
@@ -41,6 +42,9 @@ $notify-block-width: $tab_padding * 2.5
     font-weight: bold
     line-height: 0.8em
     font-size: 1.1em
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
 
   &__last-msg
     overflow: hidden

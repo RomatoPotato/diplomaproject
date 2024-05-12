@@ -8,6 +8,7 @@
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(3px);
+  z-index: 9999;
 }
 
 .dialog-menu {

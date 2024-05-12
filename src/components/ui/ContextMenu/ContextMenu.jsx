@@ -48,10 +48,12 @@ export const ContextMenu = ({contextMenuItems}) => {
     useEffect(() => {
         window.addEventListener("click", closeOnOutsideClick);
         window.addEventListener("wheel", close);
+        window.addEventListener("contextmenu", close);
 
         return () => {
             window.removeEventListener("click", closeOnOutsideClick);
             window.removeEventListener("wheel", close);
+            window.removeEventListener("contextmenu", close);
         }
     });
 

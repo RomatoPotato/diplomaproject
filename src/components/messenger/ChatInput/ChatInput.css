@@ -5,15 +5,9 @@
   justify-content: flex-end;
   align-items: flex-end;
 }
-.chat-input__textarea {
-  resize: none;
-  font-size: 1em;
-  line-height: 1em;
-  background: #b2b2b2;
+.chat-input__input-field {
   width: 100%;
-}
-.chat-input__textarea::-webkit-scrollbar {
-  display: none;
+  display: flex;
 }
 .chat-input__file-button {
   width: 35px;
@@ -27,6 +21,31 @@
   height: 35px;
 }
 .chat-input__send-button input[type=submit] {
+  display: none;
+}
+
+.input-field-wrapper {
+  width: 100%;
+  display: flex;
+  background-color: #989898;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 5px;
+}
+.input-field-wrapper textarea {
+  width: 100%;
+  font-size: 1em;
+  line-height: 1.4em;
+  border: none;
+  resize: none;
+  background: transparent;
+}
+.input-field-wrapper textarea:focus {
+  outline: none;
+}
+.input-field-wrapper textarea::-webkit-scrollbar {
   display: none;
 }
 
