@@ -8,12 +8,14 @@ export const ContextMenu = ({contextMenuItems}) => {
     const [pos, setPos] = useState({x: 0, y: 0});
     const [isShown, setIsShown] = useState(false);
     const [data, setData] = useState(null);
+    const [hideItemData, setHideItemData] = useState();
     const contextMenuRef = useRef();
 
     const open = (e) => {
         setData(e.detail.data);
-        setPosition(e.detail.pos.x, e.detail.pos.y);
+        setHideItemData(e.detail.data.hideData);
         setIsShown(true);
+        setPosition(e.detail.pos.x, e.detail.pos.y);
     }
 
     const close = () => {
@@ -68,6 +70,8 @@ export const ContextMenu = ({contextMenuItems}) => {
                 top: pos.y
             }}>
             {contextMenuItems.map(item =>
+                !(item.hasOwnProperty("hideCondition") && hideItemData &&
+                    item.hideCondition[hideItemData.name] === hideItemData.value) &&
                 <div
                     key={nextItemId++}
                     className={"context-menu__item" + (item.isDanger ? " context-menu__item_danger" : "")}

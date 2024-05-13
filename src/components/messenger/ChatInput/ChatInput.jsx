@@ -2,21 +2,30 @@ import "./ChatInput.css"
 
 import attach_icon from "../../../images/attach-file.png"
 import send_icon from "../../../images/send.png"
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 const maxLinesNumber = 10;
 
-export default function ChatInput({onMessageSubmit}) {
-    const [message, setMessage] = useState("");
+export default function ChatInput({onMessageSubmit, text}) {
+    const [message, setMessage] = useState(text);
     const textAreaRef = useRef();
 
     function handleSubmitMessage(){
         if (message.trim().length > 0) {
-            onMessageSubmit(message);
+            onMessageSubmit(message.replace(/\s{2,}/g, " ").trim()); // to remove redundant spaces
             setMessage("");
-            textAreaRef.current.rows = 1;
         }
     }
+
+    useEffect(() => {
+        textAreaRef.current.rows = 1;
+        textAreaRef.current.rows = Math.min(textAreaRef.current.scrollHeight / parseInt(getComputedStyle(textAreaRef.current).lineHeight), maxLinesNumber);
+    }, [message]);
+
+    useEffect(() => {
+        setMessage(text);
+        textAreaRef.current.focus();
+    }, [text]);
 
     return (
         <div className="chat-input">
@@ -29,8 +38,6 @@ export default function ChatInput({onMessageSubmit}) {
                         spellCheck="false"
                         value={message}
                         onChange={(e) => {
-                            e.target.rows = 1;
-                            e.target.rows = Math.min(e.target.scrollHeight / parseInt(getComputedStyle(e.target).lineHeight), maxLinesNumber);
                             setMessage(e.target.value);
                         }}
                         onKeyDown={(e) => {

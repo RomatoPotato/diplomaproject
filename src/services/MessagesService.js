@@ -5,13 +5,10 @@ export default class MessagesService {
         return (await (axiosInstance.get("messages/" + chatId))).data;
     }
 
-    static async saveMessage(text, from, to, chatId, datetime){
+    static async saveMessage(message, to){
         return (await (axiosInstance.post("messages", {
-            text,
-            from,
+            message,
             to,
-            chatId,
-            datetime
         }))).data;
     }
 

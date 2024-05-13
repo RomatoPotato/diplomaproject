@@ -62,6 +62,7 @@ const io = new Server(httpServer, {
 
 io.use((socket, next) => {
     socket.user = socket.handshake.auth.user;
+    socket.groups = [];
 
     next();
 });
@@ -72,6 +73,7 @@ io.on("connection", (socket) => {
 
     socket.on("join_room", (room) => {
         socket.join(room);
+        socket.groups.push(room);
     });
 
     socket.on("check users", () => {
@@ -95,18 +97,23 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("message", ({text, to, date}) => {
-        socket.to(to).emit("message", {
-            text: text,
-            from: socket.user._id,
-            to: to,
-            date: date
+    socket.on("message", (message) => {
+        socket.to(message.to).emit("message", {
+            ...message,
+            from: socket.user._id
         });
     });
 
-    socket.on("delete message", (data) => {
-        socket.broadcast.emit("delete message", data)
-    })
+    socket.on("delete message", (messageData) => {
+        socket.to(messageData.message.chatId).emit("delete message", messageData);
+    });
+
+    socket.on("edit message", ({messageData, text}) => {
+        socket.to(messageData.message.chatId).emit("edit message", {
+            messageData,
+            text
+        });
+    });
 });
 
 httpServer.listen(config.server.port);

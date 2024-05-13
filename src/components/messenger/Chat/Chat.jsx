@@ -1,11 +1,9 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import Message from "../Message/Message";
-import Header from "../Header/Header";
-import ChatInput from "../ChatInput/ChatInput";
 import "./Chat.css";
 import DateHelper from "../../../utils/DateHelper";
 
-const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onShowChatInfoClick}) => {
+const Chat = ({selectedChat, currentUser}) => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
@@ -30,7 +28,7 @@ const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onS
                                 message={message}
                                 messageDate={msg.datetime}
                                 lastSender={lastSender}
-                                self={message.sender._id === currentUser._id} />
+                                self={message.sender._id === currentUser._id}/>
 
                         lastSender = message.sender;
 
@@ -43,23 +41,9 @@ const Chat = ({selectedChat, currentUser, onMessageSubmit, onCloseChatClick, onS
 
     return (
         <div className="chat">
-            {selectedChat ?
-                <>
-                    <Header
-                        selectedChat={selectedChat}
-                        onCloseButtonClick={onCloseChatClick}
-                        onChatInfoClick={onShowChatInfoClick}/>
-                    <div className="chat__space">
-                        <div className="chat__wrapper">
-                            {msgs}
-                        </div>
-                    </div>
-                    <ChatInput onMessageSubmit={onMessageSubmit}/>
-                </> :
-                <div className="chat__unselected-alert-space">
-                    <p>Выберите группу или собеседника</p>
-                </div>
-            }
+            <div className="chat__wrapper">
+                {msgs}
+            </div>
         </div>
     );
 };

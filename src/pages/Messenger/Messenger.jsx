@@ -14,6 +14,8 @@ import socketHelper from "../../utils/MessengerSocketHelper";
 import DialogMenu, {show as dialogMenuShow} from "../../components/ui/DialogMenu/DialogMenu";
 import ChatInfo from "../../components/messenger/ChatInfo/ChatInfo";
 import chatsStateManager from "../../utils/ChatsStateManager";
+import Header from "../../components/messenger/Header/Header";
+import ChatInput from "../../components/messenger/ChatInput/ChatInput";
 
 export async function loader() {
     const chatsInfo = new Map();
@@ -83,6 +85,10 @@ export default function Messenger() {
     const [selectedChat, setSelectedChat] = useState(null);
     const [showChatInfo, setShowChatInfo] = useState(false);
     const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
+    const [editMessageMode, setEditMessageMode] = useState({
+        enabled: false,
+        message: null
+    })
 
     useEffect(() => {
         socketHelper.connectUser(currentUser);
@@ -113,7 +119,11 @@ export default function Messenger() {
     }, [selectedChat, chats]);
 
     async function handleMessageSubmit(text) {
-        if (selectedChat) {
+        if (editMessageMode.enabled) {
+            editMessageMode.enabled = false;
+            await socketHelper.editMessage(editMessageMode.messageData, text);
+            chatsStateManager.editMessage(setChats, chats, editMessageMode.messageData, text);
+        }else {
             await socketHelper.sendMessage(setChats, chats, selectedChat, currentUser, text);
         }
     }
@@ -159,14 +169,23 @@ export default function Messenger() {
                         )}
                     </div>
                 </div>
-                <Chat
-                    selectedChat={selectedChat}
-                    currentUser={currentUser}
-                    onMessageSubmit={handleMessageSubmit}
-                    onCloseChatClick={() => setSelectedChat(null)}
-                    onShowChatInfoClick={() => setShowChatInfo(true)}/>
+                <div className="messenger__chat-space">
+                    {selectedChat ?
+                        <>
+                            <Header
+                                selectedChat={selectedChat}
+                                onCloseButtonClick={() => setSelectedChat(null)}
+                                onChatInfoClick={() => setShowChatInfo(true)}/>
+                            <Chat selectedChat={selectedChat} currentUser={currentUser}/>
+                            <ChatInput onMessageSubmit={handleMessageSubmit} text={editMessageMode.enabled ? editMessageMode.messageData.message.text : ""}/>
+                        </> :
+                        <div className="messenger__unselected-chat-alert">
+                            <p>Выберите группу или собеседника</p>
+                        </div>
+                    }
+                </div>
             </div>
-            {showChatInfo && <ChatInfo selectedChat={selectedChat} onCloseChatInfo={() => setShowChatInfo(false)} />}
+            {showChatInfo && <ChatInfo selectedChat={selectedChat} onCloseChatInfo={() => setShowChatInfo(false)}/>}
             <div className="messenger__menus">
                 <ContextMenu contextMenuItems={[
                     {
@@ -182,7 +201,16 @@ export default function Messenger() {
                         }
                     },
                     {
-                        text: "Редактировать"
+                        text: "Редактировать",
+                        hideCondition: {
+                            self: false
+                        },
+                        onClick(data) {
+                            setEditMessageMode({
+                                enabled: true,
+                                messageData: data
+                            })
+                        }
                     },
                     {
                         text: "Удалить",
@@ -197,7 +225,7 @@ export default function Messenger() {
                     warningText="Сообщение будет безвозвратно удалено!"
                     positiveButtonClick={async (data) => {
                         chatsStateManager.deleteMessage(setChats, chats, data);
-                        await socketHelper.deleteMessage(data);
+                        await socketHelper.deleteMessage(selectedChat, data);
                     }}/>
             </div>
         </div>

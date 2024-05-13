@@ -13,13 +13,8 @@ export default function Message({message, messageDate, lastSender, self}) {
     }
 
     return (
-        <ContextMenuTrigger
-            className={"message" + (self ? " message_self" : "")}
-            data={{
-                date: messageDate,
-                _id: message._id,
-                chatId: message.chatId
-            }}>
+        <div
+            className={"message" + (self ? " message_self" : "")}>
             <div className={"message__info" + (self ? " message__info_self" : "")}>
                 {lastSender?._id !== message.sender._id &&
                     <>
@@ -28,7 +23,16 @@ export default function Message({message, messageDate, lastSender, self}) {
                     </>
                 }
             </div>
-            <div className={"message__text" + (self ? " message__text_self" : "")}>
+            <ContextMenuTrigger
+                className={"message__text" + (self ? " message__text_self" : "")}
+                data={{
+                    message,
+                    date: messageDate,
+                    hideData: {
+                        name: "self",
+                        value: self
+                    }
+                }}>
                 <div>
                     {message.text.split("\n").map(text =>
                         <p key={paragraphId++}>{text}</p>
@@ -42,7 +46,7 @@ export default function Message({message, messageDate, lastSender, self}) {
                         })
                     }
                 </p>
-            </div>
-        </ContextMenuTrigger>
+            </ContextMenuTrigger>
+        </div>
     )
 };

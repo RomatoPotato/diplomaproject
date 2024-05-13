@@ -21,8 +21,8 @@ class ChatsStateManager {
 
     deleteMessage(setChats, chats, messageData){
         const temp = chats;
-        const currentChat = temp.get(messageData.chatId);
-        const messages = currentChat.messages.get(messageData.date).filter(msg => msg._id !== messageData._id);
+        const currentChat = temp.get(messageData.message.chatId);
+        const messages = currentChat.messages.get(messageData.date).filter(msg => msg._id !== messageData.message._id);
 
         if (messages.length === 0) {
             currentChat.messages.delete(messageData.date);
@@ -30,7 +30,7 @@ class ChatsStateManager {
             currentChat.messages.set(messageData.date, messages);
         }
 
-        if (currentChat.lastMessage._id === messageData._id && messages.length !== 0) {
+        if (currentChat.lastMessage._id === messageData.message._id && messages.length !== 0) {
             currentChat.lastMessage = currentChat.messages.get(messageData.date).at(-1);
         } else {
             if (Array.from(currentChat.messages).at(-1)) {
@@ -38,6 +38,24 @@ class ChatsStateManager {
             } else {
                 currentChat.lastMessage = null;
             }
+        }
+
+        setChats(new Map(temp));
+    }
+
+    editMessage(setChats, chats, messageData, text) {
+        const temp = chats;
+        const currentChat = temp.get(messageData.message.chatId);
+
+        let editedMessage;
+        currentChat.messages.get(messageData.date).filter(msg => msg._id === messageData.message._id).map(msg => {
+            msg.text = text;
+            editedMessage = msg;
+            return editedMessage;
+        });
+
+        if (currentChat.lastMessage._id === messageData.message._id) {
+            currentChat.lastMessage = editedMessage;
         }
 
         setChats(new Map(temp));

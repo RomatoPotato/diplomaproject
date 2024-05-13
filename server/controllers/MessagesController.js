@@ -68,13 +68,17 @@ class MessagesController {
 
     async saveMessage(req, res, next) {
         try {
-            const text = req.body.text;
-            const from = req.body.from;
-            const to = req.body.to;
-            const chatId = req.body.chatId;
-            const datetime = req.body.datetime;
+            const message = req.body.message;
 
-            const message = await Message.create({
+            const _id = message._id;
+            const text = message.text;
+            const from = message.sender._id;
+            const chatId = message.chatId;
+            const datetime = message.datetime;
+            const to = req.body.to;
+
+            const newMessage = await Message.create({
+                _id,
                 text,
                 from,
                 to,
@@ -82,7 +86,7 @@ class MessagesController {
                 datetime
             });
 
-            res.json(message);
+            res.json(newMessage);
         } catch (err) {
             next(err);
         }

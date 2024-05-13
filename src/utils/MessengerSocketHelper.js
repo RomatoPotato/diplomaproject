@@ -1,6 +1,7 @@
 import socket from "./socket";
 import MessagesService from "../services/MessagesService";
 import chatsStateManager from "./ChatsStateManager";
+import mongoose from "mongoose";
 
 class MessengerSocketHelper {
     connectUser(currentUser){
@@ -19,11 +20,6 @@ class MessengerSocketHelper {
 
     emitJoinRoom(chat){
         socket.emit("join_room", chat._id);
-    }
-
-    async deleteMessage(messageData){
-        socket.emit("delete message", messageData);
-        await MessagesService.deleteMessage(messageData._id);
     }
 
     addUsersListeners(setChats, chats){
@@ -79,42 +75,48 @@ class MessengerSocketHelper {
     }
 
     addMessagesListeners(setChats, chats){
-        socket.on("message", ({text, from, to, date}) => {
-            let destinationChat = chats.get(to);
+        socket.on("message", (message) => {
+            let destinationChat = chats.get(message.to);
 
             const receivedMessage = {
-                _id: text + new Date().getTime(),
-                text: text,
-                sender: destinationChat.users.get(from),
+                _id: message.id,
+                text: message.text,
+                sender: destinationChat.users.get(message.from),
                 chatId: destinationChat._id,
-                datetime: date
+                datetime: message.date
             };
 
             chatsStateManager.addMessage(destinationChat, setChats, chats, receivedMessage);
         });
 
         socket.on("delete message", (messageData) => {
-            console.log(messageData)
             chatsStateManager.deleteMessage(setChats, chats, messageData);
+        });
+
+        socket.on("edit message", ({messageData, text}) => {
+            chatsStateManager.editMessage(setChats, chats, messageData, text);
         });
     }
 
     removeMessagesListeners(){
         socket.off("message");
         socket.off("delete message");
+        socket.off("edit message");
     }
 
     async sendMessage(setChats, chats, selectedChat, currentUser, text){
         const sendDate = new Date();
+        const newMessageId = new mongoose.Types.ObjectId().toString();
 
         socket.emit("message", {
+            id: newMessageId,
             date: sendDate,
             text: text,
             to: selectedChat._id
         });
 
         const newMessage = {
-            _id: text + sendDate.getTime(),
+            _id: newMessageId,
             text: text,
             sender: currentUser,
             chatId: selectedChat._id,
@@ -124,7 +126,20 @@ class MessengerSocketHelper {
         chatsStateManager.addMessage(selectedChat, setChats, chats, newMessage);
 
         const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
-        await MessagesService.saveMessage(text, currentUser._id, to, selectedChat._id, sendDate);
+        await MessagesService.saveMessage(newMessage, to);
+    }
+
+    async deleteMessage(selectedChat, messageData){
+        socket.emit("delete message", messageData);
+        await MessagesService.deleteMessage(messageData.message._id);
+    }
+
+    async editMessage(messageData, text){
+        socket.emit("edit message", {
+            messageData,
+            text
+        });
+        await MessagesService.editMessage(messageData.message._id, text);
     }
 }
 
