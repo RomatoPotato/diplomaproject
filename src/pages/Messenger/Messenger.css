@@ -23,6 +23,7 @@
 .messenger__chat-space {
   width: 100%;
   height: 100%;
+  overflow-x: clip;
   display: flex;
   background-color: lightgray;
   flex-direction: column;

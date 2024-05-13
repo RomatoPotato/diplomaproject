@@ -16,6 +16,7 @@ import ChatInfo from "../../components/messenger/ChatInfo/ChatInfo";
 import chatsStateManager from "../../utils/ChatsStateManager";
 import Header from "../../components/messenger/Header/Header";
 import ChatInput from "../../components/messenger/ChatInput/ChatInput";
+import EditMessagePlane from "../../components/messenger/EditMessagePlane/EditMessagePlane";
 
 export async function loader() {
     const chatsInfo = new Map();
@@ -48,8 +49,9 @@ export async function loader() {
         const chatName = chat.type === "dialog" ? interlocutor.name + " " + interlocutor.surname : chat.name;
         let messagesMap = new Map(
             (await MessagesService.getMessages(chat._id)).map(({_id, messages}) => {
+                messages = messages.filter(message => !message.deletedUsers.includes(currentUser._id))
                 lastMessage = messages.at(-1);
-                return [_id.datetime, messages]
+                return [_id.datetime, messages];
             })
         );
 
@@ -120,10 +122,16 @@ export default function Messenger() {
 
     async function handleMessageSubmit(text) {
         if (editMessageMode.enabled) {
-            editMessageMode.enabled = false;
-            await socketHelper.editMessage(editMessageMode.messageData, text);
-            chatsStateManager.editMessage(setChats, chats, editMessageMode.messageData, text);
-        }else {
+            setEditMessageMode({
+                enabled: false,
+                message: null
+            });
+
+            if (editMessageMode.messageData.message.text !== text) {
+                await socketHelper.editMessage(editMessageMode.messageData, text);
+                chatsStateManager.editMessage(setChats, chats, editMessageMode.messageData, text);
+            }
+        } else {
             await socketHelper.sendMessage(setChats, chats, selectedChat, currentUser, text);
         }
     }
@@ -165,6 +173,12 @@ export default function Messenger() {
                                     setSelectedChat({
                                         ...chat
                                     });
+                                    if (editMessageMode.enabled && selectedChat._id !== chat._id) {
+                                        setEditMessageMode({
+                                            enabled: false,
+                                            message: null
+                                        });
+                                    }
                                 }}/>
                         )}
                     </div>
@@ -177,7 +191,18 @@ export default function Messenger() {
                                 onCloseButtonClick={() => setSelectedChat(null)}
                                 onChatInfoClick={() => setShowChatInfo(true)}/>
                             <Chat selectedChat={selectedChat} currentUser={currentUser}/>
-                            <ChatInput onMessageSubmit={handleMessageSubmit} text={editMessageMode.enabled ? editMessageMode.messageData.message.text : ""}/>
+                            {editMessageMode.enabled &&
+                                <EditMessagePlane
+                                    message={editMessageMode.enabled && editMessageMode.messageData.message}
+                                    onCloseButtonClick={() => {
+                                        setEditMessageMode({
+                                            enabled: false,
+                                            message: null
+                                        });
+                                    }}/>
+                            }
+                            <ChatInput onMessageSubmit={handleMessageSubmit}
+                                       text={editMessageMode.enabled ? editMessageMode.messageData.message.text : ""}/>
                         </> :
                         <div className="messenger__unselected-chat-alert">
                             <p>Выберите группу или собеседника</p>
@@ -213,10 +238,26 @@ export default function Messenger() {
                         }
                     },
                     {
-                        text: "Удалить",
+                        text: "Удалить у себя",
                         isDanger: true,
                         async onClick(data) {
-                            dialogMenuShow(data);
+                            dialogMenuShow({
+                                ...data,
+                                deleteForSelf: true
+                            });
+                        }
+                    },
+                    {
+                        text: "Удалить у всех",
+                        hideCondition: {
+                            self: false
+                        },
+                        isDanger: true,
+                        async onClick(data) {
+                            dialogMenuShow({
+                                ...data,
+                                deleteForAll: true
+                            });
                         }
                     }
                 ]}/>
@@ -225,7 +266,7 @@ export default function Messenger() {
                     warningText="Сообщение будет безвозвратно удалено!"
                     positiveButtonClick={async (data) => {
                         chatsStateManager.deleteMessage(setChats, chats, data);
-                        await socketHelper.deleteMessage(selectedChat, data);
+                        await socketHelper.deleteMessage(selectedChat, data, currentUser._id);
                     }}/>
             </div>
         </div>

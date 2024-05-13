@@ -50,6 +50,7 @@ class ChatsStateManager {
         let editedMessage;
         currentChat.messages.get(messageData.date).filter(msg => msg._id === messageData.message._id).map(msg => {
             msg.text = text;
+            msg.edited = true;
             editedMessage = msg;
             return editedMessage;
         });

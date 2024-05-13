@@ -21,7 +21,15 @@ const MessageSchema = mongoose.Schema({
     datetime: {
         type: Date,
         require: true
-    }
+    },
+    edited: {
+        type: Boolean,
+        default: false
+    },
+    deletedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }]
 });
 
 module.exports = mongoose.model("Message", MessageSchema);

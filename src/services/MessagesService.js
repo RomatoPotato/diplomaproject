@@ -19,7 +19,14 @@ export default class MessagesService {
         }))).data;
     }
 
-    static async deleteMessage(messageId){
+    static async deleteMessageForAll(messageId){
         return (await (axiosInstance.delete("messages/" + messageId))).data;
+    }
+
+    static async deleteMessageForSelf(userId, chatId, messageId){
+        return (await (axiosInstance.post("messages/" + userId, {
+            chatId,
+            messageId
+        }))).data;
     }
 }

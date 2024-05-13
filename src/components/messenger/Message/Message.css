@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
 }
-.message__info {
+.message__sender {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -11,10 +11,10 @@
   font-weight: bold;
   font-size: 1em;
 }
-.message__info_self {
+.message__sender_self {
   flex-direction: row-reverse;
 }
-.message__user-icon {
+.message__sender-icon {
   width: 1em;
   height: 1em;
   border-radius: 50%;
@@ -32,11 +32,21 @@
 }
 .message__date {
   font-weight: bold;
-  font-size: 0.8em;
   text-align: right;
 }
 .message__date_self {
   text-align: left;
+}
+.message__info {
+  display: flex;
+  flex-direction: row-reverse;
+  font-size: 0.8em;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+}
+.message__info_self {
+  flex-direction: row;
 }
 .message_self {
   align-self: flex-end;

@@ -3,7 +3,7 @@
   display: flex
   flex-direction: column
 
-  &__info
+  &__sender
     display: flex
     justify-content: flex-start
     align-items: center
@@ -14,7 +14,7 @@
     &_self
       flex-direction: row-reverse
 
-  &__user-icon
+  &__sender-icon
     width: 1em
     height: 1em
     border-radius: 50%
@@ -32,11 +32,21 @@
 
   &__date
     font-weight: bold
-    font-size: 0.8em
     text-align: right
 
     &_self
       text-align: left
+
+  &__info
+    display: flex
+    flex-direction: row-reverse
+    font-size: 0.8em
+    align-items: center
+    justify-content: space-between
+    gap: 3px
+
+    &_self
+      flex-direction: row
 
   &_self
     align-self: flex-end

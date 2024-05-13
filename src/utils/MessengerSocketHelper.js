@@ -129,9 +129,14 @@ class MessengerSocketHelper {
         await MessagesService.saveMessage(newMessage, to);
     }
 
-    async deleteMessage(selectedChat, messageData){
-        socket.emit("delete message", messageData);
-        await MessagesService.deleteMessage(messageData.message._id);
+    async deleteMessage(selectedChat, messageData, deletedUserId){
+        if (messageData.deleteForAll) {
+            socket.emit("delete message", messageData);
+            await MessagesService.deleteMessageForAll(messageData.message._id);
+        }
+        if (messageData.deleteForSelf){
+            await MessagesService.deleteMessageForSelf(deletedUserId, selectedChat._id, messageData.message._id);
+        }
     }
 
     async editMessage(messageData, text){

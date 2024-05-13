@@ -1,4 +1,5 @@
 const Message = require("../models/Message");
+const Chat = require("../models/Chat");
 const config = require("../config");
 const mongoose = require("mongoose");
 
@@ -48,6 +49,7 @@ class MessagesController {
                                     surname: "$from.surname",
                                 },
                                 chatId: "$chatId",
+                                deletedUsers: "$deletedUsers",
                                 datetime: "$datetime"
                             }
                         }
@@ -107,11 +109,34 @@ class MessagesController {
         }
     }
 
-    async deleteMessage(req, res, next){
+    async deleteMessageForAll(req, res, next){
         try {
             const messageId = req.params.messageId;
 
             const deleted = await Message.findByIdAndDelete(messageId);
+
+            res.json(deleted);
+        }catch (err){
+            next(err);
+        }
+    }
+
+    async deleteMessageForSelf(req, res, next){
+        try {
+            const userId = req.params.userId;
+            const chatId = req.body.chatId;
+            const messageId = req.body.messageId;
+
+            const chat = await Chat.findById(chatId);
+            const message = await Message.findById(messageId);
+            message.deletedUsers.push(userId);
+
+            let deleted;
+            if (message.deletedUsers.length === chat.users.length){
+                deleted = await Message.findByIdAndDelete(messageId);
+            }else {
+                deleted = await Message.findByIdAndUpdate(messageId, message);
+            }
 
             res.json(deleted);
         }catch (err){
