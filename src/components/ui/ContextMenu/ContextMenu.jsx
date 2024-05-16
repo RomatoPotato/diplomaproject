@@ -86,18 +86,20 @@ export const ContextMenu = ({contextMenuItems}) => {
     );
 };
 
-export const ContextMenuTrigger = ({children, data, ...attrs}) => {
+export const ContextMenuTrigger = ({children, notShowCondition, data, ...attrs}) => {
     return (
         <div {...attrs} onContextMenu={(e) => {
-            hide();
+            if (!notShowCondition) {
+                hide();
 
-            e.preventDefault();
-            e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
 
-            const x = e.clientX;
-            const y = e.clientY;
+                const x = e.clientX;
+                const y = e.clientY;
 
-            show(e, x, y, data);
+                show(e, x, y, data);
+            }
         }}>
             {children}
         </div>

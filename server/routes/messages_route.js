@@ -4,7 +4,9 @@ const MessagesController = require("../controllers/MessagesController");
 router.get("/:chatId", MessagesController.getMessages);
 router.post("/", MessagesController.saveMessage);
 router.put("/", MessagesController.editMessage);
-router.delete("/:messageId", MessagesController.deleteMessageForAll);
-router.post("/:userId", MessagesController.deleteMessageForSelf);
+router.post("/delete-one/all", MessagesController.deleteMessageForAll);
+router.post("/delete-one/self", MessagesController.deleteMessageForSelf);
+router.post("/delete-many/all", MessagesController.deleteManyMessagesForAll);
+router.post("/delete-many/self", MessagesController.deleteManyMessagesForSelf);
 
 module.exports = router;

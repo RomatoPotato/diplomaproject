@@ -1,0 +1,48 @@
+.dialog-window {
+  width: 250px;
+}
+.dialog-window__title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.dialog-window__warning-text {
+  font-size: 1.1em;
+}
+.dialog-window__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dialog-window__action-buttons {
+  display: flex;
+  gap: 5px;
+}
+.dialog-window__action-buttons button {
+  width: 100%;
+}
+.dialog-window button {
+  padding: 3px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: white;
+}
+.dialog-window button:hover {
+  filter: brightness(1.15);
+}
+
+.positive-button {
+  background-color: #50c44d;
+}
+
+.negative-button {
+  background-color: #e74343;
+}
+
+.cancel-button {
+  background-color: #b0b0b0;
+}
+
+/*# sourceMappingURL=DialogWindow.css.map */

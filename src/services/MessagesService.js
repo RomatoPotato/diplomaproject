@@ -20,13 +20,30 @@ export default class MessagesService {
     }
 
     static async deleteMessageForAll(messageId){
-        return (await (axiosInstance.delete("messages/" + messageId))).data;
+        return (await (axiosInstance.post("messages/delete-one/all", {
+            messageId
+        }))).data;
     }
 
     static async deleteMessageForSelf(userId, chatId, messageId){
-        return (await (axiosInstance.post("messages/" + userId, {
+        return (await (axiosInstance.post("messages/delete-one/self", {
+            userId,
             chatId,
             messageId
         }))).data;
+    }
+
+    static async deleteManyMessagesForAll(messages){
+        return (await (axiosInstance.post("messages/delete-many/all", {
+            messages
+        })))
+    }
+
+    static async deleteManyMessagesForSelf(userId, chatId, messages){
+        return (await (axiosInstance.post("messages/delete-many/self", {
+            userId,
+            chatId,
+            messages
+        })))
     }
 }

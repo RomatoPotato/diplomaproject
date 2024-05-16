@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import "./MailingWindow.css";
 import ChatsFilter from "../../messenger/ChatsFilter/ChatsFilter";
-import Window from "../Window";
+import Window from "../../ui/components/Window/Window";
 import ChatInput from "../../messenger/ChatInput/ChatInput";
 import ChatTabCheckbox from "../../messenger/ChatTabCheckbox/ChatTabCheckbox";
 import Message from "../../messenger/Message/Message";

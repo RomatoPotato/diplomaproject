@@ -11,12 +11,17 @@ import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
 import {ContextMenu} from "../../components/ui/ContextMenu/ContextMenu";
 import MessagesService from "../../services/MessagesService";
 import socketHelper from "../../utils/MessengerSocketHelper";
-import DialogMenu, {show as dialogMenuShow} from "../../components/ui/DialogMenu/DialogMenu";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
 import ChatInfo from "../../components/messenger/ChatInfo/ChatInfo";
 import chatsStateManager from "../../utils/ChatsStateManager";
 import Header from "../../components/messenger/Header/Header";
 import ChatInput from "../../components/messenger/ChatInput/ChatInput";
 import EditMessagePlane from "../../components/messenger/EditMessagePlane/EditMessagePlane";
+import SelectMessagesPlane from "../../components/messenger/SelectMessagesPlane/SelectMessagesPlane";
+import listener from "../../utils/GlobalEventListeners/SelectMessageEventListener";
+import DialogMenu from "../../components/ui/DialogMenu/DialogMenu";
+import {show as showDialog} from "../../utils/GlobalEventListener";
+import messengerSocketHelper from "../../utils/MessengerSocketHelper";
 
 export async function loader() {
     const chatsInfo = new Map();
@@ -49,11 +54,17 @@ export async function loader() {
         const chatName = chat.type === "dialog" ? interlocutor.name + " " + interlocutor.surname : chat.name;
         let messagesMap = new Map(
             (await MessagesService.getMessages(chat._id)).map(({_id, messages}) => {
-                messages = messages.filter(message => !message.deletedUsers.includes(currentUser._id))
+                messages = messages.filter(message => !message.deletedUsers.includes(currentUser._id));
+
+                if (messages.length === 0){
+                    return [];
+                }
+
                 lastMessage = messages.at(-1);
                 return [_id.datetime, messages];
             })
         );
+        messagesMap.delete(undefined);
 
         let users = new Map();
         for (let user of chat.users) {
@@ -87,16 +98,35 @@ export default function Messenger() {
     const [selectedChat, setSelectedChat] = useState(null);
     const [showChatInfo, setShowChatInfo] = useState(false);
     const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
-    const [editMessageMode, setEditMessageMode] = useState({
+
+    const [editMode, setEditMode] = useState({
         enabled: false,
         message: null
-    })
+    });
+    const [selectMode, setSelectMode] = useState({
+        enabled: false,
+        messagesData: null
+    });
+
+    function disableEditMode() {
+        setEditMode({
+            enabled: false,
+            message: null
+        });
+    }
+
+    function disableSelectMode() {
+        setSelectMode({
+            enabled: false,
+            messagesData: null
+        });
+        const eventClear = new CustomEvent("clear_selecteds");
+        window.dispatchEvent(eventClear);
+    }
 
     useEffect(() => {
         socketHelper.connectUser(currentUser);
-    }, [currentUser]);
 
-    useEffect(() => {
         ChatService.getChats(currentUser._id).then((allChats) => {
             for (const chat of allChats) {
                 socketHelper.emitJoinRoom(chat);
@@ -106,30 +136,28 @@ export default function Messenger() {
 
     useEffect(() => {
         socketHelper.addUsersListeners(setChats, chats);
-
-        return () => {
-            socketHelper.removeUsersListeners();
-        }
-    }, [chats]);
-
-    useEffect(() => {
         socketHelper.addMessagesListeners(setChats, chats);
 
         return () => {
+            socketHelper.removeUsersListeners();
             socketHelper.removeMessagesListeners();
         }
-    }, [selectedChat, chats]);
+    }, [chats]);
+
+    listener.register((messagesData) => {
+        setSelectMode({
+            enabled: true,
+            messagesData
+        });
+    });
 
     async function handleMessageSubmit(text) {
-        if (editMessageMode.enabled) {
-            setEditMessageMode({
-                enabled: false,
-                message: null
-            });
+        if (editMode.enabled) {
+            disableEditMode();
 
-            if (editMessageMode.messageData.message.text !== text) {
-                await socketHelper.editMessage(editMessageMode.messageData, text);
-                chatsStateManager.editMessage(setChats, chats, editMessageMode.messageData, text);
+            if (editMode.messageData.message.text !== text) {
+                await socketHelper.editMessage(editMode.messageData, text);
+                chatsStateManager.editMessage(setChats, chats, editMode.messageData, text);
             }
         } else {
             await socketHelper.sendMessage(setChats, chats, selectedChat, currentUser, text);
@@ -173,11 +201,11 @@ export default function Messenger() {
                                     setSelectedChat({
                                         ...chat
                                     });
-                                    if (editMessageMode.enabled && selectedChat._id !== chat._id) {
-                                        setEditMessageMode({
-                                            enabled: false,
-                                            message: null
-                                        });
+                                    if (editMode.enabled && selectedChat._id !== chat._id) {
+                                        disableEditMode();
+                                    }
+                                    if (selectMode.enabled && selectedChat._id !== chat._id){
+                                        disableSelectMode();
                                     }
                                 }}/>
                         )}
@@ -190,19 +218,27 @@ export default function Messenger() {
                                 selectedChat={selectedChat}
                                 onCloseButtonClick={() => setSelectedChat(null)}
                                 onChatInfoClick={() => setShowChatInfo(true)}/>
-                            <Chat selectedChat={selectedChat} currentUser={currentUser}/>
-                            {editMessageMode.enabled &&
-                                <EditMessagePlane
-                                    message={editMessageMode.enabled && editMessageMode.messageData.message}
+                            {selectMode.enabled &&
+                                <SelectMessagesPlane
+                                    selectMode={selectMode}
+                                    onDeleteButtonClick={() => {
+                                        showDialog("delete-selected-dm", selectMode.messagesData);
+                                    }}
                                     onCloseButtonClick={() => {
-                                        setEditMessageMode({
-                                            enabled: false,
-                                            message: null
-                                        });
+                                        disableSelectMode();
                                     }}/>
                             }
+                            <Chat
+                                selectedChat={selectedChat}
+                                currentUser={currentUser}
+                                selectMode={selectMode}/>
+                            {editMode.enabled &&
+                                <EditMessagePlane
+                                    message={editMode.enabled && editMode.messageData.message}
+                                    onCloseButtonClick={disableEditMode}/>
+                            }
                             <ChatInput onMessageSubmit={handleMessageSubmit}
-                                       text={editMessageMode.enabled ? editMessageMode.messageData.message.text : ""}/>
+                                       text={editMode.enabled ? editMode.messageData.message.text : ""}/>
                         </> :
                         <div className="messenger__unselected-chat-alert">
                             <p>Выберите группу или собеседника</p>
@@ -217,7 +253,20 @@ export default function Messenger() {
                         text: "Переслать"
                     },
                     {
-                        text: "Выбрать"
+                        text: "Выбрать",
+                        onClick(data) {
+                            setSelectMode({
+                                enabled: true,
+                                messagesData: data
+                            });
+                            const event = new CustomEvent("select_message", {
+                                detail: {
+                                    messageData: data,
+                                    selected: true
+                                }
+                            });
+                            window.dispatchEvent(event);
+                        }
                     },
                     {
                         text: "Копировать",
@@ -231,7 +280,7 @@ export default function Messenger() {
                             self: false
                         },
                         onClick(data) {
-                            setEditMessageMode({
+                            setEditMode({
                                 enabled: true,
                                 messageData: data
                             })
@@ -241,7 +290,7 @@ export default function Messenger() {
                         text: "Удалить у себя",
                         isDanger: true,
                         async onClick(data) {
-                            dialogMenuShow({
+                            showDialog("delete-message", {
                                 ...data,
                                 deleteForSelf: true
                             });
@@ -254,20 +303,42 @@ export default function Messenger() {
                         },
                         isDanger: true,
                         async onClick(data) {
-                            dialogMenuShow({
+                            showDialog("delete-message", {
                                 ...data,
                                 deleteForAll: true
                             });
                         }
                     }
                 ]}/>
-                <DialogMenu
+                <DialogWindow
+                    name="delete-message"
                     title="Удалить сообщение?"
                     warningText="Сообщение будет безвозвратно удалено!"
                     positiveButtonClick={async (data) => {
                         chatsStateManager.deleteMessage(setChats, chats, data);
                         await socketHelper.deleteMessage(selectedChat, data, currentUser._id);
                     }}/>
+                <DialogMenu name="delete-selected-dm" title="Удалить выбранные сообщения?" items={[
+                    {
+                        text: "Удалить у себя",
+                        isDanger: true,
+                        async onClick(){
+                            disableSelectMode();
+                            await messengerSocketHelper.deleteManyMessages(selectedChat, selectMode.messagesData, currentUser._id);
+                            chatsStateManager.deleteManyMessages(setChats, chats, selectMode.messagesData);
+                        }
+                    },
+                    {
+                        text: "Удалить у всех",
+                        hideCondition: selectMode.messagesData?.filter(messageData => messageData.message.self === false).length > 0,
+                        isDanger: true,
+                        async onClick(){
+                            disableSelectMode();
+                            await messengerSocketHelper.deleteManyMessages(selectedChat, selectMode.messagesData, currentUser._id, true);
+                            chatsStateManager.deleteManyMessages(setChats, chats, selectMode.messagesData);
+                        }
+                    }
+                ]} />
             </div>
         </div>
     )

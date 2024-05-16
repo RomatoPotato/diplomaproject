@@ -49,6 +49,7 @@ class MessagesController {
                                     surname: "$from.surname",
                                 },
                                 chatId: "$chatId",
+                                edited: "$edited",
                                 deletedUsers: "$deletedUsers",
                                 datetime: "$datetime"
                             }
@@ -100,7 +101,8 @@ class MessagesController {
             const text = req.body.text;
 
             const edited = await Message.findByIdAndUpdate(messageId, {
-                text
+                text,
+                edited: true
             }, config.updateOptions);
 
             res.json(edited);
@@ -111,7 +113,7 @@ class MessagesController {
 
     async deleteMessageForAll(req, res, next){
         try {
-            const messageId = req.params.messageId;
+            const messageId = req.body.messageId;
 
             const deleted = await Message.findByIdAndDelete(messageId);
 
@@ -123,7 +125,7 @@ class MessagesController {
 
     async deleteMessageForSelf(req, res, next){
         try {
-            const userId = req.params.userId;
+            const userId = req.body.userId;
             const chatId = req.body.chatId;
             const messageId = req.body.messageId;
 
@@ -135,7 +137,84 @@ class MessagesController {
             if (message.deletedUsers.length === chat.users.length){
                 deleted = await Message.findByIdAndDelete(messageId);
             }else {
-                deleted = await Message.findByIdAndUpdate(messageId, message);
+                deleted = await Message.findByIdAndUpdate(messageId, message, config.updateOptions);
+            }
+
+            res.json(deleted);
+        }catch (err){
+            next(err);
+        }
+    }
+
+    async deleteManyMessagesForAll(req, res, next){
+        try {
+            const messages = req.body.messages;
+
+            const ids = [];
+            for (const message of messages){
+                ids.push(message._id);
+            }
+
+            const deleted = await Message.deleteMany({
+                _id: {
+                    $in: ids
+                }
+            });
+
+            res.json(deleted);
+        }catch (err){
+            next(err);
+        }
+    }
+
+    async deleteManyMessagesForSelf(req, res, next){
+        try {
+            const userId = req.body.userId;
+            const chatId = req.body.chatId;
+            const messages = req.body.messages;
+
+            const ids = [];
+            for (const message of messages){
+                ids.push(message._id);
+            }
+
+            const chat = await Chat.findById(chatId);
+            const messageFromDB = await Message.find({
+                _id: {
+                    $in: ids
+                }
+            });
+
+            const messagesToDelete = [];
+            const messagesToUpdate = [];
+            for (const message of messageFromDB){
+                message.deletedUsers.push(userId);
+
+                if (message.deletedUsers.length === chat.users.length){
+                    messagesToDelete.push(message._id);
+                }else {
+                    messagesToUpdate.push(message._id);
+                }
+            }
+
+            let deleted;
+            if (messagesToDelete.length > 0){
+                deleted = await Message.deleteMany({
+                    _id: {
+                        $in: messagesToDelete
+                    }
+                });
+            }
+            if (messagesToUpdate.length > 0){
+                deleted = await Message.updateMany({
+                    _id: {
+                        $in: messagesToUpdate
+                    }
+                }, {
+                    $push: {
+                        deletedUsers: userId
+                    }
+                }, config.updateOptions);
             }
 
             res.json(deleted);

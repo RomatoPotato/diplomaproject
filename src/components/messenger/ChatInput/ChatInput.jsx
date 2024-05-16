@@ -42,6 +42,10 @@ export default function ChatInput({onMessageSubmit, text}) {
                         }}
                         onKeyDown={(e) => {
                             if (e.shiftKey && e.key === "Enter") {
+                                return;
+                            }
+
+                            if (e.key === "Enter") {
                                 e.preventDefault();
                                 handleSubmitMessage();
                             }

@@ -43,6 +43,26 @@ class ChatsStateManager {
         setChats(new Map(temp));
     }
 
+    deleteManyMessages(setChats, chats, messagesData){
+        const temp = chats;
+        const currentChat = temp.get(messagesData[0].message.chatId);
+        const currentChatMessages = currentChat.messages;
+
+        for (const messageData of messagesData){
+            const dateMessages = currentChatMessages.get(messageData.date).filter(msg => msg._id !== messageData.message._id);
+            if (dateMessages.length === 0) currentChatMessages.delete(messageData.date);
+            else currentChatMessages.set(messageData.date, dateMessages);
+        }
+
+        if (Array.from(currentChatMessages).at(-1)) {
+            currentChat.lastMessage = Array.from(currentChatMessages).at(-1)[1].at(-1);
+        }else {
+            currentChat.lastMessage = null;
+        }
+
+        setChats(new Map(temp));
+    }
+
     editMessage(setChats, chats, messageData, text) {
         const temp = chats;
         const currentChat = temp.get(messageData.message.chatId);

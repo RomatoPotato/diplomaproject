@@ -1,13 +1,12 @@
 import React, {useState} from 'react';
 import "./DialogMenu.css";
-import listener from "../../../utils/GlobalEventListeners/DialogMenuEventListener";
+import Dialog from "../components/Dialog/Dialog";
+import listener from "../../../utils/GlobalEventListener";
 
-const DialogMenu = ({title, warningText, positiveButtonClick, negativeButtonClick}) => {
+const DialogMenu = ({name, title, items}) => {
     const [isShown, setIsShown] = useState(false);
-    const [receivedData, setReceivedData] = useState(null);
 
-    const open = (e) => {
-        setReceivedData(e.detail.data);
+    const open = () => {
         setIsShown(true);
     }
 
@@ -17,38 +16,27 @@ const DialogMenu = ({title, warningText, positiveButtonClick, negativeButtonClic
         }
     }
 
-    listener.register(open, close);
+    listener.register(name, open, close);
 
     return (
-        <div className="dialog-menu-blackout" style={{
-            opacity: isShown ? 1 : 0,
-            pointerEvents: isShown ? "all" : "none",
-        }}>
-            <div className="dialog-menu">
-                <div className="dialog-menu__title">{title}</div>
-                <div className="dialog-menu__warning-text">{warningText}</div>
-                <div className="dialog-menu__buttons">
-                    <div className="dialog-menu__action-buttons">
-                        <button className="positive-button" onClick={() => {
-                            positiveButtonClick(receivedData);
+        <Dialog isShown={isShown} className="dialog-menu">
+            <p className="dialog-menu__title">{title}</p>
+            <div className="dialog-menu__items-box">
+                {items.map(item => !item.hideCondition &&
+                    <div
+                        className={"dialog-menu__item" + (item.isDanger ? " dialog-menu__item_danger" : "")}
+                        key={item.text}
+                        onClick={() => {
                             close();
-                        }}>Да</button>
-                        <button className="negative-button" onClick={() => {
-                            negativeButtonClick ? negativeButtonClick() : close();
-                        }}>Нет</button>
+                            item.onClick();
+                        }}>
+                        {item.text}
                     </div>
-                    <button className="cancel-button" onClick={close}>Отменить</button>
-                </div>
+                )}
+                <div className="dialog-menu__item" onClick={close}>Отменить</div>
             </div>
-        </div>
+        </Dialog>
     );
 };
-
-export const show = (data) => {
-    const eventShow = new CustomEvent("show_dm", {
-        detail: {data}
-    });
-    window.dispatchEvent(eventShow);
-}
 
 export default DialogMenu;

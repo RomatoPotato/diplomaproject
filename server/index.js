@@ -108,6 +108,10 @@ io.on("connection", (socket) => {
         socket.to(messageData.message.chatId).emit("delete message", messageData);
     });
 
+    socket.on("delete messages", (messagesData) => {
+        socket.to(messagesData[0].message.chatId).emit("delete messages", messagesData);
+    });
+
     socket.on("edit message", ({messageData, text}) => {
         socket.to(messageData.message.chatId).emit("edit message", {
             messageData,

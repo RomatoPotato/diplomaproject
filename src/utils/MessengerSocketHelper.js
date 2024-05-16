@@ -93,6 +93,10 @@ class MessengerSocketHelper {
             chatsStateManager.deleteMessage(setChats, chats, messageData);
         });
 
+        socket.on("delete messages", (messagesData) => {
+            chatsStateManager.deleteManyMessages(setChats, chats, messagesData);
+        });
+
         socket.on("edit message", ({messageData, text}) => {
             chatsStateManager.editMessage(setChats, chats, messageData, text);
         });
@@ -101,6 +105,7 @@ class MessengerSocketHelper {
     removeMessagesListeners(){
         socket.off("message");
         socket.off("delete message");
+        socket.off("delete messages");
         socket.off("edit message");
     }
 
@@ -137,6 +142,21 @@ class MessengerSocketHelper {
         if (messageData.deleteForSelf){
             await MessagesService.deleteMessageForSelf(deletedUserId, selectedChat._id, messageData.message._id);
         }
+    }
+
+    async deleteManyMessages(selectedChat, messagesData, deletedUserId, deleteForAll = false){
+        const messages = [];
+        for (const messageData of messagesData){
+            messages.push(messageData.message);
+        }
+
+        if (deleteForAll){
+            socket.emit("delete messages", messagesData);
+            await MessagesService.deleteManyMessagesForAll(messages);
+        }else {
+            await MessagesService.deleteManyMessagesForSelf(deletedUserId, selectedChat._id, messages);
+        }
+
     }
 
     async editMessage(messageData, text){
