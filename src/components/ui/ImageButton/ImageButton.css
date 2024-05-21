@@ -1,0 +1,23 @@
+.image-button {
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+}
+.image-button button {
+  width: 100%;
+  height: 100%;
+  background-color: #F1EDFF;
+  border: none;
+  mask-image: url("");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  cursor: pointer;
+}
+.image-button button:hover {
+  background-color: #bdb5d9;
+}
+.image-button:focus {
+  outline: none;
+}
+
+/*# sourceMappingURL=ImageButton.css.map */

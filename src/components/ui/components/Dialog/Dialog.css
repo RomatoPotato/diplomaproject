@@ -7,22 +7,23 @@
 .dialog__backdrop {
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.33);
+  background-color: rgba(0, 0, 0, 0.31);
   pointer-events: all;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(2.5px);
 }
 .dialog__content {
   user-select: none;
-  background-color: white;
+  background-color: #696788;
+  color: #F1EDFF;
   padding: 5px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.51);
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.51);
 }
 
 /*# sourceMappingURL=Dialog.css.map */

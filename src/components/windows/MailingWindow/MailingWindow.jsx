@@ -5,11 +5,17 @@ import Window from "../../ui/components/Window/Window";
 import ChatInput from "../../messenger/ChatInput/ChatInput";
 import ChatTabCheckbox from "../../messenger/ChatTabCheckbox/ChatTabCheckbox";
 import Message from "../../messenger/Message/Message";
+import ImageButton from "../../ui/ImageButton/ImageButton";
+import {ContextMenu} from "../../ui/ContextMenu/ContextMenu";
+import EditMessagePlane from "../../messenger/EditMessagePlane/EditMessagePlane";
+import {show, hide} from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
+import DialogWindow from "../../ui/DialogWindow/DialogWindow";
 
-let messageId = 0;
+const windowName = "Создание рассылки";
+let newMessageId = 0;
 
-const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingClick}) => {
-    const [chatsArray] = useState(Array.from(chats, ([key, value]) => (value)));
+const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
+    const [chatsArray] = useState(Array.from(chats, ([, value]) => (value)));
     const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
     const [selectAllChecked, setSelectAllChecked] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -20,9 +26,10 @@ const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingC
         }
         return map;
     });
+    const [editMode, setEditMode] = useState({enabled: false, message: null});
 
     return (
-        <Window onCloseWindow={onCloseMailingWindow} name="Создание рассылки" className="mailing-window">
+        <Window name={windowName} className="mailing-window">
             <div className="mailing-window__left-side">
                 <ChatsFilter onSearchGroup={(filter) => {
                     for (const chat of chatsArray.filter(chatsFilter)) {
@@ -34,7 +41,7 @@ const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingC
 
                     setChatsFilter(filter);
                 }}/>
-                <p>
+                <p className="mailing-window__select-all-box">
                     <label>Выбрать все:&nbsp;
                         <input
                             type="checkbox"
@@ -72,42 +79,114 @@ const MailingWindow = ({onCloseMailingWindow, chats, currentUser, onSendMailingC
             </div>
             <div className="mailing-window__main-area">
                 <div className="mailing-window__messages">
-                    <div className="messages-wrap">
-                        {messages.map(message =>
+                    {messages.length === 0 &&
+                        <p className="mailing-window__no-messages-block">Напишите сообщения для рассылки</p>
+                    }
+                    <div className="mailing-window__messages-wrap">
+                        {messages.map((message, index) =>
                             <Message
-                                key={messageId++}
+                                contextMenuName="mailing-cm"
+                                key={message.id}
                                 message={message}
                                 messageDate={message.date}
+                                lastSender={index === 0 ? null : currentUser}
                                 self={true}/>
                         )}
                     </div>
-                </div>
-                <div className="mailing-window__send-area">
-                    <ChatInput onMessageSubmit={(text) => {
-                        setMessages([
-                            ...messages,
+                    <div className="mailing-window__menus">
+                        <ContextMenu name="mailing-cm" contextMenuItems={[
                             {
-                                text,
-                                sender: currentUser,
-                                datetime: new Date()
-                            }
-                        ]);
-                    }}/>
-                    <button onClick={() => {
-                        onCloseMailingWindow();
-                        onSendMailingClick(messages, (() => {
-                            const chatIds = [];
-
-                            for (const [id, checked] of checkedMap.entries()) {
-                                if (checked) {
-                                    chatIds.push(id);
+                                text: "Редактировать",
+                                onClick(data) {
+                                    setEditMode({
+                                        enabled: true,
+                                        message: data.message
+                                    });
+                                }
+                            },
+                            {
+                                text: "Удалить сообщение",
+                                isDanger: true,
+                                onClick(data) {
+                                    show("delete-mailing-message", {
+                                        ...data,
+                                        deleteForSelf: true
+                                    });
                                 }
                             }
+                        ]}/>
+                        <DialogWindow
+                            name="delete-mailing-message"
+                            title="Удалить сообщение?"
+                            warningText="Сообщение будет безвозвратно удалено!"
+                            positiveButtonClick={async (data) => {
+                                setMessages(messages.filter(message => message.id !== data.message.id));
+                            }}/>
+                    </div>
+                </div>
+                {editMode.enabled &&
+                    <EditMessagePlane
+                        message={editMode.message}
+                        onCloseButtonClick={() => setEditMode({enabled: false, message: null})}/>
+                }
+                <div className="mailing-window__send-area">
+                    <ChatInput
+                        text={editMode.enabled ? editMode.message.text : ""}
+                        onMessageSubmit={(text) => {
+                            if (editMode.enabled) {
+                                const editMessages = messages.map(message => {
+                                    if (message.id === editMode.message.id){
+                                        message.text = text;
+                                    }
+                                    return message;
+                                });
 
-                            return chatIds;
-                        })());
-                    }}>Готово
-                    </button>
+                                setMessages(editMessages);
+                                setEditMode({
+                                    enabled: false,
+                                    message: null
+                                });
+                            }else {
+                                setMessages([
+                                    ...messages,
+                                    {
+                                        text,
+                                        id: newMessageId++,
+                                        self: true,
+                                        sender: currentUser,
+                                        datetime: new Date()
+                                    }
+                                ]);
+                            }
+                        }}/>
+                    <ImageButton
+                        className="mailing-window__button-send-mailing"
+                        src="static/images/send-mailing.png"
+                        onClick={() => {
+                            onSendMailingClick(messages, (() => {
+                                const chatIds = [];
+
+                                for (const [id, checked] of checkedMap.entries()) {
+                                    if (checked) {
+                                        chatIds.push(id);
+                                    }
+                                }
+
+                                return chatIds;
+                            })());
+
+                            setMessages([]);
+                            setSelectAllChecked(false);
+                            setCheckedMap(() => {
+                                let map = new Map();
+                                for (const chat of chatsArray) {
+                                    map.set(chat._id, false);
+                                }
+                                return map;
+                            });
+                            setEditMode({enabled: false, message: null});
+                            hide(windowName);
+                        }}/>
                 </div>
             </div>
         </Window>

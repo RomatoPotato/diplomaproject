@@ -5,7 +5,6 @@ import {Link, redirect, useLoaderData} from "react-router-dom";
 import Chat from "../../components/messenger/Chat/Chat";
 import ChatService from "../../services/ChatService";
 import AuthService from "../../services/AuthService";
-import user_icon from "../../images/user.png";
 import Controls from "../../components/messenger/Controls/Controls";
 import ChatsFilter from "../../components/messenger/ChatsFilter/ChatsFilter";
 import {ContextMenu} from "../../components/ui/ContextMenu/ContextMenu";
@@ -20,8 +19,9 @@ import EditMessagePlane from "../../components/messenger/EditMessagePlane/EditMe
 import SelectMessagesPlane from "../../components/messenger/SelectMessagesPlane/SelectMessagesPlane";
 import listener from "../../utils/GlobalEventListeners/SelectMessageEventListener";
 import DialogMenu from "../../components/ui/DialogMenu/DialogMenu";
-import {show as showDialog} from "../../utils/GlobalEventListener";
+import {show as showDialog} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 import messengerSocketHelper from "../../utils/MessengerSocketHelper";
+import MailingWindow from "../../components/windows/MailingWindow/MailingWindow";
 
 export async function loader() {
     const chatsInfo = new Map();
@@ -33,7 +33,7 @@ export async function loader() {
     }
 
     if (!currentUser.icon || currentUser.icon === "") {
-        currentUser.icon = user_icon;
+        currentUser.icon = "static/images/user.png";
     }
 
     const chats = await ChatService.getChats(currentUser._id);
@@ -56,7 +56,7 @@ export async function loader() {
             (await MessagesService.getMessages(chat._id)).map(({_id, messages}) => {
                 messages = messages.filter(message => !message.deletedUsers.includes(currentUser._id));
 
-                if (messages.length === 0){
+                if (messages.length === 0) {
                     return [];
                 }
 
@@ -92,6 +92,7 @@ export async function loader() {
 }
 
 export default function Messenger() {
+    //console.log("mounted");
     const {currentUser, chatsInfo} = useLoaderData();
 
     const [chats, setChats] = useState(chatsInfo);
@@ -166,36 +167,26 @@ export default function Messenger() {
 
     return (
         <div className="messenger">
-            {(currentUser.roles.includes("admin") || currentUser.roles.includes("teacher")) &&
-                <Controls
-                    chats={chats}
-                    currentUser={currentUser}
-                    onSendMailingClick={async (messages, chatIds) => {
-                        for (const chatId of chatIds) {
-                            for (const message of messages) {
-                                await socketHelper.sendMessage(setChats, chats, chats.get(chatId), currentUser, message.text);
-                            }
-                        }
-                    }}/>
-            }
             <div className="messenger__wrapper">
                 <div className="left-side">
-                    <div className="left-side__chat-info">
+                    <div className="left-side__user-info">
+                        <Link to="../account"><img src={currentUser.icon} alt="Иконка пользователя"/></Link>
                         <div>
-                            <p>{currentUser.name} {currentUser.surname}</p>
-                            <b>{currentUser.login}</b>
+                            <p>{currentUser.surname} {currentUser.name} {currentUser.middlename}</p>
+                            <p><b>{currentUser.login}</b></p>
                         </div>
-                        <Link to="../account"><img src={currentUser.icon} alt=""/></Link>
                     </div>
                     <ChatsFilter onSearchGroup={(filter) => setChatsFilter(filter)}/>
                     <div className="left-side__chat-tabs">
                         {Array.from(chats.values()).filter(chatsFilter).length === 0 &&
-                            <p>Чаты не найдены(</p>
+                            <p className="left-side__not-found-chats">Чаты не найдены(</p>
                         }
                         {Array.from(chats.values()).filter(chatsFilter).map(chat =>
                             <ChatTab
                                 key={chat._id}
                                 chat={chat}
+                                selected={chat._id === selectedChat?._id}
+                                showGroup={currentUser.roles.includes("admin") || currentUser.roles.includes("teacher")}
                                 onChatTabClick={() => {
                                     chat.hasNewMessages = false;
                                     setSelectedChat({
@@ -204,7 +195,7 @@ export default function Messenger() {
                                     if (editMode.enabled && selectedChat._id !== chat._id) {
                                         disableEditMode();
                                     }
-                                    if (selectMode.enabled && selectedChat._id !== chat._id){
+                                    if (selectMode.enabled && selectedChat._id !== chat._id) {
                                         disableSelectMode();
                                     }
                                 }}/>
@@ -216,7 +207,11 @@ export default function Messenger() {
                         <>
                             <Header
                                 selectedChat={selectedChat}
-                                onCloseButtonClick={() => setSelectedChat(null)}
+                                onCloseButtonClick={() => {
+                                    setSelectedChat(null);
+                                    disableEditMode();
+                                    disableSelectMode();
+                                }}
                                 onChatInfoClick={() => setShowChatInfo(true)}/>
                             {selectMode.enabled &&
                                 <SelectMessagesPlane
@@ -245,12 +240,21 @@ export default function Messenger() {
                         </div>
                     }
                 </div>
+                {(currentUser.roles.includes("admin") || currentUser.roles.includes("teacher")) &&
+                    <Controls />
+                }
             </div>
             {showChatInfo && <ChatInfo selectedChat={selectedChat} onCloseChatInfo={() => setShowChatInfo(false)}/>}
             <div className="messenger__menus">
-                <ContextMenu contextMenuItems={[
+                <ContextMenu name="chat-cm" contextMenuItems={[
                     {
                         text: "Переслать"
+                    },
+                    {
+                        text: "Ответить",
+                        hideCondition: {
+                            self: true
+                        }
                     },
                     {
                         text: "Выбрать",
@@ -259,6 +263,7 @@ export default function Messenger() {
                                 enabled: true,
                                 messagesData: data
                             });
+                            disableEditMode();
                             const event = new CustomEvent("select_message", {
                                 detail: {
                                     messageData: data,
@@ -283,7 +288,7 @@ export default function Messenger() {
                             setEditMode({
                                 enabled: true,
                                 messageData: data
-                            })
+                            });
                         }
                     },
                     {
@@ -322,7 +327,7 @@ export default function Messenger() {
                     {
                         text: "Удалить у себя",
                         isDanger: true,
-                        async onClick(){
+                        async onClick() {
                             disableSelectMode();
                             await messengerSocketHelper.deleteManyMessages(selectedChat, selectMode.messagesData, currentUser._id);
                             chatsStateManager.deleteManyMessages(setChats, chats, selectMode.messagesData);
@@ -332,13 +337,19 @@ export default function Messenger() {
                         text: "Удалить у всех",
                         hideCondition: selectMode.messagesData?.filter(messageData => messageData.message.self === false).length > 0,
                         isDanger: true,
-                        async onClick(){
+                        async onClick() {
                             disableSelectMode();
                             await messengerSocketHelper.deleteManyMessages(selectedChat, selectMode.messagesData, currentUser._id, true);
                             chatsStateManager.deleteManyMessages(setChats, chats, selectMode.messagesData);
                         }
                     }
-                ]} />
+                ]}/>
+                <MailingWindow
+                    chats={chats}
+                    currentUser={currentUser}
+                    onSendMailingClick={async (messages, chatIds) => {
+                        await socketHelper.sendMailing(setChats, chats, currentUser, messages, chatIds);
+                    }}/>
             </div>
         </div>
     )

@@ -1,24 +1,31 @@
 .select-plane {
-  background-color: #d3d3d3;
+  background-color: #615f7a;
+  color: #F1EDFF;
+  padding: 5px;
   z-index: 1;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.31);
   display: flex;
   justify-content: space-between;
+  border-top: 2px solid #514f67;
   align-items: center;
 }
 .select-plane__actions {
   display: flex;
   align-items: center;
 }
-
-.close-button {
-  width: 1.8em;
-  height: 1.8em;
-  border: none;
-  background-color: transparent;
-  background-image: url("../../../images/close.png");
-  background-size: cover;
-  cursor: pointer;
+.select-plane__action-button {
+  width: 22px;
+  height: 22px;
+  padding: 0 5px;
+}
+.select-plane__action-button:nth-last-child(1) {
+  padding-right: 0;
+}
+.select-plane__button-delete button {
+  background-color: #ff5959;
+}
+.select-plane__button-delete button:hover {
+  background-color: #fd3535;
 }
 
 /*# sourceMappingURL=SelectMessagesPlane.css.map */

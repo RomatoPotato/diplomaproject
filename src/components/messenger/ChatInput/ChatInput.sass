@@ -1,48 +1,66 @@
+@import "../../../theme"
+
+$line_height: 1.4em
+$offset: 5px
+
 .chat-input
-  width: 100%
-  background: #c4c4c4
+  border-radius: $border-radius
   display: flex
+  flex: 1
   justify-content: flex-end
   align-items: flex-end
+  margin: $offset
+  gap: $offset
 
   &__input-field
     width: 100%
     display: flex
 
-  &__file-button
-    width: 35px
-    height: 35px
+  &__buttons-box
+    display: flex
+    align-items: center
+    gap: $offset
 
-    input[type=file]
-      width: 0
+  &__button
+    width: calc($offset * 2 + $line_height)
+    height: calc($offset * 2 + $line_height)
+    cursor: pointer
 
-  &__send-button
-    width: 35px
-    height: 35px
+    button
+      background-color: $primary
 
-    input[type=submit]
-      display: none
+    &:hover
+      button
+        background-color: $primary_hover_light
 
 .input-field-wrapper
   width: 100%
   display: flex
-  background-color: #989898
+  background-color: $neutral_dark800
   align-items: center
   justify-content: center
   border-radius: 5px
-  margin: 5px
   padding: 5px
 
   textarea
     width: 100%
     font-size: 1em
-    line-height: 1.4em
+    line-height: $line_height
     border: none
     resize: none
     background: transparent
+    color: $on_neutral_dark800
 
     &:focus
       outline: none
 
     &::-webkit-scrollbar
       display: none
+
+.file-button
+  input[type=file]
+    opacity: 0
+
+.send-button
+  input[type=submit]
+    display: none

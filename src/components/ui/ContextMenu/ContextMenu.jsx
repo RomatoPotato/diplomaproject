@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import "./ContextMenu.css";
-import listener from "../../../utils/GlobalEventListeners/ContextMenuEventListener";
+import listener, {show} from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 let nextItemId = 0;
 
-export const ContextMenu = ({contextMenuItems}) => {
+export const ContextMenu = ({name, contextMenuItems}) => {
     const [pos, setPos] = useState({x: 0, y: 0});
     const [isShown, setIsShown] = useState(false);
     const [data, setData] = useState(null);
@@ -15,19 +15,7 @@ export const ContextMenu = ({contextMenuItems}) => {
         setData(e.detail.data);
         setHideItemData(e.detail.data.hideData);
         setIsShown(true);
-        setPosition(e.detail.pos.x, e.detail.pos.y);
-    }
-
-    const close = () => {
-        if (isShown) {
-            setIsShown(false);
-        }
-    }
-
-    const closeOnOutsideClick = (e) => {
-        if (!contextMenuRef.current.contains(e.target)) {
-            close();
-        }
+        setPosition(e.detail.data.pos.x, e.detail.data.pos.y);
     }
 
     const setPosition = (x, y) => {
@@ -45,7 +33,21 @@ export const ContextMenu = ({contextMenuItems}) => {
         setPos({x, y});
     }
 
-    listener.register(open, close);
+    const close = useCallback(() => {
+        if (isShown) {
+            setIsShown(false);
+        }
+    }, [isShown]);
+
+    const closeOnOutsideClick = useCallback((e) => {
+        if (isShown) {
+            if (!contextMenuRef.current.contains(e.target)) {
+                setIsShown(false);
+            }
+        }
+    }, [isShown])
+
+    listener.register(name, open, close);
 
     useEffect(() => {
         window.addEventListener("click", closeOnOutsideClick);
@@ -57,7 +59,7 @@ export const ContextMenu = ({contextMenuItems}) => {
             window.removeEventListener("wheel", close);
             window.removeEventListener("contextmenu", close);
         }
-    });
+    }, [close, closeOnOutsideClick]);
 
     return (
         <div
@@ -86,38 +88,23 @@ export const ContextMenu = ({contextMenuItems}) => {
     );
 };
 
-export const ContextMenuTrigger = ({children, notShowCondition, data, ...attrs}) => {
+export const ContextMenuTrigger = ({name, children, notShowCondition, triggerData, ...attrs}) => {
     return (
         <div {...attrs} onContextMenu={(e) => {
             if (!notShowCondition) {
-                hide();
-
                 e.preventDefault();
                 e.stopPropagation();
 
                 const x = e.clientX;
                 const y = e.clientY;
 
-                show(e, x, y, data);
+                show(name, {
+                    ...triggerData,
+                    pos: {x, y}
+                });
             }
         }}>
             {children}
         </div>
     )
-}
-
-const show = (event, x, y, data) => {
-    const eventShow = new CustomEvent("show_cm", {
-        detail: {
-            pos: {x, y},
-            target: event.currentTarget,
-            data
-        }
-    });
-    window.dispatchEvent(eventShow);
-}
-
-const hide = () => {
-    const eventHide = new CustomEvent("hide_cm");
-    window.dispatchEvent(eventHide);
 }

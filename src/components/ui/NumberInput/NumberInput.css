@@ -1,0 +1,16 @@
+.input-number {
+  display: flex;
+  align-items: center;
+}
+.input-number__buttons-box {
+  display: flex;
+  flex-direction: column;
+  width: 15px;
+  padding: 5px;
+}
+.input-number__arrow {
+  width: 10px;
+  height: 10px;
+}
+
+/*# sourceMappingURL=NumberInput.css.map */

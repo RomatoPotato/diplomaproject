@@ -1,20 +1,29 @@
-.filter
-  width: 100%
+@import "../../../theme"
 
-  &__search
+.filter
+  padding: 5px
+  background-color: $neutral_dark700
+  color: $on_neutral_dark700
+
+  &__search-box
     display: flex
     justify-content: space-around
     align-items: center
-
-    input[type=text]
-      width: 100%
+    gap: 5px
 
   &__area
-    input[type=number]
-      width: 100%
+    padding-top: 5px
+    display: flex
+    flex-direction: column
+    gap: 5px
 
-    div
-      display: flex
+  &__clause
+    display: flex
+    align-items: center
 
-    select
-      width: 100%
+  &__button
+    width: 30px
+    height: 30px
+
+  &__better-select
+    width: 100%

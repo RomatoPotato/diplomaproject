@@ -1,33 +1,19 @@
-import React, {useState} from 'react';
+import React from 'react';
 import "./Controls.sass";
-import MailingWindow from "../../windows/MailingWindow/MailingWindow";
+import ImageButton from "../../ui/ImageButton/ImageButton";
+import {show} from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 
-const actions = {
-    mailing: 0
-}
-
-const Controls = ({chats, currentUser, onSendMailingClick}) => {
-    const [selectedAction, setSelectedAction] = useState(-1);
-
-    function handleCloseWindow() {
-        setSelectedAction(-1);
-    }
-
+const Controls = () => {
     return (
         <>
             <div className="controls">
-                <button onClick={() => {
-                    setSelectedAction(actions.mailing)
-                }}>Рассылка
-                </button>
+                <ImageButton
+                    className="controls__button"
+                    src="static/images/mailing.png"
+                    onClick={() => {
+                        show("Создание рассылки");
+                    }}/>
             </div>
-            {selectedAction === actions.mailing &&
-                <MailingWindow
-                    onCloseMailingWindow={handleCloseWindow}
-                    chats={chats}
-                    currentUser={currentUser}
-                    onSendMailingClick={onSendMailingClick}/>
-            }
         </>
     );
 };

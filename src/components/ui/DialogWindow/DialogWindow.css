@@ -27,22 +27,30 @@
   border: none;
   font-size: 1.2em;
   cursor: pointer;
-  color: white;
-}
-.dialog-window button:hover {
-  filter: brightness(1.15);
 }
 
 .positive-button {
-  background-color: #50c44d;
+  background-color: #50C878;
+  color: #ffffff;
+}
+.positive-button:hover {
+  background-color: #31f172;
 }
 
 .negative-button {
-  background-color: #e74343;
+  background-color: #ff5959;
+  color: #ffffff;
+}
+.negative-button:hover {
+  background-color: #fd3535;
 }
 
 .cancel-button {
-  background-color: #b0b0b0;
+  background-color: #c2bada;
+  color: #000000;
+}
+.cancel-button:hover {
+  background-color: #a89bd2;
 }
 
 /*# sourceMappingURL=DialogWindow.css.map */

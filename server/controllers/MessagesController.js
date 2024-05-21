@@ -95,6 +95,28 @@ class MessagesController {
         }
     }
 
+    async saveManyMessages(req, res, next) {
+        try {
+            const messages = req.body.messages;
+
+            for (let i = 0; i < messages.length; i++){
+                messages[i] = {
+                    ...messages[i],
+                    from: messages[i].sender._id
+                }
+                delete messages[i].sender;
+            }
+
+            const newMessages = await Message.insertMany(messages, {
+                ordered: false
+            });
+
+            res.json(newMessages);
+        } catch (err) {
+            next(err);
+        }
+    }
+
     async editMessage(req, res, next){
         try {
             const messageId = req.body.messageId;

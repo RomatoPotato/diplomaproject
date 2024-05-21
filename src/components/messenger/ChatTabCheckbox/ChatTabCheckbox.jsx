@@ -1,10 +1,6 @@
 import "./ChatTabCheckbox.css"
-import chat_icon from "../../../images/group.png";
-import user_icon from "../../../images/user.png";
 
 export default function ChatTabCheckbox({chat, checked, onChange}) {
-    //const [isChecked, setIsChecked] = useState(checked);
-
     let icon;
 
     if (chat.type === "dialog") {
@@ -14,7 +10,7 @@ export default function ChatTabCheckbox({chat, checked, onChange}) {
     }
 
     if (!icon || icon === "") {
-        icon = chat.type === "dialog" ? user_icon : chat_icon;
+        icon = chat.type === "dialog" ? "static/images/user.png" : "static/images/group.png";
     }
 
     return (
@@ -42,6 +38,7 @@ export default function ChatTabCheckbox({chat, checked, onChange}) {
                         onChange(value);
                     }}/>
             </label>
+            <div className="chat-tab__delimiter"></div>
         </div>
     )
 };

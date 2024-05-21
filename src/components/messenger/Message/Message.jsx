@@ -1,27 +1,25 @@
 import "./Message.css";
 
-import user_icon from "../../../images/user.png";
 import {ContextMenuTrigger} from "../../ui/ContextMenu/ContextMenu";
 
 let paragraphId = 0;
 
-export default function Message({message, messageDate, lastSender, selectMode}) {
+export default function Message({message, messageDate, lastSender, contextMenuName, selectMode = {enabled: false}}) {
     let icon = message.sender.icon;
 
     if (!icon || icon === "") {
-        icon = user_icon;
+        icon = "static/images/user.png";
     }
 
     return (
         <>
             {lastSender?._id !== message.sender._id &&
                 <div className={"sender" + (message.self ? " sender_self" : "")}>
-                    <img src={icon} alt="" className="sender-icon"/>
-                    <span
-                        className="sender-name">{message.sender.surname} {message.sender.name}</span>
+                    <img src={icon} alt="" className="sender__icon"/>
+                    <span className="sender__name">{message.sender.surname} {message.sender.name}</span>
                 </div>
             }
-            <label
+            <MessageWrapper selectMode={selectMode}
                 className={"message" + (message.self ? " message_self" : "") + (selectMode.enabled ? " message_select-mode" : "")}>
                 {selectMode.enabled &&
                     <input
@@ -42,9 +40,10 @@ export default function Message({message, messageDate, lastSender, selectMode}) 
                 }
                 <div className={"message__wrapper" + (message.self ? " message__wrapper_self" : "")}>
                     <ContextMenuTrigger
+                        name={contextMenuName}
                         className={"message__text" + (message.self ? " message__text_self" : "")}
                         notShowCondition={selectMode.enabled}
-                        data={{
+                        triggerData={{
                             message,
                             date: messageDate,
                             hideData: {
@@ -72,7 +71,15 @@ export default function Message({message, messageDate, lastSender, selectMode}) 
                         </div>
                     </ContextMenuTrigger>
                 </div>
-            </label>
+            </MessageWrapper>
         </>
     );
 };
+
+const MessageWrapper = ({selectMode, children, ...attrs}) => {
+    return (
+        selectMode.enabled ?
+            <label {...attrs}>{children}</label> :
+            <div {...attrs}>{children}</div>
+    )
+}

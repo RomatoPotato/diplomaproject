@@ -1,3 +1,5 @@
+@import "../../../theme"
+
 .dialog-menu
   width: max-content
 
@@ -14,20 +16,17 @@
     margin: 5px 0 0
     padding: 5px
     font-weight: bold
-    border: 3px solid #4f4f4f
-    color: #4f4f4f
+    background-color: $neutral
+    color: $on_neutral
     border-radius: 10px
     cursor: pointer
 
     &:hover
-      background-color: #9a9a9a
-      border-color: #9a9a9a
-      color: white
+      background-color: $neutral_hover
 
     &_danger
-      border-color: #e74343
-      color: #e74343
+      background-color: $negative
+      color: $on_negative
 
       &:hover
-        background-color: #e74343
-        border-color: #e74343
+        background-color: $negative_hover

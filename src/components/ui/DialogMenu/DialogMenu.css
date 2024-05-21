@@ -14,23 +14,20 @@
   margin: 5px 0 0;
   padding: 5px;
   font-weight: bold;
-  border: 3px solid #4f4f4f;
-  color: #4f4f4f;
+  background-color: #c2bada;
+  color: #000000;
   border-radius: 10px;
   cursor: pointer;
 }
 .dialog-menu__item:hover {
-  background-color: #9a9a9a;
-  border-color: #9a9a9a;
-  color: white;
+  background-color: #a89bd2;
 }
 .dialog-menu__item_danger {
-  border-color: #e74343;
-  color: #e74343;
+  background-color: #ff5959;
+  color: #ffffff;
 }
 .dialog-menu__item_danger:hover {
-  background-color: #e74343;
-  border-color: #e74343;
+  background-color: #fd3535;
 }
 
 /*# sourceMappingURL=DialogMenu.css.map */

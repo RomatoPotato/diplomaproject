@@ -1,11 +1,15 @@
-.controls
-  height: 40px
-  width: 80%
-  border-radius: 10px
-  border: 1px solid black
-  display: flex
-  align-items: center
-  justify-content: center
+@import "../../../theme"
 
-  button
-    height: 35px
+$size: 40px
+
+.controls
+  width: $size
+  height: max-content
+  display: flex
+  background-color: $neutral_dark700
+  padding: 5px
+  border-radius: $border-radius
+
+  &__button
+    width: $size
+    height: $size

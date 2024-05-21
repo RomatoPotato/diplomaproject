@@ -1,16 +1,15 @@
 import React from 'react';
-import chat_icon from "../../../images/group.png";
 import "./ChatInfo.css";
 
 const ChatInfo = ({selectedChat, onCloseChatInfo}) => {
     return (
-        <div className="chat-info" onClick={onCloseChatInfo}>
-            <div className="chat-info__content" onClick={(e) => e.stopPropagation()}>
-                <div className="info-header">
-                    <div className="info-header__icon-area">
-                        <img src={selectedChat.icon ? selectedChat.icon : chat_icon} alt="chat icon"/>
+        <div className="backdrop" onClick={onCloseChatInfo}>
+            <div className="chat-info" onClick={(e) => e.stopPropagation()}>
+                <div className="chat-info__header">
+                    <div className="chat-info__icon-box">
+                        <img src={selectedChat.icon ? selectedChat.icon : "static/images/group.png"} alt="chat icon"/>
                     </div>
-                    <div className="info-header__text-area">
+                    <div className="chat-info__text-box">
                         <h2>{selectedChat.name}</h2>
                         {selectedChat.type === "mainGroup" ?
                             <h3>Главная группа</h3> :
@@ -18,7 +17,7 @@ const ChatInfo = ({selectedChat, onCloseChatInfo}) => {
                         }
                     </div>
                 </div>
-                <div className="info-body">
+                <div className="chat-info__body">
                     {selectedChat.type === "mainGroup" &&
                         <>
                             <h3>Админы</h3>
@@ -72,7 +71,7 @@ const ChatInfo = ({selectedChat, onCloseChatInfo}) => {
                         </>
                     }
                 </div>
-                <div className="info-footer">
+                <div className="chat-info__footer">
 
                 </div>
             </div>

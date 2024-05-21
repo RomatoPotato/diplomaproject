@@ -1,64 +1,162 @@
+@import "../../../theme"
+
 $tab_width: 100%
-$tab_height: 70px
-$tab_padding: 5px
-$icon_size: $tab_height - $tab_padding * 2
-$notify-block-width: $tab_padding * 2.5
+$tab_height: 60px
+$tab_offset: 5px
+$icon_size: $tab_height - $tab_offset * 2
+
+$title_text: $on_neutral_dark800
+$group_text: #d9d9d9
+$last_msg_text: #d0c7f3
+$title_text_selected: $on_primary
+$group_text_selected: $neutral_light500
+$last_msg_text_selected: $neutral_dark800
+
+%chat-tab
+  display: flex
+  flex-direction: column
+  align-items: center
+  margin: 0 $tab_offset
+  padding: 0 $tab_offset
+
+  &:nth-last-child(1)
+    .chat-tab__delimiter
+      display: none
+
+%content
+  width: 100%
+  height: $tab_height
+  display: flex
+  color: $on_neutral_dark800
+  align-items: center
+  border-radius: $border-radius
+  margin: $tab_offset 0
+  cursor: pointer
+  user-select: none
+
+  &:hover
+    background-color: $neutral_dark800
+
+%icon
+  background-color: $neutral_light500
+  border-radius: 50%
+
+%desc
+  width: 100%
+  display: flex
+  flex-direction: column
+  justify-content: space-evenly
+  overflow-x: hidden
+
+%title
+  +one-stroke-text
+  font-size: 1.1em
+  line-height: 1.1em
+  color: $title_text
+
+%group-name
+  +one-stroke-text
+  line-height: 1em
+  color: $group_text
+
 
 .chat-tab
-  width: $tab_width
-  height: $tab_height
-  background: lightgray
-  border: 1px solid gray
-  display: flex
-  justify-content: space-between
+  @extend %chat-tab
+
+  &_selected
+    .chat-tab
+      &__content
+        background-color: $primary
+
+        &:hover
+          background-color: $primary
+
+      &__title
+        color: $title_text_selected
+
+      &__group-name
+        color: $group_text_selected
+
+      &__last-msg
+        color: $last_msg_text_selected
+
+      &__new-message-info
+        background-color: $neutral_dark800
+
+      &__message-icon
+        background-color: $primary
+
+      &__new-message-number
+        color: $primary
+
+  &__content
+    @extend %content
+
+  &__icon-box
+    display: flex
+    justify-content: flex-end
+    margin: $tab_offset
+    width: $icon_size
+    height: $icon_size
+    position: relative
 
   &__icon
-    min-width: $icon_size
-    max-width: $icon_size
-    min-height: $icon_size
-    max-height: $icon_size
-    object-fit: cover
-    align-self: center
-    padding: $tab_padding
-    border-radius: 20%
+    @extend %icon
 
   &__desc
-    display: flex
-    flex-direction: column
-    width: calc($tab_width - $tab_height - $tab_padding * 2 - $notify-block-width)
-
-    p
-      padding: $tab_padding
+    @extend %desc
 
   &__title
-    font-weight: bold
-    line-height: 0.8em
-    font-size: 1.2em
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
+    @extend %title
 
-  &__group_name
-    font-weight: bold
-    line-height: 0.8em
-    font-size: 1.1em
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
+  &__group-name
+    @extend %group-name
+
+  &__message-info
+    display: flex
+    align-items: center
 
   &__last-msg
-    overflow: hidden
-    line-height: 0.8em
-    white-space: nowrap
-    text-overflow: ellipsis
+    +one-stroke-text
+    width: 100%
+    vertical-align: bottom
+    color: $last_msg_text
 
-  &__notify-block
-    width: $notify-block-width
-    padding-right: $tab_padding
+  &__new-message-info
     display: flex
-    flex-direction: column
-    justify-content: space-around
+    align-items: center
+    gap: 3px
+    background-color: $primary
+    padding: 0 5px
+    margin-right: 5px
+    border-radius: 10px
+    user-select: none
 
-    svg
-      width: $tab_padding * 2.5
-      height: $tab_padding * 2.5
+  &__message-icon
+    width: 1em
+    height: 1em
+    background-color: $on_primary
+    +mask-image("../../../../public/static/images/new_message_icon.png")
+
+  &__new-message-number
+    color: $on_primary
+    font-size: 0.8em
+
+  &__delimiter
+    width: 95%
+    height: 2px
+    background-color: $neutral_dark500
+    border-radius: 1px
+
+  &__status
+    width: 10px
+    height: 10px
+    position: absolute
+    border: 2px solid $neutral_dark800
+    border-radius: 50%
+
+    &_online
+      background-color: $status_online
+
+    &_offline
+      background-color: $status_offline

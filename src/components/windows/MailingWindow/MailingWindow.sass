@@ -1,3 +1,5 @@
+@import "../../../theme"
+
 .mailing-window
   width: 60%
 
@@ -6,21 +8,29 @@
     height: 100%
 
   &__left-side
-    width: 30%
+    min-width: 300px
+    max-width: 300px
     display: flex
     flex-direction: column
-    background-color: #b6b6b6
+    background-color: $neutral_dark700
+    color: $on_neutral_dark700
+    border-right: 2px solid $neutral_dark800
+
+  &__select-all-box
+    margin-left: 5px
 
   &__chats-list
     height: 100%
     overflow-x: hidden
     overflow-y: auto
+    scrollbar-width: none
 
   &__main-area
     overflow-y: hidden
     width: 100%
     display: flex
     flex-direction: column
+    overflow-x: clip
 
   &__messages
     height: 100%
@@ -30,7 +40,41 @@
 
   &__send-area
     display: flex
+    padding-top: 5px
 
-.messages-wrap
-  display: flex
-  flex-direction: column
+  &__button-send-mailing
+    width: 40px
+    height: 40px
+    padding: 0 5px
+    background-color: $primary
+    align-self: flex-end
+    border-top-left-radius: 10px
+
+    &:hover
+      background-color: $primary_hover_light
+
+    button
+      background-color: $on_primary
+
+      &:hover
+        background-color: $neutral_dark800
+
+  &__messages-wrap
+    display: flex
+    flex-direction: column
+
+  &__no-messages-block
+    height: 100%
+    display: flex
+    align-self: center
+    align-items: center
+    font-weight: bold
+    color: $on_neutral_dark700
+
+  &__menus
+    position: absolute
+    left: 0
+    top: 0
+    pointer-events: none
+    width: 100%
+    height: 100%

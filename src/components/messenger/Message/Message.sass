@@ -1,26 +1,38 @@
+@import "../../../theme"
+
+$message_offset: 5px
+
 .message
   display: flex
-  padding: 2px 0
+  padding: 2px $message_offset
   flex-direction: row-reverse
   justify-content: flex-end
   align-items: center
   gap: 5px
+  color: $on_primary
+
+  &_self
+    flex-direction: row
+    color: $on_neutral_dark400
 
   &:has(input[type=checkbox]:checked)
-    background-color: #919090
+    background-color: $neutral_dark500
 
     &:hover
-      background-color: #707070
+      background-color: $neutral_dark600
 
   &_select-mode
     cursor: pointer
     user-select: none
 
     &:hover
-      background-color: #a2a2a2
+      background-color: $neutral_dark800
 
-  &_self
-    flex-direction: row
+      .message__text
+        background-color: $neutral_dark500
+
+        &_self
+          background-color: $primary_hover_dark
 
   &__wrapper
     max-width: 85%
@@ -32,12 +44,13 @@
 
   &__text
     width: fit-content
-    background: #b4b4b4
     padding: 5px
     border-radius: 0 0.6em 0.6em 0.6em
+    background: $neutral_dark400
     word-wrap: anywhere
 
     &_self
+      background-color: $primary
       align-self: flex-end
       border-radius: 0.6em 0 0.6em 0.6em
 
@@ -66,11 +79,16 @@
   gap: 5px
   font-weight: bold
   font-size: 1em
+  margin: $message_offset $message_offset 0
 
   &_self
     flex-direction: row-reverse
 
-.sender-icon
-  width: 1em
-  height: 1em
-  border-radius: 50%
+  &__icon
+    width: 1.2em
+    height: 1.2em
+    border-radius: 50%
+    background-color: $neutral_light500
+
+  &__name
+    color: $on_neutral_dark700

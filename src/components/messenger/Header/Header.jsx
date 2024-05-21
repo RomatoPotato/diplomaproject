@@ -1,14 +1,13 @@
 import React from 'react';
 import "./Header.css";
 
-import user_icon from "../../../images/user.png";
-import group_icon from "../../../images/group.png";
+import CloseButton from "../../ui/CloseButton/CloseButton";
 
 const Header = ({selectedChat, onCloseButtonClick, onChatInfoClick}) => {
     let icon = selectedChat.icon;
 
     if (!icon || icon === "") {
-        icon = selectedChat.type === "dialog" ? user_icon : group_icon;
+        icon = selectedChat.type === "dialog" ? "static/images/user.png" : "static/images/group.png";
     }
 
     return (
@@ -17,7 +16,7 @@ const Header = ({selectedChat, onCloseButtonClick, onChatInfoClick}) => {
                 <img className="chat-header__icon" alt="" src={icon} onClick={onChatInfoClick}/>
                 <span className="chat-header__name">{selectedChat.name}</span>
             </div>
-            <button onClick={onCloseButtonClick}>Закрыть</button>
+            <CloseButton className="chat-header__button-close" onCloseButtonClick={onCloseButtonClick} />
         </div>
     );
 };

@@ -8,16 +8,16 @@
   width: 5px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #29beaa;
+  background: #8987a9;
   border-radius: 5px;
 }
 *::-webkit-scrollbar-track {
-  background: #b7b7b7;
+  background: #514f67;
 }
 
 @-moz-document url-prefix() {
   * {
-    scrollbar-color: #29beaa #b7b7b7;
+    scrollbar-color: #8987a9 #514f67;
     scrollbar-width: thin;
   }
 }
@@ -31,6 +31,7 @@ html, body {
 
 body {
   overflow: hidden;
+  background-color: #767496;
 }
 
 input {
@@ -40,7 +41,6 @@ input {
 #root {
   width: 100%;
   height: 100%;
-  background-color: #d6ffd9;
   display: flex;
   align-items: center;
   justify-content: center;

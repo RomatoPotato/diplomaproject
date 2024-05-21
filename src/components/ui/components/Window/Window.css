@@ -1,42 +1,40 @@
 .window {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 9998;
+}
+.window__backdrop {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.31);
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2.5px);
+}
+.window__content {
   height: 90%;
-  background-color: rgb(255, 255, 255);
-  border-radius: 11px;
-  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.51);
+  background-color: #615f7a;
+  border-radius: 10px;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.51);
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 .window__header {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   height: 50px;
-  background-color: #74dada;
+  background-color: #514f67;
+  color: #c3bbda;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
 }
-.window__close-button {
+.window__button-close {
   width: 30px;
   height: 30px;
-  background-image: url("../../../../images/close.png");
-  background-size: cover;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.window-close-area {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 100;
-  backdrop-filter: blur(3px);
 }
 
 /*# sourceMappingURL=Window.css.map */

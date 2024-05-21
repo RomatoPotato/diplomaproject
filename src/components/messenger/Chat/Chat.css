@@ -1,6 +1,6 @@
 .chat {
   height: 100%;
-  padding: 10px;
+  padding: 5px;
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
@@ -15,7 +15,8 @@
   align-self: center;
   margin: 5px;
   padding: 0 5px;
-  background-color: #bdbdbd;
+  background-color: #514f67;
+  color: #c3bbda;
   border-radius: 5px;
 }
 

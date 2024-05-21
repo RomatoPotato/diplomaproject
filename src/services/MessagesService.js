@@ -12,6 +12,12 @@ export default class MessagesService {
         }))).data;
     }
 
+    static async saveManyMessages(messages){
+        return (await (axiosInstance.post("messages/many", {
+            messages
+        }))).data;
+    }
+
     static async editMessage(messageId, text){
         return (await (axiosInstance.put("messages", {
             messageId,

@@ -30,6 +30,7 @@ const Chat = ({selectedChat, currentUser, selectMode}) => {
 
                         const m =
                             <Message
+                                contextMenuName="chat-cm"
                                 key={message._id}
                                 message={message}
                                 messageDate={msg.datetime}

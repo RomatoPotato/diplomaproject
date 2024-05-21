@@ -19,6 +19,28 @@ class ChatsStateManager {
         setChats(new Map(temp));
     }
 
+    addManyMessages(setChats, chats, messages){
+        const temp = chats;
+
+        for (const message of messages){
+            const formattedSendDate = new Date(message.datetime).toLocaleDateString("ru-RU", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric"
+            });
+
+            const currentChat = temp.get(message.chatId);
+            if (!currentChat.messages.get(formattedSendDate)){
+                currentChat.messages.set(formattedSendDate, [message]);
+            }else {
+                currentChat.messages.get(formattedSendDate).push(message);
+            }
+            currentChat.lastMessage = message;
+        }
+
+        setChats(new Map(temp));
+    }
+
     deleteMessage(setChats, chats, messageData){
         const temp = chats;
         const currentChat = temp.get(messageData.message.chatId);

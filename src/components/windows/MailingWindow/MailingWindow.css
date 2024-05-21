@@ -6,21 +6,29 @@
   height: 100%;
 }
 .mailing-window__left-side {
-  width: 30%;
+  min-width: 300px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
-  background-color: #b6b6b6;
+  background-color: #615f7a;
+  color: #F1EDFF;
+  border-right: 2px solid #514f67;
+}
+.mailing-window__select-all-box {
+  margin-left: 5px;
 }
 .mailing-window__chats-list {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
 }
 .mailing-window__main-area {
   overflow-y: hidden;
   width: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: clip;
 }
 .mailing-window__messages {
   height: 100%;
@@ -30,11 +38,44 @@
 }
 .mailing-window__send-area {
   display: flex;
+  padding-top: 5px;
 }
-
-.messages-wrap {
+.mailing-window__button-send-mailing {
+  width: 40px;
+  height: 40px;
+  padding: 0 5px;
+  background-color: #50C878;
+  align-self: flex-end;
+  border-top-left-radius: 10px;
+}
+.mailing-window__button-send-mailing:hover {
+  background-color: #3bf379;
+}
+.mailing-window__button-send-mailing button {
+  background-color: #000000;
+}
+.mailing-window__button-send-mailing button:hover {
+  background-color: #514f67;
+}
+.mailing-window__messages-wrap {
   display: flex;
   flex-direction: column;
+}
+.mailing-window__no-messages-block {
+  height: 100%;
+  display: flex;
+  align-self: center;
+  align-items: center;
+  font-weight: bold;
+  color: #F1EDFF;
+}
+.mailing-window__menus {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
 }
 
 /*# sourceMappingURL=MailingWindow.css.map */

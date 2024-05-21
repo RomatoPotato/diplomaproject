@@ -1,5 +1,4 @@
-$window-width: 100vw
-$window-height: 100vh
+@import "../../theme"
 
 .messenger
   width: 100%
@@ -11,11 +10,11 @@ $window-height: 100vh
   gap: 5px
 
   &__wrapper
-    width: 80%
+    width: 90%
     height: 90%
     overflow: hidden
     display: flex
-    border-radius: 10px
+    gap: 10px
 
   &__menus
     position: absolute
@@ -28,8 +27,9 @@ $window-height: 100vh
     height: 100%
     overflow-x: clip
     display: flex
-    background-color: lightgray
+    background-color: $neutral_dark700
     flex-direction: column
+    border-radius: $border-radius
 
   &__unselected-chat-alert
     height: inherit
@@ -37,66 +37,46 @@ $window-height: 100vh
     justify-content: center
     align-items: center
     font-weight: bold
+    color: $on_neutral_dark700
 
 .left-side
-  width: 30%
+  //min-width: 27%
+  //max-width: 27%
+  min-width: 330px
+  max-width: 330px
   display: flex
   flex-direction: column
-  background-color: #b6b6b6
+  background-color: $neutral_dark700
+  color: $on_neutral_dark700
+  border-radius: $border-radius
+  //box-shadow: inset 0 -15px 15px -15px rgba(0, 0, 0, 0.51)
 
-  &__chat-info
+  &__user-info
     padding: 5px
-    background-color: #76c0b9
-    border-bottom: 5px solid black
+    gap: 5px
+    background-color: $neutral_dark700
     display: flex
-    justify-content: space-between
-    z-index: 2
+    border-top-left-radius: $border-radius
+    border-top-right-radius: $border-radius
+    align-items: center
+
+    div
+      overflow: hidden
+
+    a, img
+      height: 40px
 
     img
-      width: 40px
-      height: 40px
+      background-color: $neutral_light500
+      border-radius: 50%
+
+  &__not-found-chats
+    +one-stroke-text
+    width: 100%
+    text-align: center
 
   &__chat-tabs
     height: 100%
     overflow-x: hidden
     overflow-y: auto
-
-    &::-webkit-scrollbar
-      display: none
-
-    a
-      text-decoration: none
-      color: black
-
-.info-header
-  height: 80px
-  background-color: #13a689
-  display: flex
-  border-radius: 5px 5px 0 0
-
-  &__icon-area
-    width: 80px
-    display: flex
-    align-items: center
-    justify-content: center
-
-    img
-      width: 60px
-      height: 60px
-      background-color: white
-      border-radius: 50%
-      margin: 5px
-
-  &__text-area
-    justify-content: center
-    display: flex
-    flex-direction: column
-
-.info-body
-  height: 100%
-  overflow-y: auto
-
-.info-footer
-  height: 20px
-  background-color: #0c4b3f
-  border-radius: 0 0 5px 5px
+    scrollbar-width: none

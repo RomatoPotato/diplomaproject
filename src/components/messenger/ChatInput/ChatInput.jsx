@@ -1,8 +1,6 @@
 import "./ChatInput.css"
-
-import attach_icon from "../../../images/attach-file.png"
-import send_icon from "../../../images/send.png"
 import {useEffect, useRef, useState} from "react";
+import ImageButton from "../../ui/ImageButton/ImageButton";
 
 const maxLinesNumber = 10;
 
@@ -52,14 +50,14 @@ export default function ChatInput({onMessageSubmit, text}) {
                         }}/>
                 </div>
             </div>
-            <label className="chat-input__file-button">
-                <input type="file"/>
-                <img src={attach_icon} alt="Прикрепить файл"/>
-            </label>
-            <label className="chat-input__send-button">
-                <input type="submit"/>
-                <img src={send_icon} alt="Отправить" onClick={handleSubmitMessage}/>
-            </label>
+            <div className="chat-input__buttons-box">
+                <ImageButton src="static/images/attach-file.png" className="chat-input__button file-button">
+                    <input type="file"/>
+                </ImageButton>
+                <ImageButton src="static/images/send.png" className="chat-input__button send-button" onClick={handleSubmitMessage}>
+                    <input type="submit"/>
+                </ImageButton>
+            </div>
         </div>
     )
 };

@@ -1,3 +1,5 @@
+@import "../../../theme"
+
 .dialog-window
   width: 250px
 
@@ -27,16 +29,24 @@
     border: none
     font-size: 1.2em
     cursor: pointer
-    color: white
-
-    &:hover
-      filter: brightness(1.15)
 
 .positive-button
-  background-color: #50c44d
+  background-color: $positive
+  color: $on_positive
+
+  &:hover
+    background-color: $positive_hover
 
 .negative-button
-  background-color: #e74343
+  background-color: $negative
+  color: $on_negative
+
+  &:hover
+    background-color: $negative_hover
 
 .cancel-button
-  background-color: #b0b0b0
+  background-color: $neutral
+  color: $on_neutral
+
+  &:hover
+    background-color: $neutral_hover

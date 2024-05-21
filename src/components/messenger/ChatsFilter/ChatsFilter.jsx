@@ -1,9 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import "./ChatsFilter.css";
 import SpecialtiesService from "../../../services/SpecialtiesService";
+import ImageButton from "../../ui/ImageButton/ImageButton";
+import TextInput from "../../ui/TextInput/TextInput";
+import NumberInput from "../../ui/NumberInput/NumberInput";
+import BetterSelect from "../../ui/BetterSelect/BetterSelect";
 
 const ChatsFilter = ({onSearchGroup}) => {
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isFilterOpen, setIsFilterOpen] = useState(false  );
     const [specialties, setSpecialties] = useState([]);
 
     const [year, setYear] = useState("");
@@ -36,19 +40,21 @@ const ChatsFilter = ({onSearchGroup}) => {
 
     return (
         <div className="filter">
-            <div className="filter__search">
-                <label htmlFor="groupSearch">Поиск: </label>
-                <input
-                    id="groupSearch"
-                    type="text"
+            <div className="filter__search-box">
+                <TextInput
+                    className="filter__input"
+                    icon={"static/images/search.png"}
                     placeholder="Введите слово для поиска"
-                    onChange={(e) => {
-                        searchFilterValue.current = e.target.value;
+                    onChange={(value) => {
+                        searchFilterValue.current = value;
                         onSearchGroup(() => filter);
+                    }}
+                    onClearText={() => {
+                        searchFilterValue.current = "";
                     }}/>
-                <input
-                    type="button"
-                    value="Фильтр"
+                <ImageButton
+                    className="filter__button"
+                    src="static/images/filter.png"
                     onClick={() => {
                         if (isFilterOpen) {
                             yearFilterValue.current = null;
@@ -63,36 +69,32 @@ const ChatsFilter = ({onSearchGroup}) => {
             </div>
             {isFilterOpen &&
                 <div className="filter__area">
-                    <div>
-                        <label htmlFor="groupNumber">Курс:&nbsp;</label>
-                        <input
+                    <div className="filter__clause">
+                        <p>Курс:&nbsp;</p>
+                        <NumberInput
                             id="groupNumber"
-                            type="number"
-                            min="1"
+                            min={1}
                             value={year}
-                            onChange={(e) => {
-                                setYear(e.target.value);
-                                yearFilterValue.current = Number(e.target.value);
+                            onChange={(value) => {
+                                setYear(value);
+                                yearFilterValue.current = Number(value);
                                 onSearchGroup(() => filter);
                             }}/>
-                        <button onClick={() => {
-                            setYear("");
-                            yearFilterValue.current = null;
-                            onSearchGroup(() => filter);
-                        }}>❌
-                        </button>
                     </div>
-                    <div>
-                        <label>Специальность:&nbsp;</label>
-                        <select onChange={(e) => {
-                            specialtyFilterValue.current = e.target.value || null;
-                            onSearchGroup(() => filter);
-                        }}>
-                            <option value="">==Не фильтровать==</option>
-                            {specialties.map(specialty =>
-                                <option key={specialty._id} value={specialty._id}>{specialty.name}</option>
-                            )}
-                        </select>
+                    <div className="filter__clause">
+                        <p>Специальность:&nbsp;</p>
+                        <BetterSelect
+                            className="filter__better-select"
+                            onChange={(value) => {
+                                console.log(value)
+                                specialtyFilterValue.current = value;
+                                onSearchGroup(() => filter);
+                            }}
+                            defaultElement={{value: null, text: "Не фильтровать"}}
+                            elements={specialties.map(specialty =>
+                                ({value: specialty._id, text: specialty.name})
+                            )}>
+                        </BetterSelect>
                     </div>
                 </div>
             }

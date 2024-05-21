@@ -1,0 +1,20 @@
+@import "../../../theme"
+
+.image-button
+  background-color: transparent
+  display: flex
+  align-items: center
+
+  button
+    width: 100%
+    height: 100%
+    background-color: $neutral_light500
+    border: none
+    +mask-image("")
+    cursor: pointer
+
+    &:hover
+      background-color: #bdb5d9
+
+  &:focus
+    outline: none

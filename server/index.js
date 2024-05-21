@@ -104,6 +104,12 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("mailing", ({chats, messages}) => {
+        for (const chat of chats){
+            socket.to(chat).emit("mailing", messages.filter(message => message.chatId === chat));
+        }
+    });
+
     socket.on("delete message", (messageData) => {
         socket.to(messageData.message.chatId).emit("delete message", messageData);
     });

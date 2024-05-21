@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import "./DialogMenu.css";
 import Dialog from "../components/Dialog/Dialog";
-import listener from "../../../utils/GlobalEventListener";
+import listener from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 const DialogMenu = ({name, title, items}) => {
     const [isShown, setIsShown] = useState(false);

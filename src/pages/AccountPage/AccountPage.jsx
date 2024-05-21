@@ -3,8 +3,6 @@ import authService from "../../services/AuthService";
 import {Form, useLoaderData, useNavigate} from "react-router-dom";
 import "./AccountPage.css";
 
-import user_icon from "../../images/user.png";
-
 const AccountPage = () => {
     const user = useLoaderData();
     const navigate = useNavigate();
@@ -12,7 +10,7 @@ const AccountPage = () => {
     let icon;
 
     if (!icon || icon === ""){
-        icon = user_icon;
+        icon = "static/images/user.png";
     }
 
     return (

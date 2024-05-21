@@ -100,6 +100,10 @@ class MessengerSocketHelper {
         socket.on("edit message", ({messageData, text}) => {
             chatsStateManager.editMessage(setChats, chats, messageData, text);
         });
+
+        socket.on("mailing", (messages) => {
+            chatsStateManager.addManyMessages(setChats, chats, messages);
+        });
     }
 
     removeMessagesListeners(){
@@ -107,6 +111,7 @@ class MessengerSocketHelper {
         socket.off("delete message");
         socket.off("delete messages");
         socket.off("edit message");
+        socket.off("mailing");
     }
 
     async sendMessage(setChats, chats, selectedChat, currentUser, text){
@@ -132,6 +137,33 @@ class MessengerSocketHelper {
 
         const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
         await MessagesService.saveMessage(newMessage, to);
+    }
+
+    async sendMailing(setChats, chats, currentUser, messages, chatIds){
+        const sendDate = new Date();
+
+        const messagesForSend = [];
+        for (const chatId of chatIds) {
+            for (const message of messages) {
+                messagesForSend.push({
+                    _id: new mongoose.Types.ObjectId().toString(),
+                    text: message.text,
+                    sender: currentUser,
+                    to: chatId,
+                    chatId: chatId,
+                    datetime: sendDate
+                });
+            }
+        }
+
+        socket.emit("mailing", {
+            chats: chatIds,
+            messages: messagesForSend
+        });
+
+        chatsStateManager.addManyMessages(setChats, chats, messagesForSend);
+
+        await MessagesService.saveManyMessages(messagesForSend);
     }
 
     async deleteMessage(selectedChat, messageData, deletedUserId){

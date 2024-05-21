@@ -8,11 +8,11 @@
   gap: 5px;
 }
 .messenger__wrapper {
-  width: 80%;
+  width: 90%;
   height: 90%;
   overflow: hidden;
   display: flex;
-  border-radius: 10px;
+  gap: 10px;
 }
 .messenger__menus {
   position: absolute;
@@ -25,8 +25,9 @@
   height: 100%;
   overflow-x: clip;
   display: flex;
-  background-color: lightgray;
+  background-color: #615f7a;
   flex-direction: column;
+  border-radius: 5px;
 }
 .messenger__unselected-chat-alert {
   height: inherit;
@@ -34,73 +35,49 @@
   justify-content: center;
   align-items: center;
   font-weight: bold;
+  color: #F1EDFF;
 }
 
 .left-side {
-  width: 30%;
+  min-width: 330px;
+  max-width: 330px;
   display: flex;
   flex-direction: column;
-  background-color: #b6b6b6;
+  background-color: #615f7a;
+  color: #F1EDFF;
+  border-radius: 5px;
 }
-.left-side__chat-info {
+.left-side__user-info {
   padding: 5px;
-  background-color: #76c0b9;
-  border-bottom: 5px solid black;
+  gap: 5px;
+  background-color: #615f7a;
   display: flex;
-  justify-content: space-between;
-  z-index: 2;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  align-items: center;
 }
-.left-side__chat-info img {
-  width: 40px;
+.left-side__user-info div {
+  overflow: hidden;
+}
+.left-side__user-info a, .left-side__user-info img {
   height: 40px;
+}
+.left-side__user-info img {
+  background-color: #F1EDFF;
+  border-radius: 50%;
+}
+.left-side__not-found-chats {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
 }
 .left-side__chat-tabs {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-}
-.left-side__chat-tabs::-webkit-scrollbar {
-  display: none;
-}
-.left-side__chat-tabs a {
-  text-decoration: none;
-  color: black;
-}
-
-.info-header {
-  height: 80px;
-  background-color: #13a689;
-  display: flex;
-  border-radius: 5px 5px 0 0;
-}
-.info-header__icon-area {
-  width: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.info-header__icon-area img {
-  width: 60px;
-  height: 60px;
-  background-color: white;
-  border-radius: 50%;
-  margin: 5px;
-}
-.info-header__text-area {
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-}
-
-.info-body {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.info-footer {
-  height: 20px;
-  background-color: #0c4b3f;
-  border-radius: 0 0 5px 5px;
+  scrollbar-width: none;
 }
 
 /*# sourceMappingURL=Messenger.css.map */

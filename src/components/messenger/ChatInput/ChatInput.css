@@ -1,37 +1,40 @@
 .chat-input {
-  width: 100%;
-  background: #c4c4c4;
+  border-radius: 5px;
   display: flex;
+  flex: 1;
   justify-content: flex-end;
   align-items: flex-end;
+  margin: 5px;
+  gap: 5px;
 }
 .chat-input__input-field {
   width: 100%;
   display: flex;
 }
-.chat-input__file-button {
-  width: 35px;
-  height: 35px;
+.chat-input__buttons-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
-.chat-input__file-button input[type=file] {
-  width: 0;
+.chat-input__button {
+  width: calc(10px + 1.4em);
+  height: calc(10px + 1.4em);
+  cursor: pointer;
 }
-.chat-input__send-button {
-  width: 35px;
-  height: 35px;
+.chat-input__button button {
+  background-color: #50C878;
 }
-.chat-input__send-button input[type=submit] {
-  display: none;
+.chat-input__button:hover button {
+  background-color: #3bf379;
 }
 
 .input-field-wrapper {
   width: 100%;
   display: flex;
-  background-color: #989898;
+  background-color: #514f67;
   align-items: center;
   justify-content: center;
   border-radius: 5px;
-  margin: 5px;
   padding: 5px;
 }
 .input-field-wrapper textarea {
@@ -41,11 +44,20 @@
   border: none;
   resize: none;
   background: transparent;
+  color: #c3bbda;
 }
 .input-field-wrapper textarea:focus {
   outline: none;
 }
 .input-field-wrapper textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.file-button input[type=file] {
+  opacity: 0;
+}
+
+.send-button input[type=submit] {
   display: none;
 }
 

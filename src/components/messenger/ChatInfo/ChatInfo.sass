@@ -1,4 +1,6 @@
-.chat-info
+@import "../../../theme"
+
+.backdrop
   width: 100%
   height: 100%
   background-color: rgba(0, 0, 0, 0.34)
@@ -8,11 +10,44 @@
   justify-content: center
   align-items: center
 
-  &__content
-    width: 40%
-    height: 80%
-    border-radius: 6px
-    background-color: #06c09d
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4)
+.chat-info
+  width: 40%
+  height: 80%
+  border-radius: 6px
+  background-color: $neutral_dark500
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4)
+  display: flex
+  flex-direction: column
+
+  &__header
+    height: 80px
+    background-color: $neutral_dark700
+    display: flex
+    border-radius: 5px 5px 0 0
+
+  &__icon-box
+    width: 80px
+    display: flex
+    align-items: center
+    justify-content: center
+
+    img
+      width: 60px
+      height: 60px
+      background-color: $neutral_light500
+      border-radius: 50%
+      margin: 5px
+
+  &__text-box
+    justify-content: center
     display: flex
     flex-direction: column
+
+  &__body
+    height: 100%
+    overflow-y: auto
+
+  &__footer
+    height: 20px
+    background-color: $neutral_dark800
+    border-radius: 0 0 5px 5px

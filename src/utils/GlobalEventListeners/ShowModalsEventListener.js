@@ -1,4 +1,4 @@
-class GlobalEventListener {
+class ShowModalsEventListener {
     constructor() {
         this.callbacks = {};
 
@@ -29,4 +29,11 @@ export const show = (name, data) => {
     window.dispatchEvent(eventShow);
 }
 
-export default new GlobalEventListener();
+export const hide = (name) => {
+    const eventHide = new CustomEvent("hide", {
+        detail: {name}
+    });
+    window.dispatchEvent(eventHide);
+}
+
+export default new ShowModalsEventListener();

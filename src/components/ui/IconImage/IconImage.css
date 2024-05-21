@@ -1,0 +1,8 @@
+.icon-image div {
+  mask-image: url("");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  background-color: #F1EDFF;
+}
+
+/*# sourceMappingURL=IconImage.css.map */

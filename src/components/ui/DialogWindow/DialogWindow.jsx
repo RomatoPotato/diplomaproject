@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import "./DialogWindow.css";
-import listener from "../../../utils/GlobalEventListener";
+import listener from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 import Dialog from "../components/Dialog/Dialog";
 
 const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeButtonClick}) => {
