@@ -3,7 +3,7 @@ import "./DialogWindow.css";
 import listener from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 import Dialog from "../components/Dialog/Dialog";
 
-const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeButtonClick}) => {
+const DialogWindow = ({name, title, warningText, confirmType = "normal", positiveButtonClick, negativeButtonClick}) => {
     const [isShown, setIsShown] = useState(false);
     const [receivedData, setReceivedData] = useState(null);
 
@@ -23,20 +23,25 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
     return (
         <Dialog isShown={isShown} className="dialog-window">
             <div className="dialog-window__title">{title}</div>
-            <div className="dialog-window__warning-text">{warningText}</div>
+            <div className="dialog-window__warning-text">{
+                typeof warningText === "function" ? warningText(receivedData) : warningText
+            }</div>
             <div className="dialog-window__buttons">
                 <div className="dialog-window__action-buttons">
-                    <button className="positive-button" onClick={() => {
-                        positiveButtonClick(receivedData);
-                        close();
-                    }}>Да
+                    <button
+                        type={confirmType === "submit" ? "submit" : "button"}
+                        className="positive-button"
+                        onClick={() => {
+                            positiveButtonClick(receivedData);
+                            close();
+                        }}>Да
                     </button>
-                    <button className="negative-button" onClick={() => {
+                    <button type="button" className="negative-button" onClick={() => {
                         negativeButtonClick ? negativeButtonClick() : close();
                     }}>Нет
                     </button>
                 </div>
-                <button className="cancel-button" onClick={close}>Отменить</button>
+                <button type="button" className="cancel-button" onClick={close}>Отменить</button>
             </div>
         </Dialog>
     );

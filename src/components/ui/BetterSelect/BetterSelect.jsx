@@ -3,7 +3,7 @@ import "./BetterSelect.css";
 import TextInput from "../TextInput/TextInput";
 import ImageButton from "../ImageButton/ImageButton";
 
-const BetterSelect = ({onChange, className, elements, defaultElement}) => {
+const BetterSelect = ({onChange, className, elements, defaultElement, name}) => {
     const [isOpened, setIsOpened] = useState(false);
     const [selectedElement, setSelectedElement] = useState(defaultElement);
 
@@ -23,13 +23,16 @@ const BetterSelect = ({onChange, className, elements, defaultElement}) => {
     function handleSelect(element) {
         setSelectedElement(element);
         setIsOpened(false);
-        onChange(element.value);
+        if (onChange) {
+            onChange(element.value);
+        }
     }
 
     return (
         <div
             className={"better-select " + (className || "") + (isOpened ? " better-select_focused" : "")}
             onClick={(e) => e.stopPropagation()}>
+            <input type="hidden" name={name} value={selectedElement.value || ""}/>
             <div
                 className="better-select__selected-box"
                 onClick={() => {
@@ -47,7 +50,7 @@ const BetterSelect = ({onChange, className, elements, defaultElement}) => {
                             setFilterText(value);
                         }}
                         onClearText={() => setFilterText("")}
-                        icon="static/images/search.png"/> :
+                        icon="../static/images/search.png"/> :
                     <input
                         className="better-select__selected-text"
                         value={selectedElement.text}
@@ -56,7 +59,7 @@ const BetterSelect = ({onChange, className, elements, defaultElement}) => {
                 <div>
                     <ImageButton
                         className="better-select__button-open"
-                        src="static/images/select-arrow.png"
+                        src="../static/images/select-arrow.png"
                         onClick={() => {
                             setIsOpened(!isOpened);
                         }}/>
@@ -64,16 +67,18 @@ const BetterSelect = ({onChange, className, elements, defaultElement}) => {
             </div>
             {isOpened &&
                 <div className="better-select__options-box">
-                    {[defaultElement].concat(elements).filter(filter).length === 0 && <p>Ничего не найдено</p>}
-                    {[defaultElement].concat(elements).filter(filter).map(element =>
-                        <BetterOption
-                            selected={selectedElement.value === element.value}
-                            key={element.value}
-                            value={element.value}
-                            onSelect={handleSelect}>
-                            {element.text}
-                        </BetterOption>
-                    )}
+                    <div className="better-select__options-wrapper">
+                        {[defaultElement].concat(elements).filter(filter).length === 0 && <p>Ничего не найдено</p>}
+                        {[defaultElement].concat(elements).filter(filter).map(element =>
+                            <BetterOption
+                                selected={selectedElement.value === element.value}
+                                key={element.value}
+                                value={element.value}
+                                onSelect={handleSelect}>
+                                {element.text}
+                            </BetterOption>
+                        )}
+                    </div>
                 </div>
             }
         </div>

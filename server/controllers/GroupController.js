@@ -109,10 +109,10 @@ class GroupController {
 
             const studentIds = [];
             for (const student of students) {
-                const [surname, name, middlename] = student.split(" ");
+                const [surname, name, middlename] = student.initials.split(" ");
                 const roles = ["student"];
 
-                if (student === headman) {
+                if (student.id === headman) {
                     roles.push("headman");
                 }
 
@@ -174,6 +174,55 @@ class GroupController {
         try {
             const id = req.params.id;
             const deleted = await Group.findByIdAndDelete(id);
+
+            res.json(deleted);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async addStudent(req, res, next) {
+        try {
+            const groupId = req.params.id;
+            const name = req.body.name;
+            const surname = req.body.surname;
+            const middlename = req.body.middlename;
+
+            const _id = new mongoose.Types.ObjectId();
+
+            await User.create({
+                _id,
+                name,
+                surname,
+                middlename,
+                login: _id.toString(),
+                roles: ["student"],
+            });
+
+            const added = await Group.findByIdAndUpdate(groupId, {
+                $addToSet: {
+                    students: _id
+                }
+            }, config.updateOptions);
+
+            res.json(added);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async deleteStudent(req, res, next) {
+        try {
+            const groupId = req.params.id;
+            const studentId = req.body.studentId;
+
+            await Group.findByIdAndUpdate(groupId, {
+                $pull: {
+                    students: studentId
+                }
+            }, config.updateOptions);
+
+            const deleted = await User.findByIdAndDelete(studentId);
 
             res.json(deleted);
         } catch (err) {

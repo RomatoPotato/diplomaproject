@@ -1,8 +1,16 @@
 import React, {Fragment, useState} from 'react';
+import "./Curriculums.css";
 import {Form, useLoaderData} from "react-router-dom";
 import GroupsService from "../../services/GroupsService";
 import TeachersService from "../../services/TeachersService";
 import CurriculumService from "../../services/CurriculumService";
+import Table, {TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import BetterSelect from "../../components/ui/BetterSelect/BetterSelect";
+import NumberInput from "../../components/ui/NumberInput/NumberInput";
+import Button from "../../components/ui/Button/Button";
 
 export async function loader() {
     const groups = await GroupsService.getGroups();
@@ -19,6 +27,10 @@ export async function action({request}) {
     const semestersNumber = formData.get("semestersNumber");
     const startYear = formData.get("startYear");
 
+    if (!group){
+        return null;
+    }
+
     let allDisciplines = [];
     let allTeachers = [];
     const counts = [];
@@ -30,6 +42,10 @@ export async function action({request}) {
         allDisciplines = allDisciplines.concat(disciplines);
         allTeachers = allTeachers.concat(teachers);
         counts.push(disciplines.length);
+    }
+
+    if (allDisciplines.length === 0){
+        return null;
     }
 
     return await CurriculumService.addCurriculum(group, startYear, semestersNumber, allDisciplines, allTeachers, counts);
@@ -44,63 +60,78 @@ const Curriculums = () => {
     const [studyDuration, setStudyDuration] = useState(4);
 
     return (
-        <div>
+        <div className="curriculums-page">
             <h1>Учебные планы</h1>
-            <div style={{display: "flex", gap: "5px"}}>
-                {curriculums.map(curriculum =>
-                    <div key={curriculum._id._id} style={{border: "2px solid black"}}>
-                        <p>{curriculum._id.name}</p>
-                        <p>{curriculum.academicStartYear}-{curriculum.academicStartYear + curriculum.semestersNumber / 2}гг.</p>
-                        <Form action={`${curriculum._id._id}`}>
-                            <button type="submit">Открыть</button>
-                        </Form>
-                    </div>
-                )}
-            </div>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Группа</TableCell>
+                        <TableCell>Учебные гойда</TableCell>
+                        <TableCell>Действия</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {curriculums.map(curriculum =>
+                        <TableRow key={curriculum.group._id}>
+                            <TableCell>{curriculum.group.name}</TableCell>
+                            <TableCell>{curriculum.academicStartYear}-{curriculum.academicStartYear + curriculum.semestersNumber / 2}гг.</TableCell>
+                            <TableCell>
+                                <ImageButton
+                                    className="button-table-action"
+                                    src="../static/images/delete.png"
+                                    onClick={() => {
+                                        show("delete-curriculum-dialog", curriculum);
+                                    }}/>
+                                <Form action={curriculum.group._id}>
+                                    <ImageButton
+                                        type="submit"
+                                        src="../static/images/open.png"
+                                        className="button-table-action"/>
+                                </Form>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
             <h2>Создать</h2>
             <Form method="post">
-                <label>Группа:&nbsp;
-                    <select defaultValue="" name="group">
-                        <option disabled></option>
-                        {groups.map(group =>
-                            <option key={group._id} value={group._id}>{group.name}</option>
-                        )}
-                    </select>
-                </label>
-                <br/>
-                <label>Продолжительность обучения:
-                    <input
-                        type="number"
-                        min="1"
+                <div className="form-layout">
+                    <span>Группа:&nbsp;</span>
+                    <BetterSelect
+                        defaultElement={{text: "Не выбрана", value: null}}
+                        name="group"
+                        elements={groups.map(group => ({
+                            text: group.name,
+                            value: group._id
+                        }))}/>
+                    <span>Учебных курсов:&nbsp;</span>
+                    <NumberInput
+                        min={1}
                         name="studyDuration"
                         value={studyDuration}
-                        onChange={(e) => {
-                            setStudyDuration(parseInt(e.target.value));
+                        onChange={(value) => {
+                            setStudyDuration(value);
 
                             let temp = [];
-                            for (let i = 1; i <= Number(e.target.value); i++){
+                            for (let i = 1; i <= value; i++) {
                                 temp.push(i);
                             }
                         }}/>
-                    курсов
-                </label>
-                <br/>
-                <label>Год начала обучения:&nbsp;
-                    <input
-                        type="number"
-                        name="startYear"
-                        value={startYear}
-                        onChange={(e) => {
-                            setStartYear(e.target.value);
-                        }}/>
-                    <input type="button" value="Текущий" onClick={() => {
-                        setStartYear(academicStartYear);
-                    }}/>
-                    <input type="button" value="Следующий" onClick={() => {
-                        setStartYear(academicStartYear + 1);
-                    }}/>
-                </label>
-                <p>Год окончания обучения: {Number(startYear) + Number(studyDuration)}</p>
+                    <span>Год начала обучения:&nbsp;</span>
+                    <div style={{display: "flex", gap: "5px"}}>
+                        <NumberInput
+                            min={1}
+                            name="startYear"
+                            value={startYear}
+                            onChange={(value) => {
+                                setStartYear(value);
+                            }}/>
+                        <Button onClick={() => setStartYear(academicStartYear)}>Текущий</Button>
+                        <Button onClick={() => setStartYear(academicStartYear + 1)}>Следующий</Button>
+                    </div>
+                    <p>Год окончания обучения:</p>
+                    <p>{Number(startYear) + Number(studyDuration)}</p>
+                </div>
                 <input type="hidden" name="semestersNumber" value={studyDuration * 2}/>
                 {[...Array(studyDuration * 2)].map((s, i) =>
                     <Fragment key={i}>
@@ -108,8 +139,17 @@ const Curriculums = () => {
                         <SemesterInputTable teachers={teachers} semester={i + 1}/>
                     </Fragment>
                 )}
-                <br/>
-                <input type="submit" value="Сохранить"/>
+                <Button className="curriculums-page__button-save" type="submit">Сохранить</Button>
+            </Form>
+            <Form className="admin-modals">
+                <DialogWindow
+                    confirmType="submit"
+                    name="delete-curriculum-dialog"
+                    title="Удалить учебный план?"
+                    warningText={(curriculum) => "Будет удален учебный план группы " + curriculum?.group.name}
+                    positiveButtonClick={async (curriculum) => {
+                        await CurriculumService.deleteCurriculum(curriculum._id);
+                    }}/>
             </Form>
         </div>
     );
@@ -137,104 +177,103 @@ function SemesterInputTable({teachers, semester}) {
     }
 
     return (
-        <table>
-            <thead>
-            <tr>
-                <th>Учебная дисциплина</th>
-                <th>Преподаватель</th>
-            </tr>
-            </thead>
-            <tbody>
-            {semesterData.map(data =>
-                <tr key={data.discipline.id + data.teacher.id}>
-                    <td>
-                        {data.discipline.name}
-                        <input type="hidden" value={data.discipline.id} name={"disciplines" + semester}/>
-                    </td>
-                    <td>
-                        {data.teacher.name}
-                        <input type="hidden" value={data.teacher.id} name={"teachers" + semester}/>
-                    </td>
-                </tr>
-            )}
-            {isAdding &&
-                <>
-                    <tr>
-                        <td>
-                            <label>Выберите дисциплину:&nbsp;
-                                <select
-                                    defaultValue=""
-                                    onChange={(e) => {
-                                        setSelectedDiscipline(e.target.value);
-                                        setSelectedTeacher(disciplinesTeachersMap.get(e.target.value)[0]);
+        <Table>
+            <TableHead>
+                <TableRow>
+                    <TableCell>Учебная дисциплина</TableCell>
+                    <TableCell>Преподаватель</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {semesterData.map(data =>
+                    <TableRow key={data.discipline.id + data.teacher.id}>
+                        <TableCell>
+                            {data.discipline.name}
+                            <input type="hidden" value={data.discipline.id} name={"disciplines" + semester}/>
+                        </TableCell>
+                        <TableCell>
+                            {data.teacher.name}
+                            <input type="hidden" value={data.teacher.id} name={"teachers" + semester}/>
+                        </TableCell>
+                    </TableRow>
+                )}
+                {isAdding &&
+                    <>
+                        <TableRow>
+                            <TableCell>
+                                <span>Выберите дисциплину:&nbsp;</span>
+                                <BetterSelect
+                                    defaultElement={{text: "Не выбрана", value: null}}
+                                    onChange={(value) => {
+                                        setSelectedDiscipline(value);
+                                        setSelectedTeacher(disciplinesTeachersMap.get(value)[0]);
+                                    }}
+                                    elements={Array.from(disciplinesTeachersMap.entries()).map(([disciplineId]) => ({
+                                        text: disciplinesIdsMap.get(disciplineId),
+                                        value: disciplineId
+                                    }))}/>
+                            </TableCell>
+                            <TableCell>
+                                <span>Выберите преподавателя:&nbsp;</span>
+                                <BetterSelect
+                                    defaultElement={{text: "Не выбран", value: null}}
+                                    onChange={(value) => {
+                                        setSelectedTeacher(value);
+                                    }}
+                                    elements={selectedDiscipline ? disciplinesTeachersMap.get(selectedDiscipline).map(teacherId => ({
+                                        text: teachersIdsMap.get(teacherId),
+                                        value: teacherId
+                                    })) : []}/>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell colSpan={2} style={{justifyContent: "center", gap: "5px"}}>
+                                <Button
+                                    onClick={() => {
+                                        setIsAdding(false);
+                                        setSelectedDiscipline(null);
+                                        setSelectedTeacher(null);
                                     }}>
-                                    <option disabled></option>
-                                    {Array.from(disciplinesTeachersMap.entries()).map(([disciplineId]) =>
-                                        <option key={disciplineId}
-                                                value={disciplineId}>{disciplinesIdsMap.get(disciplineId)}</option>
-                                    )}
-                                </select>
-                            </label>
-                        </td>
-                        <td>
-                            <label>Выберите преподавателя:&nbsp;
-                                <select
-                                    disabled={!selectedDiscipline}
-                                    onChange={(e) => {
-                                        setSelectedTeacher(e.target.value);
+                                    Отмена
+                                </Button>
+                                <Button
+                                    disabled={!selectedTeacher}
+                                    onClick={() => {
+                                        setSemesterData([
+                                            ...semesterData,
+                                            {
+                                                discipline: {
+                                                    id: selectedDiscipline,
+                                                    name: disciplinesIdsMap.get(selectedDiscipline)
+                                                },
+                                                teacher: {
+                                                    id: selectedTeacher,
+                                                    name: teachersIdsMap.get(selectedTeacher)
+                                                }
+                                            }
+                                        ])
+                                        setIsAdding(false);
                                     }}>
-                                    {selectedDiscipline && disciplinesTeachersMap.get(selectedDiscipline).map(teacherId =>
-                                        <option key={teacherId}
-                                                value={teacherId}>{teachersIdsMap.get(teacherId)}</option>
-                                    )}
-                                </select>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colSpan={2} style={{textAlign: "center"}}>
-                            <input
-                                type="button"
-                                value="Отмена"
+                                    Готово
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    </>
+                }
+                {!isAdding &&
+                    <TableRow>
+                        <TableCell style={{justifyContent: "center"}} colSpan={2}>
+                            <Button
                                 onClick={() => {
-                                    setIsAdding(false);
-                                    setSelectedDiscipline(null);
-                                    setSelectedTeacher(null);
-                                }}/>
-                            <input
-                                type="button"
-                                value="Готово"
-                                onClick={() => {
-                                    setSemesterData([
-                                        ...semesterData,
-                                        {
-                                            discipline: {
-                                                id: selectedDiscipline,
-                                                name: disciplinesIdsMap.get(selectedDiscipline)
-                                            },
-                                            teacher: {id: selectedTeacher, name: teachersIdsMap.get(selectedTeacher)}
-                                        }
-                                    ])
-                                    setIsAdding(false);
-                                }}/>
-                        </td>
-                    </tr>
-                </>
-            }
-            {!isAdding &&
-                <tr style={{textAlign: "center"}}>
-                    <td colSpan={2}>
-                        <input
-                            type="button"
-                            value="➕➕➕➕➕"
-                            onClick={() => {
-                                setIsAdding(true);
-                            }}/>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+                                    setIsAdding(true);
+                                }}>
+                                ➕➕➕➕➕
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                }
+            </TableBody>
+        </Table>
     );
 }
 

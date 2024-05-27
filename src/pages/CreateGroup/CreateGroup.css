@@ -1,0 +1,24 @@
+.add-student-layout {
+  margin: 5px 0;
+  display: flex;
+  gap: 5px;
+}
+.add-student-layout .custom-input {
+  width: 250px;
+}
+
+.students-table {
+  width: 500px;
+  margin-bottom: 5px;
+}
+
+.button-remove-student {
+  width: 20px;
+  height: 20px;
+}
+
+.button-add-group {
+  margin: 5px 0;
+}
+
+/*# sourceMappingURL=CreateGroup.css.map */

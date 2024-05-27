@@ -19,6 +19,6 @@ export default class StaffService {
     }
 
     static async deleteStaff(id){
-
+        return (await axiosInstance.delete("staff/" + id)).data;
     }
 }

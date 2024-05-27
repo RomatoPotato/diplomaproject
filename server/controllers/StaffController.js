@@ -69,6 +69,18 @@ class StaffController {
             next(err);
         }
     }
+
+    async deleteStaff(req, res, next){
+        try {
+            const id = req.params.id;
+
+            const deleted = await Staff.findByIdAndDelete(id);
+
+            res.json(deleted);
+        }catch (err){
+            next(err);
+        }
+    }
 }
 
 module.exports = new StaffController();

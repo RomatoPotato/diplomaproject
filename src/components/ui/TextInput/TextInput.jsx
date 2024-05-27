@@ -1,21 +1,24 @@
-import React, {useRef, useState} from 'react';
+import React, {forwardRef, useState} from 'react';
 import "./TextInput.css";
 import ImageButton from "../ImageButton/ImageButton";
 import IconImage from "../IconImage/IconImage";
 
-const TextInput = ({className, icon, onChange, onClearText, noBorder, children, ...attrs}) => {
+const TextInput = forwardRef(({className, icon, onChange, onClearText, noBorder, name, children, ...attrs}, ref) => {
     const [text, setText] = useState("");
-    const inputRef = useRef();
 
     return (
         <div className={"custom-input " + (className || "")}>
             <div>
                 <ImageButton
                     className="custom-input__button-erase"
-                    src="static/images/erase.png"
+                    src="../../static/images/erase.png"
                     onClick={() => {
                         setText("");
-                        onChange("");
+
+                        if (onChange) {
+                            onChange("");
+                        }
+
                         if (onClearText) {
                             onClearText();
                         }
@@ -23,7 +26,8 @@ const TextInput = ({className, icon, onChange, onClearText, noBorder, children, 
             </div>
             {children}
             <input
-                ref={inputRef}
+                name={name}
+                ref={ref}
                 type="text"
                 value={text}
                 className={"custom-input__input " +
@@ -32,7 +36,10 @@ const TextInput = ({className, icon, onChange, onClearText, noBorder, children, 
                 {...attrs}
                 onChange={(e) => {
                     setText(e.target.value);
-                    onChange(e.target.value);
+
+                    if (onChange) {
+                        onChange(e.target.value);
+                    }
                 }}/>
             {icon &&
                 <IconImage
@@ -42,6 +49,6 @@ const TextInput = ({className, icon, onChange, onClearText, noBorder, children, 
             }
         </div>
     );
-};
+});
 
 export default TextInput;

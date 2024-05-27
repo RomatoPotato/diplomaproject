@@ -78,6 +78,9 @@ class CurriculumController {
                 {
                     $group: {
                         _id: "$group",
+                        curriculumId: {
+                            $first: "$_id"
+                        },
                         academicStartYear: {
                             $first: "$academicStartYear"
                         },
@@ -93,7 +96,14 @@ class CurriculumController {
                     }
                 },
                 {
+                    $addFields: {
+                        group: "$_id",
+                        _id: "$curriculumId"
+                    }
+                },
+                {
                     $project: {
+                        group: 1,
                         data: {
                             teacher: {
                                 _id: 1,
@@ -183,7 +193,11 @@ class CurriculumController {
 
     async deleteCurriculum(req, res, next) {
         try {
+            const id = req.params.id;
 
+            const deleted = await Curriculum.findByIdAndDelete(id);
+
+            res.json(deleted);
         } catch (err) {
             next(err);
         }

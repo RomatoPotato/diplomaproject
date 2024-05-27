@@ -94,6 +94,18 @@ class TeacherController {
             next(err);
         }
     }
+
+    async deleteTeacher(req, res, next){
+        try {
+            const id = req.params.id;
+
+            const deleted = await Teacher.findByIdAndDelete(id);
+
+            res.json(deleted);
+        }catch (err){
+            next(err);
+        }
+    }
 }
 
 module.exports = new TeacherController();

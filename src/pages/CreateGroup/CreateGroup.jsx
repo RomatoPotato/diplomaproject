@@ -1,12 +1,19 @@
 import React, {useRef, useState} from 'react';
+import "./CreateGroup.css";
 import {Form, redirect, useLoaderData} from "react-router-dom";
 import TeachersService from "../../services/TeachersService";
 import SpecialtiesService from "../../services/SpecialtiesService";
 import GroupsService from "../../services/GroupsService";
+import NumberInput from "../../components/ui/NumberInput/NumberInput";
+import BetterSelect from "../../components/ui/BetterSelect/BetterSelect";
+import TextInput from "../../components/ui/TextInput/TextInput";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import Button from "../../components/ui/Button/Button";
+import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 
 let nextId = 0;
 
-export async function loader(){
+export async function loader() {
     const specialties = await SpecialtiesService.getSpecialties();
     const teachers = await TeachersService.getTeachers();
 
@@ -16,13 +23,23 @@ export async function loader(){
 export async function action({request}) {
     const formData = await request.formData();
 
-    console.log(formData.getAll("students"));
+    const studentsArray = formData.getAll("students");
+    const studentsIdsArray = formData.getAll("students_ids");
+
+    const students = [];
+
+    for (let i = 0; i < studentsArray.length; i++){
+        students.push({
+            initials: studentsArray[i],
+            id: studentsIdsArray[i]
+        });
+    }
 
     await GroupsService.addGroup(
         formData.get("year"),
         formData.get("specialty"),
         formData.get("groupName"),
-        formData.getAll("students"),
+        students,
         formData.get("headman"),
         formData.get("curator"));
 
@@ -33,30 +50,44 @@ const CreateGroup = () => {
     const [specialties, teachers] = useLoaderData();
 
     const [students, setStudents] = useState(new Map());
+    const [isYearSelected, setIsYearSelected] = useState(false);
+    const [isSpecialtySelected, setIsSpecialtySelected] = useState(false);
+    const [hasName, setHasName] = useState(false);
+    const [isHeadmanSelected, setIsHeadmanSelected] = useState(false);
+    const [isCuratorSelected, setIsCuratorSelected] = useState(false);
 
     return (
-        <div>
+        <div className="create-group-page">
             <h1>Добавление группы</h1>
             <Form method="post">
-                <label>
-                    Курс:&nbsp;
-                    <input name="year" type="number" defaultValue={1} min={1} />
-                </label>
-                <br/>
-                <label>
-                    Специальность:&nbsp;
-                    <select name="specialty" defaultValue="">
-                        <option disabled></option>
-                        {specialties.map(specialty =>
-                            <option value={specialty._id} key={specialty._id}>{specialty.name}</option>
-                        )}
-                    </select>
-                </label>
-                <br/>
-                <label>
-                    Наименование: <input name="groupName"/>
-                </label>
-                <br/>
+                <div className="form-layout">
+                    <span>Курс:&nbsp;</span>
+                    <NumberInput
+                        onChange={(value) => {
+                            setIsYearSelected(value !== "" && value);
+                        }}
+                        name="year"
+                        min={1}/>
+                    <span>Специальность:&nbsp;</span>
+                    <BetterSelect
+                        name="specialty"
+                        defaultElement={{text: "Не выбрано", value: null}}
+                        elements={specialties.map(specialty => ({
+                            text: specialty.name,
+                            value: specialty._id
+                        }))}
+                        onChange={(value) => {
+                            setIsSpecialtySelected(value !== "" && value);
+                        }}
+                    />
+                    <span>Наименование: </span>
+                    <TextInput
+                        onChange={(value) => {
+                            setHasName(value !== "" && value);
+                        }}
+                        icon="../static/images/title.png"
+                        name="groupName"/>
+                </div>
                 <AddStudent onAddStudent={(name, surname, middlename) => {
                     setStudents((prevState) => new Map(prevState.set(nextId++, {
                         name,
@@ -64,41 +95,50 @@ const CreateGroup = () => {
                         middlename
                     })));
                 }}/>
-                <StudentsList
-                    students={students}
-                    onStudentChange={(id, value) => {
-                        setStudents((prevState) => {
-                            const tempMap = new Map(prevState);
-                            tempMap.set(id, value);
-                            return tempMap;
-                        });
-                    }}
-                    onStudentRemove={(id) => {
-                        setStudents((prevState) => {
-                            const tempMap = new Map(prevState);
-                            tempMap.delete(id);
-                            return tempMap;
-                        });
-                    }}/>
-                <label>Староста:&nbsp;
-                    <select name="headman" defaultValue="" disabled={students.size === 0}>
-                        <option disabled></option>
-                        {Array.from(students.entries()).map(([id, student]) =>
-                            <option key={id}>{student.surname} {student.name} {student.middlename}</option>
-                        )}
-                    </select>
-                </label>
-                <br/>
-                <label>Куратор:&nbsp;
-                    <select name="curator" defaultValue="">
-                        <option disabled></option>
-                        {teachers.map(teacher =>
-                            <option key={teacher._id} value={teacher._id}>{teacher.surname} {teacher.name} {teacher.middlename}</option>
-                        )}
-                    </select>
-                </label>
-                <br/>
-                <input type="submit" value="Готово"/>
+                <p>Список студентов:</p>
+                {students.size === 0 ?
+                    <p><i>Пусто</i></p> :
+                    <StudentsList
+                        students={students}
+                        onStudentRemove={(id) => {
+                            setStudents((prevState) => {
+                                const tempMap = new Map(prevState);
+                                tempMap.delete(id);
+                                return tempMap;
+                            });
+                        }}/>
+                }
+                <div className="form-layout">
+                    <span>Староста:&nbsp;</span>
+                    <BetterSelect
+                        name="headman"
+                        onChange={(value) => {
+                            setIsHeadmanSelected(value !== "" && value !== null);
+                        }}
+                        defaultElement={{text: "Не выбран", value: null}}
+                        elements={Array.from(students.entries()).map(([id, student]) => ({
+                            text: `${student.surname} ${student.name} ${student.middlename}`,
+                            value: id
+                        }))}/>
+                    <span>Куратор:&nbsp;</span>
+                    <BetterSelect
+                        name="curator"
+                        onChange={(value) => {
+                            setIsCuratorSelected(value !== "" && value);
+                        }}
+                        defaultElement={{text: "Не выбран", value: null}}
+                        elements={teachers.map(teacher => ({
+                            text: `${teacher.surname} ${teacher.name} ${teacher.middlename}`,
+                            value: teacher._id
+                        }))}/>
+                </div>
+                <Button
+                    disabled={!(isSpecialtySelected && hasName && students.size > 0
+                        && isHeadmanSelected && isCuratorSelected && isYearSelected)}
+                    className="button-add-group"
+                    type="submit">
+                    Готово
+                </Button>
             </Form>
         </div>
     );
@@ -112,80 +152,78 @@ const AddStudent = ({onAddStudent}) => {
     const firstInput = useRef(null);
 
     return (
-        <>
-            <input
+        <div className="add-student-layout">
+            <TextInput
+                icon="../static/images/user-initials.png"
                 ref={firstInput}
                 placeholder="Фамилия"
                 value={surname}
-                onChange={(e) => {
-                    setSurname(e.target.value);
+                onChange={(value) => {
+                    setSurname(value);
                 }}
             />
-            <input
+            <TextInput
+                icon="../static/images/user-initials.png"
                 placeholder="Имя"
                 value={name}
-                onChange={(e) => {
-                    setName(e.target.value);
+                onChange={(value) => {
+                    setName(value);
                 }}
             />
-            <input
+            <TextInput
+                icon="../static/images/user-initials.png"
                 placeholder="Отчество"
                 value={middlename}
-                onChange={(e) => {
-                    setMiddleName(e.target.value);
+                onChange={(value) => {
+                    setMiddleName(value);
                 }}
             />
-            <button onClick={(e) => {
-                e.preventDefault();
-                if (name?.length !== 0 && surname?.length !== 0) {
-                    setName("");
-                    setSurname("");
-                    setMiddleName("");
-                    firstInput.current.focus();
-                    onAddStudent(name, surname, middlename);
-                }
-            }}>Добавить</button>
-        </>
+            <Button
+                type="submit"
+                className="button-add-student"
+                onClick={(e) => {
+                    e.preventDefault();
+                    if (name?.length !== 0 && surname?.length !== 0) {
+                        setName("");
+                        setSurname("");
+                        setMiddleName("");
+                        firstInput.current.focus();
+                        onAddStudent(name, surname, middlename);
+                    }
+                }}>
+                Добавить
+            </Button>
+        </div>
     )
 }
 
-const StudentsList = ({students, onStudentChange, onStudentRemove}) => {
+const StudentsList = ({students, onStudentRemove}) => {
     return (
-        <ul>
-            {Array.from(students.entries()).map(([id, student]) =>
-                <li key={id}>
-                    <input
-                        value={student.surname}
-                        onChange={(e) => {
-                            onStudentChange(id, {
-                                ...student,
-                                surname: e.target.value
-                            });
-                        }}/>
-                    <input
-                        value={student.name}
-                        onChange={(e) => {
-                            onStudentChange(id, {
-                                ...student,
-                                name: e.target.value
-                            });
-                        }}/>
-                    <input
-                        value={student.middlename}
-                        onChange={(e) => {
-                            onStudentChange(id, {
-                                ...student,
-                                middlename: e.target.value
-                            });
-                        }}/>
-                    <input type="hidden" name="students" value={`${student.surname} ${student.name} ${student.middlename}`}/>
-                    <button onClick={() => {
-                        onStudentRemove(id);
-                    }}>✖️
-                    </button>
-                </li>
-            )}
-        </ul>
+        <Table className="students-table">
+            <TableHead>
+                <TableRow>
+                    <TableCell>ФИО</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {Array.from(students.entries()).map(([id, student]) =>
+                    <TableRow>
+                        <TableActionCell text={`${student.surname} ${student.name} ${student.middlename}`}>
+                            <input type="hidden" name="students"
+                                   value={`${student.surname} ${student.name} ${student.middlename}`}/>
+                            <input type="hidden" name="students_ids"
+                                   value={student.id}/>
+                            <ImageButton
+                                className="button-remove-student"
+                                src="../static/images/delete.png"
+                                onClick={() => {
+                                    onStudentRemove(id);
+                                }}/>
+                        </TableActionCell>
+                    </TableRow>
+                )}
+            </TableBody>
+        </Table>
     )
 }
 

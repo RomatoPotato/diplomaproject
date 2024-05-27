@@ -1,0 +1,25 @@
+@import "../../../theme"
+
+.better-button
+  min-width: inherit
+  min-height: inherit
+  font-weight: bold
+  font-size: 1em
+  background-color: $primary
+  color: $neutral_dark900
+  padding: 5px
+  border: none
+  border-radius: $border-radius
+  cursor: pointer
+
+  &:hover
+    background-color: $primary_hover_light
+    color: $neutral_dark800
+
+  &:disabled
+    background-color: $primary_disabled
+    cursor: default
+
+    &:hover
+      background-color: $primary_disabled
+      color: $neutral_dark900

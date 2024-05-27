@@ -4,6 +4,13 @@ import "./CreateVLS.css";
 import VLSService from "../../services/VLSService";
 import GroupsService from "../../services/GroupsService";
 import RolesService from "../../services/RolesService";
+import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
+import BetterSelect from "../../components/ui/BetterSelect/BetterSelect";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import Button from "../../components/ui/Button/Button";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import AdminManager from "../../utils/AdminManager";
+import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 export async function loader() {
     const groups = await GroupsService.getGroups();
@@ -33,23 +40,24 @@ const CreateVLS = () => {
         <div className="create-vls">
             <h1>Создание виртуального учебного пространства</h1>
             <Form method="post">
-                <label>
-                    Выберите группу:
-                    <select
-                        defaultValue=""
-                        name="groupId"
-                        onChange={(e) => {
-                            setIsGroupSelected(true);
-                            setSelectedGroupId(e.target.value);
-                            setAdmins(adminsList);
-                        }}>
-                        <option disabled></option>
-                        {groups.map(group =>
-                            <option key={group._id} value={group._id}>{group.name}</option>
-                        )}
-                    </select>
-                </label>
-                <br/>
+                <p>Выберите группу:</p>
+                <BetterSelect
+                    defaultElement={{text: "Не выбрано", value: ""}}
+                    name="groupId"
+                    onChange={(value) => {
+                        if (!value) {
+                            setIsGroupSelected(false);
+                            return;
+                        }
+
+                        setIsGroupSelected(true);
+                        setSelectedGroupId(value);
+                        setAdmins(adminsList);
+                    }}
+                    elements={groups.map(group =>
+                        ({text: group.name, value: group._id})
+                    )}>
+                </BetterSelect>
                 {isGroupSelected &&
                     <>
                         <h2>Участники</h2>
@@ -58,56 +66,69 @@ const CreateVLS = () => {
                             <h4 key={group.curator._id}>{group.curator.surname} {group.curator.name} {group.curator.middlename}</h4>
                         )}
                         <h3>Студенты</h3>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ФИО</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {groups.filter(group => group._id === selectedGroupId)[0].students.map(student =>
-                                <tr key={student._id}>
-                                    <td>
-                                        {student.surname} {student.name}{student.middlename && ` ${student.middlename}`}
-                                        {student.roles.includes("headman") &&
-                                            <b><i> (Староста)</i></b>
-                                        }
-                                    </td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ФИО</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {groups.filter(group => group._id === selectedGroupId)[0].students.map(student =>
+                                    <TableRow key={student._id}>
+                                        <TableCell>
+                                            {student.surname} {student.name}{student.middlename && ` ${student.middlename}`}
+                                            {student.roles.includes("headman") &&
+                                                <b><i>&nbsp;(Староста)</i></b>
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
                         <h3>Админы</h3>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ФИО</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {admins.map(admin =>
-                                <tr key={admin._id}>
-                                    <td style={{display: "flex", justifyContent: "space-between"}}>
-                                        <span>{admin.surname} {admin.name} {admin.middlename}</span>
-                                        <input type="hidden" name="admins" value={admin._id}/>
-                                        <input
-                                            type="button"
-                                            value="Убрать"
-                                            onClick={() => {
-                                                setAdmins(admins.filter(a => a._id !== admin._id));
-                                            }}/>
-                                    </td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ФИО</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {admins.map(admin =>
+                                    <TableRow key={admin._id}>
+                                        <TableActionCell text={`${admin.surname} ${admin.name} ${admin.middlename}`}>
+                                            <input type="hidden" name="admins" value={admin._id}/>
+                                            <ImageButton
+                                                className="button-table-action"
+                                                src="../static/images/delete.png"
+                                                onClick={() => {
+                                                    show("remove-admin-dialog", admin);
+                                                }}/>
+                                        </TableActionCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
                     </>
                 }
-                <input type="submit" value="Готово"/>
+                <Button
+                    disabled={!isGroupSelected}
+                    className="button-create-group"
+                    type="submit">
+                    Готово
+                </Button>
             </Form>
+            <div className="admin-modals">
+                <DialogWindow
+                    name="remove-admin-dialog"
+                    title="Убрать админа?"
+                    warningText={(admin) => `Из списка будет убран админ ${admin?.surname} ${admin?.name} ${admin?.middlename}`
+                        + ", вы не сможете вернуть его обратно!"}
+                    positiveButtonClick={(admin) => {
+                        setAdmins(admins.filter(a => a._id !== admin._id));
+                    }}/>
+            </div>
         </div>
-    )
-        ;
+    );
 };
 
 export default CreateVLS;

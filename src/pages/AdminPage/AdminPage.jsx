@@ -1,56 +1,55 @@
 import React from 'react';
-import {Form, Outlet} from "react-router-dom";
+import {NavLink, Outlet} from "react-router-dom";
 import "./AdminPage.css";
 
 const AdminPage = () => {
     return (
         <div className="admin-page">
-            <div className="menu">
-                <div className="menu-topbar">
-                    <p>Филиал УГАТУ в г.Ишимбае</p>
+            <div className="admin-page__left-side">
+                <div className="admin-page__user-info">
+                    <p>Филиал УУНиТ в г.Ишимбае</p>
                     <p>Админ Админовна</p>
                 </div>
-                <div className="menu-buttons">
-                    <p>Виртуальные учебные пространства</p>
-                    <Form action="virtual-learning-spaces">
-                        <input type="submit" value="Список" />
-                    </Form>
-                    <Form action="create-vls">
-                        <input type="submit" value="Создать пространство" />
-                    </Form>
-                    <Form action="admins">
-                        <input type="submit" value="Админы" />
-                    </Form>
-                    <p>Группы</p>
-                    <Form action="groups">
-                        <input type="submit" value="Все группы" />
-                    </Form>
-                    <Form action="create-group">
-                        <input type="submit" value="Добавить группу" />
-                    </Form>
-                    <Form action="specialties">
-                        <input type="submit" value="Специальности" />
-                    </Form>
-                    <p>ВУЗ</p>
-                    <Form action="teachers">
-                        <input type="submit" value="Преподаватели" />
-                    </Form>
-                    <Form action="academic_disciplines">
-                        <input type="submit" value="Учебные дисциплины" />
-                    </Form>
-                    <Form action="curriculums">
-                        <input type="submit" value="Учебные планы" />
-                    </Form>
-                    <Form action="staff">
-                        <input type="submit" value="Сотрудники университета" />
-                    </Form>
+                <div className="admin-menu">
+                    <div className="admin-menu__section">
+                        <p>Виртуальные учебные пространства</p>
+                        <AdminMenuItem to="virtual-learning-spaces">Список</AdminMenuItem>
+                        <AdminMenuItem to="create-vls">Создать пространство</AdminMenuItem>
+                        <AdminMenuItem to="admins">Админы</AdminMenuItem>
+                    </div>
+                    <div className="admin-menu__section">
+                        <p>Группы</p>
+                        <AdminMenuItem to="groups">Все группы</AdminMenuItem>
+                        <AdminMenuItem to="create-group">Добавить группу</AdminMenuItem>
+                        <AdminMenuItem to="specialties">Специальности</AdminMenuItem>
+                    </div>
+                    <div className="admin-menu__section">
+                        <p>ВУЗ</p>
+                        <AdminMenuItem to="teachers">Преподаватели</AdminMenuItem>
+                        <AdminMenuItem to="academic_disciplines">Учебные дисциплины</AdminMenuItem>
+                        <AdminMenuItem to="curriculums">Учебные планы</AdminMenuItem>
+                        <AdminMenuItem to="staff">Сотрудники университета</AdminMenuItem>
+                    </div>
                 </div>
             </div>
-            <div className="content">
-                <Outlet />
+            <div className="admin-page__content">
+                <Outlet/>
             </div>
         </div>
     );
 };
+
+const AdminMenuItem = ({to, children}) => {
+    return (
+        <NavLink
+            className={({isActive, isPending}) =>
+                isActive ? "admin-menu__item admin-menu__item_active"
+                    : isPending ? "admin-menu__item admin-menu__item_pending" : "admin-menu__item"
+            }
+            to={to}>
+            {children}
+        </NavLink>
+    )
+}
 
 export default AdminPage;

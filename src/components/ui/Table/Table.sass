@@ -1,0 +1,81 @@
+@import "../../../theme"
+
+.better-table-cell
+  padding: 5px
+
+  &__content
+    display: flex
+    align-items: center
+
+.table-action-cell
+  padding: 5px
+
+  &__content
+    display: flex
+    gap: 10px
+    justify-content: space-between
+
+  &__actions-box
+    display: flex
+    opacity: 0
+
+  &:hover &__actions-box
+    opacity: 1
+
+$table_border_width: 3px
+$inner_border_width: 1px
+$table_border_color: $neutral_dark800
+
+$table_corner_border: $table_border_width solid $table_border_color
+$table_inner_border: $inner_border_width / 2 solid $table_border_color
+
+table
+  width: 100%
+  min-width: 50%
+  max-width: max-content
+  border-spacing: 0
+  background-color: $neutral_dark600
+  color: $on_neutral_dark600
+  border-radius: $border-radius
+
+th, td
+  padding: 5px
+
+tbody > tr> td, thead > tr> th
+  border: $table_inner_border
+
+  &:nth-child(1)
+    border-left: $table_corner_border
+    border-right: $table_inner_border
+
+  &:nth-last-child(1)
+    border-left: $table_inner_border
+    border-right: $table_corner_border
+
+thead
+  background-color: $neutral_dark800
+  color: $on_neutral_dark800
+
+  & > tr
+    &:nth-last-child(1) th
+      &:nth-child(1)
+        border-top-left-radius: $border-radius
+
+      &:nth-last-child(1)
+        border-top-right-radius: $border-radius
+
+    & > th
+      border-top: $table_corner_border
+
+tbody > tr
+  &:nth-of-type(odd)
+    background-color: $neutral_dark400
+
+  &:nth-last-child(1) td
+    border-bottom: $table_corner_border
+
+    &:nth-child(1)
+      border-bottom-left-radius: $border-radius
+
+    &:nth-last-child(1)
+      border-bottom-right-radius: $border-radius

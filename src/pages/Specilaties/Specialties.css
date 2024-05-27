@@ -1,5 +1,14 @@
 .specialties {
   width: 100%;
 }
+.specialties__create-form {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.button-add-specialty {
+  margin-top: 5px;
+}
 
 /*# sourceMappingURL=Specialties.css.map */

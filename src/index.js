@@ -49,6 +49,10 @@ import UniversityStaff, {
     action as staffAction
 } from "./pages/UniversityStaff/UniversityStaff";
 import Curriculum, {loader as curriculumLoader} from "./pages/Curriculum/Curriculum";
+import Group, {
+    loader as groupLoader,
+    action as groupAction
+} from "./pages/Group/Group";
 
 const router = createBrowserRouter([
     {
@@ -131,6 +135,12 @@ const router = createBrowserRouter([
                 path: "groups",
                 element: <Groups/>,
                 loader: groupsLoader
+            },
+            {
+                path: "groups/:id",
+                element: <Group/>,
+                loader: groupLoader,
+                action: groupAction
             },
             {
                 path: "specialties",

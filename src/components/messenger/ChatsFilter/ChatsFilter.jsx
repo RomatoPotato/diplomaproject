@@ -86,7 +86,6 @@ const ChatsFilter = ({onSearchGroup}) => {
                         <BetterSelect
                             className="filter__better-select"
                             onChange={(value) => {
-                                console.log(value)
                                 specialtyFilterValue.current = value;
                                 onSearchGroup(() => filter);
                             }}

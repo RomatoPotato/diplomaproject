@@ -1,0 +1,26 @@
+.better-button {
+  min-width: inherit;
+  min-height: inherit;
+  font-weight: bold;
+  font-size: 1em;
+  background-color: #50C878;
+  color: #26243b;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.better-button:hover {
+  background-color: #3bf379;
+  color: #514f67;
+}
+.better-button:disabled {
+  background-color: #629d76;
+  cursor: default;
+}
+.better-button:disabled:hover {
+  background-color: #629d76;
+  color: #26243b;
+}
+
+/*# sourceMappingURL=Button.css.map */

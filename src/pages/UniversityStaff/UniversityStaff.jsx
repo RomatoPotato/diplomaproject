@@ -1,9 +1,15 @@
 import React, {useState} from 'react';
+import "./UniversityStaff.css";
 import StaffService from "../../services/StaffService";
 import {Form, useLoaderData} from "react-router-dom";
-import UserService from "../../services/UserService";
-import FilesManager from "../../utils/FilesManager";
 import AdminManager from "../../utils/AdminManager";
+import TextInput from "../../components/ui/TextInput/TextInput";
+import Button from "../../components/ui/Button/Button";
+import Table, {TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import TeachersService from "../../services/TeachersService";
+import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 export async function loader() {
     return await StaffService.getStaff();
@@ -28,7 +34,7 @@ const UniversityStaff = () => {
     const [appointment, setAppointment] = useState("");
 
     return (
-        <div>
+        <div className="staff-page">
             <h2>Добавление сотрудника</h2>
             <Form method="post" onSubmit={(e) => {
                 if (surname !== "" && name !== "" && middlename !== "" && appointment !== "") {
@@ -36,64 +42,88 @@ const UniversityStaff = () => {
                     setName("");
                     setMiddlename("");
                     setAppointment("");
-                }else {
+                } else {
                     e.preventDefault();
                 }
             }}>
-                <label>Фамилия:&nbsp;
-                    <input
+                <div className="form-layout">
+                    <span>Фамилия:&nbsp;</span>
+                    <TextInput
                         name="staffSurname"
                         value={surname}
-                        onChange={(e) => setSurname(e.target.value)}/>
-                </label>
-                <br/>
-                <label>Имя:&nbsp;
-                    <input
+                        onChange={(value) => setSurname(value)}/>
+                    <span>Имя:&nbsp;</span>
+                    <TextInput
                         name="staffName"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}/>
-                </label>
-                <br/>
-                <label>Отчество:&nbsp;
-                    <input
+                        onChange={(value) => setName(value)}/>
+                    <span>Отчество:&nbsp;</span>
+                    <TextInput
                         name="staffMiddlename"
                         value={middlename}
-                        onChange={(e) => setMiddlename(e.target.value)}/>
-                </label>
-                <br/>
-                <label>Должность:&nbsp;
-                    <input
+                        onChange={(value) => setMiddlename(value)}/>
+                    <span>Должность:&nbsp;</span>
+                    <TextInput
                         name="appointment"
                         value={appointment}
-                        onChange={(e) => setAppointment(e.target.value)}/>
-                </label>
-                <br/>
-                <input type="submit" value="Добавить"/>
+                        onChange={(value) => setAppointment(value)}/>
+                </div>
+                <Button
+                    className="staff-page__button-add"
+                    disabled={!(surname !== "" && name !== "" && middlename !== "" && appointment !== "")}
+                    type="submit">
+                    Добавить
+                </Button>
             </Form>
-            <br/>
             <h1>Сотрудники университета</h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>ФИО</th>
-                    <th>Должность</th>
-                    <th>Действия</th>
-                </tr>
-                </thead>
-                <tbody>
-                {staff.map(s =>
-                    <tr key={s._id}>
-                        <td>{s.surname} {s.name} {s.middlename}</td>
-                        <td>{s.appointment}</td>
-                        <td>
-                            <button onClick={async () => {
-                                await AdminManager.generateLoginAndPasswordForOne(s, s.userId);
-                            }}>Сгенерировать пароль</button>
-                        </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>ФИО</TableCell>
+                        <TableCell>Должность</TableCell>
+                        <TableCell>Действия</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {staff.map(s =>
+                        <TableRow key={s._id}>
+                            <TableCell>{s.surname} {s.name} {s.middlename}</TableCell>
+                            <TableCell>{s.appointment}</TableCell>
+                            <TableCell>
+                                <ImageButton
+                                    src="../static/images/gen_psw_icon.png"
+                                    className="button-table-action"
+                                    onClick={async () => {
+                                        show("generate-psw-dialog", s);
+                                    }} />
+                                <ImageButton
+                                    className="button-table-action"
+                                    src="../static/images/delete.png"
+                                    onClick={() => {
+                                        show("delete-staff-dialog", s);
+                                    }}/>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+            <Form className="admin-modals">
+                <DialogWindow
+                    name="generate-psw-dialog"
+                    title="Продолжить?"
+                    warningText={(staff) => `Будет сгенерирован пароль для сотрудника ${staff?.surname} ${staff?.name} ${staff?.middlename}`}
+                    positiveButtonClick={async (staff) => {
+                        await AdminManager.generateLoginAndPasswordForOne(staff, staff.userId);
+                    }}/>
+                <DialogWindow
+                    confirmType="submit"
+                    name="delete-staff-dialog"
+                    title="Удалить сотрудника?"
+                    warningText={(staff) => `Будет удалён сотрудник ${staff?.surname} ${staff?.name} ${staff?.middlename}`}
+                    positiveButtonClick={async (staff) => {
+                        await StaffService.deleteStaff(staff._id);
+                    }}/>
+            </Form>
         </div>
     );
 };

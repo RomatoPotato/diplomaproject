@@ -1,12 +1,12 @@
 import React from 'react';
 import "./ImageButton.css";
 
-const ImageButton = ({src, className, children, ...attrs}) => {
+const ImageButton = ({src, className, type, children, ...attrs}) => {
     return (
         <div className={"image-button " + (className || "")}>
-            <button {...attrs} style={{
+            <button tabIndex={-1} type={type ? type : "button"} {...attrs} style={{
                 maskImage: "url(" + src + ")"
-            }}>{children}</button>
+            }}></button>
         </div>
     );
 };

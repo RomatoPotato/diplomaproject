@@ -2,6 +2,13 @@ import React, {useRef, useState} from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import "./Specialties.css";
 import SpecialtiesService from "../../services/SpecialtiesService";
+import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import Button from "../../components/ui/Button/Button";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import RolesService from "../../services/RolesService";
+import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import TextInput from "../../components/ui/TextInput/TextInput";
 
 export async function loader() {
     return await SpecialtiesService.getSpecialties();
@@ -19,89 +26,99 @@ const Specialties = () => {
     return (
         <div className="specialties">
             <h1>Специальности</h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Наименование</th>
-                    <th>Действия</th>
-                </tr>
-                </thead>
-                <tbody>
-                {specialties.map(specialty =>
-                    <tr key={specialty._id}>
-                        <td>
-                            {
-                                (isEditing && editingId.current === specialty._id) ?
-                                    <Form onSubmit={async () => {
-                                        setIsEditing(false);
-                                        setEditedSpecialtyName("");
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Наименование</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {specialties.map(specialty =>
+                        <TableRow key={specialty._id}>
+                            <TableActionCell text={specialty.name}>
+                                {/*<Form style={{display: "inline"}}>*/}
+                                {/*    <ImageButton*/}
+                                {/*        className="button-table-action"*/}
+                                {/*        src="../static/images/edit.png"*/}
+                                {/*        onClick={() => {*/}
+                                {/*            setIsEditing(true);*/}
+                                {/*            setEditedSpecialtyName(specialty.name);*/}
+                                {/*            editingId.current = specialty._id;*/}
+                                {/*        }}/>*/}
+                                {/*</Form>*/}
+                                <Form style={{display: "inline"}}>
+                                    <ImageButton
+                                        className="button-table-action"
+                                        src="../static/images/delete.png"
+                                        onClick={() => {
+                                            show("delete-specialty-dialog", specialty);
+                                        }}/>
+                                </Form>
+                                {/*{*/}
+                                {/*    (isEditing && editingId.current === specialty._id) ?*/}
+                                {/*        <Form onSubmit={async () => {*/}
+                                {/*            setIsEditing(false);*/}
+                                {/*            setEditedSpecialtyName("");*/}
 
-                                        if (specialty.name === editedSpecialtyName) return;
+                                {/*            if (specialty.name === editedSpecialtyName) return;*/}
 
-                                        await SpecialtiesService.editSpecialty(specialty._id, editedSpecialtyName);
-                                    }}>
-                                        <input
-                                            autoFocus
-                                            value={editedSpecialtyName}
-                                            onChange={(e) => setEditedSpecialtyName(e.target.value)} />
-                                    </Form> :
-                                    specialty.name
-                            }
-                        </td>
-                        <td>
-                            <Form style={{display: "inline"}}>
-                                <button onClick={() => {
-                                    setIsEditing(true);
-                                    setEditedSpecialtyName(specialty.name);
-                                    editingId.current = specialty._id;
-                                }}>Редактировать
-                                </button>
-                            </Form>
-                            <Form style={{display: "inline"}}>
-                                <button onClick={async () => {
-                                    await SpecialtiesService.deleteSpecialty(specialty._id);
-                                }}>Удалить
-                                </button>
-                            </Form>
-                        </td>
-                    </tr>
-                )}
-                {
-                    isAdding &&
-                    <tr>
-                        <td colSpan={2}>
-                            <Form onSubmit={async () => {
-                                if (addedSpecialtyName !== "") {
-                                    setIsAdding(false);
-                                    setAddedSpecialtyName("");
+                                {/*            await SpecialtiesService.editSpecialty(specialty._id, editedSpecialtyName);*/}
+                                {/*        }}>*/}
+                                {/*            <input*/}
+                                {/*                autoFocus*/}
+                                {/*                value={editedSpecialtyName}*/}
+                                {/*                onChange={(e) => setEditedSpecialtyName(e.target.value)}/>*/}
+                                {/*        </Form> :*/}
+                                {/*        specialty.name*/}
+                                {/*}*/}
+                            </TableActionCell>
+                        </TableRow>
+                    )}
+                    {
+                        isAdding &&
+                        <TableRow>
+                            <TableCell colSpan={2}>
+                                <Form className="specialties__create-form" onSubmit={async () => {
+                                    if (addedSpecialtyName !== "") {
+                                        setIsAdding(false);
+                                        setAddedSpecialtyName("");
 
-                                   await SpecialtiesService.addSpecialty(addedSpecialtyName);
-                                }
-                            }}>
-                                <label>Название:&nbsp;
-                                    <input
+                                        await SpecialtiesService.addSpecialty(addedSpecialtyName);
+                                    }
+                                }}>
+                                    <span>Название:&nbsp;</span>
+                                    <TextInput
                                         autoFocus
                                         value={addedSpecialtyName}
                                         placeholder="Введите название специальности"
-                                        onChange={(e) => setAddedSpecialtyName(e.target.value)}/>
-                                </label>
-                                <input type="button"
-                                       value="Отмена"
-                                       onClick={() => {
-                                           setIsAdding(false);
-                                           setAddedSpecialtyName("");
-                                       }}/>
-                            </Form>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-                <tfoot>
-                <tr onClick={() => setIsAdding(true)}>
-                    <td colSpan={2}>Добавить +</td>
-                </tr>
-                </tfoot>
-            </table>
+                                        onChange={(value) => setAddedSpecialtyName(value)}/>
+                                    <Button
+                                        onClick={() => {
+                                            setIsAdding(false);
+                                            setAddedSpecialtyName("");
+                                        }}>Отмена</Button>
+                                </Form>
+                            </TableCell>
+                        </TableRow>
+                    }
+                </TableBody>
+            </Table>
+            <Button
+                disabled={isAdding}
+                className="button-add-specialty"
+                onClick={() => setIsAdding(true)}>
+                Создать
+            </Button>
+            <Form className="admin-modals">
+                <DialogWindow
+                    confirmType="submit"
+                    name="delete-specialty-dialog"
+                    title="Удалить специальность?"
+                    warningText={(specialty) => `Вы удалите специальность: ${specialty?.name}`}
+                    positiveButtonClick={async (specialty) => {
+                        await SpecialtiesService.deleteSpecialty(specialty._id);
+                    }}/>
+            </Form>
         </div>
     );
 };

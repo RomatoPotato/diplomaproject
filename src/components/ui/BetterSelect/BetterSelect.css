@@ -1,5 +1,7 @@
 .better-select {
-  display: flex;
+  display: inline-flex;
+  width: max-content;
+  max-width: 300px;
   flex-direction: column;
   background-color: #514f67;
   height: 30px;
@@ -20,6 +22,7 @@
   cursor: pointer;
 }
 .better-select__search-input {
+  max-width: 200px;
   height: 26px;
 }
 .better-select__selected-text {
@@ -42,9 +45,7 @@
   padding: 5px;
 }
 .better-select__options-box {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  z-index: 1;
   position: absolute;
   top: 32px;
   left: -2px;
@@ -54,6 +55,13 @@
   border-radius: 5px;
   width: max-content;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.51);
+}
+.better-select__options-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .better-option {

@@ -46,22 +46,4 @@ input {
   justify-content: center;
 }
 
-table {
-  border-collapse: collapse;
-  border: 2px solid black;
-  min-width: 80%;
-}
-
-thead, tfoot {
-  background-color: #87ffb4;
-}
-
-th, td {
-  border: 1px solid black;
-}
-
-tbody > tr:nth-of-type(even) {
-  background-color: #c2fcf2;
-}
-
 /*# sourceMappingURL=style.css.map */

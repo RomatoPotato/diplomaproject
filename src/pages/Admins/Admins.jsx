@@ -1,8 +1,15 @@
 import React, {useState} from 'react';
+import "./Admins.css";
 import {Form, useLoaderData} from "react-router-dom";
 import StaffService from "../../services/StaffService";
 import TeachersService from "../../services/TeachersService";
 import RolesService from "../../services/RolesService";
+import BetterSelect from "../../components/ui/BetterSelect/BetterSelect";
+import Button from "../../components/ui/Button/Button";
+import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
+import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import ImageButton from "../../components/ui/ImageButton/ImageButton";
+import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
 
 export async function loader() {
     const staff = await StaffService.getStaff();
@@ -71,45 +78,60 @@ const Admins = () => {
                 <br/>
                 {addingMethod === "fromStaff" &&
                     <div>
-                        <select defaultValue="" name="staff">
-                            <option disabled></option>
-                            {staff.map(s =>
-                                <option key={s._id} value={s.userId}>
-                                    {s.surname} {s.name} {s.middlename}
-                                </option>
-                            )}
-                        </select>
+                        <BetterSelect
+                            defaultElement={{text: "Не выбрано", value: null}}
+                            name="staff"
+                            elements={staff.map(s => ({
+                                text: `${s.surname} ${s.name} ${s.middlename}`,
+                                value: s.userId
+                            }))} />
                     </div>
                 }
                 {addingMethod === "fromTeachers" &&
                     <div>
-                        <select defaultValue="" name="teacher">
-                            <option disabled></option>
-                            {teachers.map(teacher =>
-                                <option key={teacher._id} value={teacher.userId}>
-                                    {teacher.surname} {teacher.name} {teacher.middlename}
-                                </option>
-                            )}
-                        </select>
+                        <BetterSelect
+                            defaultElement={{text: "Не выбрано", value: null}}
+                            name="teacher"
+                            elements={teachers.map(teacher => ({
+                                text: `${teacher.surname} ${teacher.name} ${teacher.middlename}`,
+                                value: teacher.userId
+                            }))}/>
                     </div>
                 }
-                <input type="submit" value="Готово"/>
+                <Button className="button-add-admin" type="submit">Готово</Button>
             </Form>
-            <h2>Админы</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ФИО</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <h2>Список администраторов</h2>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>ФИО</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
                 {admins.map(admin =>
-                    <tr key={admin._id}>
-                        <td>{admin.surname} {admin.name} {admin.middlename}</td>
-                    </tr>
+                    <TableRow key={admin._id}>
+                        <TableActionCell text={`${admin.surname} ${admin.name} ${admin.middlename}`}>
+                            <ImageButton
+                                className="button-table-action"
+                                src="../static/images/delete.png"
+                                onClick={() => {
+                                    show("delete-admin-dialog", admin);
+                                }}/>
+                        </TableActionCell>
+                    </TableRow>
                 )}
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
+            <Form className="admin-modals">
+                <DialogWindow
+                    confirmType="submit"
+                    name="delete-admin-dialog"
+                    title="Удалить админа?"
+                    warningText={(admin) => `Вы удалите админа ${admin?.surname} ${admin?.name} ${admin?.middlename}`}
+                    positiveButtonClick={async (admin) => {
+                        await RolesService.removeRoleFromUser(admin._id, "admin");
+                    }}/>
+            </Form>
         </div>
     );
 };
