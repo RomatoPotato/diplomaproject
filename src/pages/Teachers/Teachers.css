@@ -1,5 +1,8 @@
 .teachers-page__selected-disciplines {
   margin-bottom: 5px;
 }
+.teachers-page__table-cell {
+  vertical-align: top;
+}
 
 /*# sourceMappingURL=Teachers.css.map */

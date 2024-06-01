@@ -4,7 +4,7 @@ import FilesManager from "./FilesManager";
 export default class AdminManager {
     static async generateLoginAndPasswordForOne(user, userId){
         const dataToSave = await generateLoginAndPassword([userId]);
-        FilesManager.save(dataToSave, `${user.surname} ${user.name} ${user.middlename} логин и пароль.txt`)
+        FilesManager.save(dataToSave, `${user.surname} ${user.name}${user.middlename ? user.middlename : ""} логин и пароль.txt`)
     }
 
     static async generateLoginAndPasswordForMany(userIds, fileName){
@@ -25,7 +25,7 @@ async function generateLoginAndPassword(userIds){
     const dataToSave = [];
     for (const data of loginsAndPasswords) {
         if (data.alreadyLoggedIn) {
-            dataToSave.push(`${data.user}\nПользователь уже входил в систему`)
+            dataToSave.push(`${data.user}\nПользователь уже входил в систему\n\n`)
         }
         else {
             dataToSave.push(`${data.user}\nЛогин: ${data.login}\nПароль: ${data.password}\n\n`);

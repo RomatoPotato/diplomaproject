@@ -10,7 +10,6 @@ import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import Button from "../../components/ui/Button/Button";
 import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
-import VLSService from "../../services/VLSService";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 export async function loader() {
@@ -119,15 +118,15 @@ const Teachers = () => {
                 <TableBody>
                     {teachers.map(teacher =>
                         <TableRow key={teacher._id}>
-                            <TableCell>{teacher.surname} {teacher.name} {teacher.middlename}</TableCell>
-                            <TableCell>
+                            <TableCell className="teachers-page__table-cell">{teacher.surname} {teacher.name} {teacher.middlename}</TableCell>
+                            <TableCell className="teachers-page__table-cell">
                                 <div>
                                     {teacher.disciplines.map(discipline =>
                                         <p key={discipline._id}>{discipline.name}</p>
                                     )}
                                 </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="teachers-page__table-cell">
                                 <ImageButton
                                     className="button-table-action"
                                     src="../static/images/gen_psw_icon.png"

@@ -1,27 +1,18 @@
-.registration-form {
-  width: 100vw;
-  height: 100vh;
+.login-page {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  background: #29beaa;
+  background-color: #8987a9;
+  color: #26243b;
+  padding: 10px;
+  border-radius: 5px;
 }
-
-.username-input {
-  width: 320px;
-  height: 30px;
-  text-align: center;
-  border-radius: 8px;
-  border: 0 solid black;
-}
-.username-input:focus {
-  outline: none;
-}
-
-.error-message {
-  font-weight: bold;
-  color: #ea003e;
+.login-page__form {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
 }
 
 /*# sourceMappingURL=Login.css.map */

@@ -1,22 +1,20 @@
-.registration-form
-  width: 100vw
-  height: 100vh
+@import "../../theme"
+
+//body
+//  background-color: $neutral_dark600
+
+.login-page
   display: flex
   flex-direction: column
-  justify-content: center
   align-items: center
-  background: #29beaa
+  background-color: $neutral_dark400
+  color: $on_neutral_dark400
+  padding: 10px
+  border-radius: $border-radius
 
-.username-input
-  width: 320px
-  height: 30px
-  text-align: center
-  border-radius: 8px
-  border: 0 solid black
-
-  &:focus
-    outline: none
-
-.error-message
-  font-weight: bold
-  color: #ea003e
+  &__form
+    display: flex
+    gap: 5px
+    flex-direction: column
+    align-items: center
+    width: 300px

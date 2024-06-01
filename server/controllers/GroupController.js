@@ -1,6 +1,7 @@
 const Group = require("../models/Group");
 const config = require("../config");
 const User = require("../models/User");
+const Chat = require("../models/Chat");
 const Teacher = require("../models/Teacher");
 const mongoose = require("mongoose");
 const groupServce = require("../services/GroupsService");
@@ -190,6 +191,29 @@ class GroupController {
 
             const _id = new mongoose.Types.ObjectId();
 
+            const chatsToAddTo = await Chat.aggregate([
+                {
+                    $match: {
+                        group: new mongoose.Types.ObjectId(groupId)
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1
+                    }
+                }
+            ]);
+
+            await Chat.updateMany({
+                _id: {
+                    $in: chatsToAddTo
+                }
+            }, {
+                $push: {
+                    users: _id
+                }
+            }, config.updateOptions);
+
             await User.create({
                 _id,
                 name,
@@ -219,6 +243,29 @@ class GroupController {
             await Group.findByIdAndUpdate(groupId, {
                 $pull: {
                     students: studentId
+                }
+            }, config.updateOptions);
+
+            const chatsToDeleteFrom = await Chat.aggregate([
+                {
+                    $match: {
+                        group: new mongoose.Types.ObjectId(groupId)
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1
+                    }
+                }
+            ]);
+
+            await Chat.updateMany({
+                _id: {
+                    $in: chatsToDeleteFrom
+                }
+            }, {
+                $pull: {
+                    users: studentId
                 }
             }, config.updateOptions);
 

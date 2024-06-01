@@ -109,6 +109,16 @@ const router = createBrowserRouter([
         element: <AdminPage/>,
         children: [
             {
+                index: true,
+                element: <div style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}><h2>Добро пожаловать в админ-панель!</h2></div>
+            },
+            {
                 path: "create-vls",
                 element: <CreateVLS/>,
                 loader: createVLSLoader,
@@ -161,24 +171,24 @@ const router = createBrowserRouter([
             },
             {
                 path: "curriculums",
-                element: <Curriculums />,
+                element: <Curriculums/>,
                 loader: curriculumsLoader,
                 action: curriculumsAction
             },
             {
                 path: "curriculums/:id",
-                element: <Curriculum />,
+                element: <Curriculum/>,
                 loader: curriculumLoader
             },
             {
                 path: "admins",
-                element: <Admins />,
+                element: <Admins/>,
                 loader: adminsModeratorsLoader,
                 action: adminsModeratorsAction
             },
             {
                 path: "staff",
-                element: <UniversityStaff />,
+                element: <UniversityStaff/>,
                 loader: staffLoader,
                 action: staffAction
             }

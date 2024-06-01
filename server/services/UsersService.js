@@ -9,13 +9,13 @@ class UsersService {
     async checkLoginData(login, password){
         const user = await User.findOne({login});
         if (!user) {
-            throw ApiError.NotFound(`User with login ${login} not found!`)
+            throw ApiError.NotFound({error: "WrongLogin", data: login});
         }
 
         const checkedPassword = await bcrypt.compare(password, user.password);
 
         if (!checkedPassword){
-            throw ApiError.BadRequest("Incorrect password!");
+            throw ApiError.BadRequest({error: "WrongPassword"});
         }
 
         return user;

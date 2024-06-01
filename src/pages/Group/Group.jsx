@@ -111,7 +111,7 @@ const Group = () => {
                     confirmType="submit"
                     name="delete-student-dialog"
                     title="Удалить студента?"
-                    warningText={(student) => `Вы удаляете студента ${student?.surname} ${student?.name}${student?.middlename ? student.middlename : ""}`}
+                    warningText={(student) => `Вы удаляете студента ${student?.surname} ${student?.name} ${student?.middlename ? student.middlename : ""}`}
                     positiveButtonClick={async (student) => {
                         await GroupsService.deleteStudent(group._id, student._id);
                     }}/>

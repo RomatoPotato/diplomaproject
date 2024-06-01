@@ -33,10 +33,10 @@ const TableRow = ({children}) => {
     );
 };
 
-const TableCell = ({colSpan, style, children}) => {
+const TableCell = ({colSpan, style, className, children}) => {
     return (
-        <td colSpan={colSpan} className="better-table-cell">
-            <div style={style} className="better-table-cell__content">
+        <td colSpan={colSpan} className={"better-table-cell " + (className ? className : "")}>
+            <div style={style} className="better-table-cell__content ">
                 {children}
             </div>
         </td>
