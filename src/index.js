@@ -19,9 +19,18 @@ import CreateGroup, {
     loader as createGroupLoader,
     action as createGroupAction
 } from "./pages/CreateGroup/CreateGroup";
-import Specialties, {loader as specialtiesLoader} from "./pages/Specilaties/Specialties";
-import Groups, {loader as groupsLoader} from "./pages/Groups/Groups";
-import VLSList, {loader as VLSsLoader} from "./pages/VLSList/VLSList";
+import Specialties, {
+    loader as specialtiesLoader,
+    action as specialtiesAction
+} from "./pages/Specilaties/Specialties";
+import Groups, {
+    loader as groupsLoader,
+    action as groupsAction
+} from "./pages/Groups/Groups";
+import VLSList, {
+    loader as VLSsLoader,
+    action as VLSsAction
+} from "./pages/VLSList/VLSList";
 import VirtualLearningSpace, {
     loader as VLSLoader,
     action as VLSAction
@@ -127,7 +136,8 @@ const router = createBrowserRouter([
             {
                 path: "virtual-learning-spaces",
                 element: <VLSList/>,
-                loader: VLSsLoader
+                loader: VLSsLoader,
+                action: VLSsAction
             },
             {
                 path: "virtual-learning-spaces/:id",
@@ -144,7 +154,8 @@ const router = createBrowserRouter([
             {
                 path: "groups",
                 element: <Groups/>,
-                loader: groupsLoader
+                loader: groupsLoader,
+                action: groupsAction
             },
             {
                 path: "groups/:id",
@@ -155,7 +166,8 @@ const router = createBrowserRouter([
             {
                 path: "specialties",
                 element: <Specialties/>,
-                loader: specialtiesLoader
+                loader: specialtiesLoader,
+                action: specialtiesAction
             },
             {
                 path: "teachers",

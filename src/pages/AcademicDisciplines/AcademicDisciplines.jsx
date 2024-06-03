@@ -8,6 +8,7 @@ import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from 
 import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 
 export async function loader() {
     return await ADService.getAcademicDisciplines();
@@ -21,7 +22,7 @@ export async function action({request}) {
     let error;
 
     switch (intent) {
-        case "add":
+        case "addDiscipline":
             const name = formData.get("disciplineName");
 
             await ADService.addAcademicDiscipline(name)
@@ -33,6 +34,9 @@ export async function action({request}) {
                     }
                 });
             break;
+        case "deleteDiscipline":
+            const disciplineId = formData.get("discipline_id")
+            return await ADService.deleteAcademicDiscipline(disciplineId);
         default:
             return null;
     }
@@ -65,7 +69,7 @@ const AcademicDisciplines = () => {
                     className="button-add-discipline"
                     type="submit"
                     name="intent"
-                    value="add">
+                    value="addDiscipline">
                     Готово
                 </Button>
             </Form>
@@ -100,16 +104,16 @@ const AcademicDisciplines = () => {
                     )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
-                <DialogWindow
-                    confirmType="submit"
+            <div className="admin-modals">
+                <DialogWindowForm
                     name="delete-discipline-dialog"
                     title="Удалить дисциплину?"
                     warningText={(discipline) => `Вы удаляете учебную дисциплину: ${discipline?.name}`}
-                    positiveButtonClick={async (discipline) => {
-                        await ADService.deleteAcademicDiscipline(discipline._id);
-                    }}/>
-            </Form>
+                    actions={(discipline) => [
+                        {name: "intent", value : "deleteDiscipline"},
+                        {name: "discipline_id", value : discipline._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

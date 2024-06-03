@@ -7,13 +7,23 @@ import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from 
 import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 
 export async function loader() {
     return await VLSService.getVLSs();
 }
 
 export async function action({request}){
+    const formData = await request.formData();
+    const intent = formData.get("intent");
 
+    switch (intent){
+        case "deleteVLS":
+            const vlsId = formData.get("vls_id");
+            return await VLSService.deleteVLS(vlsId);
+        default:
+            return null;
+    }
 }
 
 const VLSList = () => {
@@ -55,7 +65,7 @@ const VLSList = () => {
                     )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
+            <div className="admin-modals">
                 <DialogWindow
                     name="generate-psw-dialog"
                     title="Продолжить?"
@@ -63,15 +73,15 @@ const VLSList = () => {
                     positiveButtonClick={async (vls) => {
                         await AdminManager.generateLoginAndPasswordForMany(vls.group.students, `Логины и пароли для студентов группы ${vls.group.name}.txt`);
                     }}/>
-                <DialogWindow
-                    confirmType="submit"
+                <DialogWindowForm
                     name="delete-vls-dialog"
                     title="Удалить ВУП?"
                     warningText={(vls) => "Будет удалено учебное пространство группы " + vls?.group.name}
-                    positiveButtonClick={async (vls) => {
-                        await VLSService.deleteVLS(vls._id);
-                    }}/>
-            </Form>
+                    actions={(vls) => [
+                        {name: "intent", value : "deleteVLS"},
+                        {name: "vls_id", value : vls._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

@@ -11,22 +11,20 @@ export async function action({request}) {
     const login = formData.get("login");
     const password = formData.get("password");
 
-    let error = {};
-    let loginRequest;
+    let status = {};
 
     await AuthService.login(login, password)
         .then((value) => {
-            loginRequest = value;
-            console.log(loginRequest)
-            if (loginRequest.status === 200) {
-                if (loginRequest.data.isFirstLogin) {
-                    return redirect("../change_user_data");
-                }
-
-                return redirect("../messenger");
+            if (value.status === 200) {
+                status.value = "success";
+                status.data = value.data;
             }
         })
         .catch((err) => {
+            let error = {};
+            status.value = "error";
+            status.data = error;
+
             const errorinfo = JSON.parse(err.response.data.message);
 
             switch (errorinfo.error) {
@@ -40,9 +38,22 @@ export async function action({request}) {
                     error = "Неизвестная ошибка...💩";
                     break;
             }
+
+            return error;
         });
 
-    return error;
+    switch (status.value) {
+        case "success":
+            if (status.data.isFirstLogin){
+                return redirect("../change_user_data");
+            }else {
+                return redirect("../messenger");
+            }
+        case "error":
+            return status.data;
+        default:
+            return null;
+    }
 }
 
 const Login = () => {

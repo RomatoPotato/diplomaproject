@@ -14,9 +14,16 @@ const months = [
 ]
 
 export default class DateHelper {
-    static getDayMonth(stringDate){
-        const [day, month, ] = stringDate.split(".");
+    static getFormattedDay(stringDate){
+        const [, month, day] = stringDate.split(".");
 
         return `${day} ${months[Number(month) - 1]}`;
+    }
+
+    static getFormattedDate(date){
+        const stringDate = new Intl.DateTimeFormat().format(new Date(date));
+        const dateInArray = stringDate.split(".");
+
+        return dateInArray.reverse().join(".");
     }
 }

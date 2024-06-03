@@ -37,7 +37,6 @@ export async function action({request}) {
 const Group = () => {
     const group = useLoaderData();
     const headman = group.students.filter(student => student.roles.includes("headman"))[0];
-    console.log(headman)
 
     return (
         <div className="group-page">

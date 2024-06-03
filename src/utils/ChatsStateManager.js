@@ -1,10 +1,8 @@
+import DateHelper from "./DateHelper";
+
 class ChatsStateManager {
     addMessage(destinationChat, setChats, chats, message){
-        const formattedSendDate = new Date(message.datetime).toLocaleDateString("ru-RU", {
-            day: "numeric",
-            month: "numeric",
-            year: "numeric"
-        });
+        const formattedSendDate = DateHelper.getFormattedDate(message.datetime);
 
         const temp = chats;
         const currentChat = temp.get(destinationChat._id);
@@ -23,11 +21,7 @@ class ChatsStateManager {
         const temp = chats;
 
         for (const message of messages){
-            const formattedSendDate = new Date(message.datetime).toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "numeric",
-                year: "numeric"
-            });
+            const formattedSendDate = DateHelper.getFormattedDate(message.datetime);
 
             const currentChat = temp.get(message.chatId);
             if (!currentChat.messages.get(formattedSendDate)){

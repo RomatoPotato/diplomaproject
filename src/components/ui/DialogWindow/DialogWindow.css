@@ -13,43 +13,38 @@
   flex-direction: column;
   gap: 5px;
 }
-.dialog-window__action-buttons {
+.dialog-window__action-buttons-box {
   display: flex;
   gap: 5px;
 }
-.dialog-window__action-buttons button {
-  width: 100%;
-}
-.dialog-window button {
+.dialog-window__action-button {
   padding: 3px;
   border-radius: 5px;
   font-weight: bold;
   border: none;
   font-size: 1.2em;
   cursor: pointer;
+  width: 100%;
 }
-
-.positive-button {
+.dialog-window__positive-button {
   background-color: #50C878;
   color: #ffffff;
 }
-.positive-button:hover {
+.dialog-window__positive-button:hover {
   background-color: #31f172;
 }
-
-.negative-button {
+.dialog-window__negative-button {
   background-color: #ff5959;
   color: #ffffff;
 }
-.negative-button:hover {
+.dialog-window__negative-button:hover {
   background-color: #fd3535;
 }
-
-.cancel-button {
+.dialog-window__cancel-button {
   background-color: #c2bada;
   color: #000000;
 }
-.cancel-button:hover {
+.dialog-window__cancel-button:hover {
   background-color: #a89bd2;
 }
 

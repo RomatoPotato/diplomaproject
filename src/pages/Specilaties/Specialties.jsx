@@ -9,9 +9,28 @@ import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
 import RolesService from "../../services/RolesService";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 import TextInput from "../../components/ui/TextInput/TextInput";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 
 export async function loader() {
     return await SpecialtiesService.getSpecialties();
+}
+
+export async function action({request}) {
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+
+    console.log(intent);
+
+    switch (intent) {
+        case "addSpecialty":
+            const specialtyName = formData.get("specialty_name");
+            return await SpecialtiesService.addSpecialty(specialtyName);
+        case "deleteSpecialty":
+            const specialtyId = formData.get("specialty_id");
+            return await SpecialtiesService.deleteSpecialty(specialtyId);
+        default:
+            return null;
+    }
 }
 
 const Specialties = () => {
@@ -46,14 +65,12 @@ const Specialties = () => {
                                 {/*            editingId.current = specialty._id;*/}
                                 {/*        }}/>*/}
                                 {/*</Form>*/}
-                                <Form style={{display: "inline"}}>
-                                    <ImageButton
-                                        className="button-table-action"
-                                        src="../static/images/delete.png"
-                                        onClick={() => {
-                                            show("delete-specialty-dialog", specialty);
-                                        }}/>
-                                </Form>
+                                <ImageButton
+                                    className="button-table-action"
+                                    src="../static/images/delete.png"
+                                    onClick={() => {
+                                        show("delete-specialty-dialog", specialty);
+                                    }}/>
                                 {/*{*/}
                                 {/*    (isEditing && editingId.current === specialty._id) ?*/}
                                 {/*        <Form onSubmit={async () => {*/}
@@ -78,20 +95,26 @@ const Specialties = () => {
                         isAdding &&
                         <TableRow>
                             <TableCell colSpan={2}>
-                                <Form className="specialties__create-form" onSubmit={async () => {
-                                    if (addedSpecialtyName !== "") {
-                                        setIsAdding(false);
-                                        setAddedSpecialtyName("");
-
-                                        await SpecialtiesService.addSpecialty(addedSpecialtyName);
-                                    }
-                                }}>
+                                <Form
+                                    method="post"
+                                    className="specialties__create-form"
+                                    onSubmit={async (e) => {
+                                        if (addedSpecialtyName !== "") {
+                                            setIsAdding(false);
+                                            setAddedSpecialtyName("");
+                                        } else {
+                                            e.preventDefault();
+                                        }
+                                    }}>
                                     <span>Название:&nbsp;</span>
+                                    <input type="hidden" name="intent" value="addSpecialty"/>
                                     <TextInput
                                         autoFocus
+                                        name="specialty_name"
                                         value={addedSpecialtyName}
                                         placeholder="Введите название специальности"
                                         onChange={(value) => setAddedSpecialtyName(value)}/>
+                                    <Button type="submit">Готово</Button>
                                     <Button
                                         onClick={() => {
                                             setIsAdding(false);
@@ -109,16 +132,16 @@ const Specialties = () => {
                 onClick={() => setIsAdding(true)}>
                 Создать
             </Button>
-            <Form className="admin-modals">
-                <DialogWindow
-                    confirmType="submit"
+            <div className="admin-modals">
+                <DialogWindowForm
                     name="delete-specialty-dialog"
                     title="Удалить специальность?"
                     warningText={(specialty) => `Вы удалите специальность: ${specialty?.name}`}
-                    positiveButtonClick={async (specialty) => {
-                        await SpecialtiesService.deleteSpecialty(specialty._id);
-                    }}/>
-            </Form>
+                    actions={(specialty) => [
+                        {name: "intent", value: "deleteSpecialty"},
+                        {name: "specialty_id", value: specialty._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

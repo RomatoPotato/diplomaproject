@@ -120,6 +120,7 @@ class MessengerSocketHelper {
 
         socket.emit("message", {
             id: newMessageId,
+            from: currentUser._id, // new
             date: sendDate,
             text: text,
             to: selectedChat._id

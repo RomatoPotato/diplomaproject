@@ -15,38 +15,36 @@
     flex-direction: column
     gap: 5px
 
-  &__action-buttons
+  &__action-buttons-box
     display: flex
     gap: 5px
 
-    button
-      width: 100%
-
-  button
+  &__action-button
     padding: 3px
     border-radius: 5px
     font-weight: bold
     border: none
     font-size: 1.2em
     cursor: pointer
+    width: 100%
 
-.positive-button
-  background-color: $positive
-  color: $on_positive
+  &__positive-button
+    background-color: $positive
+    color: $on_positive
 
-  &:hover
-    background-color: $positive_hover
+    &:hover
+      background-color: $positive_hover
 
-.negative-button
-  background-color: $negative
-  color: $on_negative
+  &__negative-button
+    background-color: $negative
+    color: $on_negative
 
-  &:hover
-    background-color: $negative_hover
+    &:hover
+      background-color: $negative_hover
 
-.cancel-button
-  background-color: $neutral
-  color: $on_neutral
+  &__cancel-button
+    background-color: $neutral
+    color: $on_neutral
 
-  &:hover
-    background-color: $neutral_hover
+    &:hover
+      background-color: $neutral_hover

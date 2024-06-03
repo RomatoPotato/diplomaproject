@@ -8,8 +8,9 @@ import Button from "../../components/ui/Button/Button";
 import Table, {TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
-import TeachersService from "../../services/TeachersService";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
+import VLSService from "../../services/VLSService";
 
 export async function loader() {
     return await StaffService.getStaff();
@@ -17,12 +18,21 @@ export async function loader() {
 
 export async function action({request}) {
     const formData = await request.formData();
-    const surname = formData.get("staffSurname").trim();
-    const name = formData.get("staffName").trim();
-    const middlename = formData.get("staffMiddlename").trim();
-    const appointment = formData.get("appointment").trim();
+    const intent = formData.get("intent");
 
-    return await StaffService.addStaff(surname, name, middlename, appointment);
+    switch (intent){
+        case "addStaff":
+            const surname = formData.get("staffSurname").trim();
+            const name = formData.get("staffName").trim();
+            const middlename = formData.get("staffMiddlename").trim();
+            const appointment = formData.get("appointment").trim();
+            return await StaffService.addStaff(surname, name, middlename, appointment);
+        case "deleteStaff":
+            const staffId = formData.get("staff_id");
+            return await StaffService.deleteStaff(staffId);
+        default:
+            return null;
+    }
 }
 
 const UniversityStaff = () => {
@@ -36,16 +46,7 @@ const UniversityStaff = () => {
     return (
         <div className="staff-page">
             <h2>Добавление сотрудника</h2>
-            <Form method="post" onSubmit={(e) => {
-                if (surname !== "" && name !== "" && middlename !== "" && appointment !== "") {
-                    setSurname("");
-                    setName("");
-                    setMiddlename("");
-                    setAppointment("");
-                } else {
-                    e.preventDefault();
-                }
-            }}>
+            <Form method="post">
                 <div className="form-layout">
                     <span>Фамилия:&nbsp;</span>
                     <TextInput
@@ -69,6 +70,8 @@ const UniversityStaff = () => {
                         onChange={(value) => setAppointment(value)}/>
                 </div>
                 <Button
+                    name="intent"
+                    value="addStaff"
                     className="staff-page__button-add"
                     disabled={!(surname !== "" && name !== "" && middlename !== "" && appointment !== "")}
                     type="submit">
@@ -107,7 +110,7 @@ const UniversityStaff = () => {
                     )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
+            <div className="admin-modals">
                 <DialogWindow
                     name="generate-psw-dialog"
                     title="Продолжить?"
@@ -115,15 +118,15 @@ const UniversityStaff = () => {
                     positiveButtonClick={async (staff) => {
                         await AdminManager.generateLoginAndPasswordForOne(staff, staff.userId);
                     }}/>
-                <DialogWindow
-                    confirmType="submit"
+                <DialogWindowForm
                     name="delete-staff-dialog"
                     title="Удалить сотрудника?"
                     warningText={(staff) => `Будет удалён сотрудник ${staff?.surname} ${staff?.name} ${staff?.middlename}`}
-                    positiveButtonClick={async (staff) => {
-                        await StaffService.deleteStaff(staff._id);
-                    }}/>
-            </Form>
+                    actions={(staff) => [
+                        {name: "intent", value : "deleteStaff"},
+                        {name: "staff_id", value : staff._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

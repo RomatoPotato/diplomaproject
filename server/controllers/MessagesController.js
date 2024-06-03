@@ -33,7 +33,7 @@ class MessagesController {
                         _id: {
                             "datetime": {
                                 $dateToString: {
-                                    format: "%d.%m.%Y",
+                                    format: "%Y.%m.%d",
                                     date: "$datetime",
                                     timezone: localTimeZone
                                 }

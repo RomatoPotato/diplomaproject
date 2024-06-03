@@ -100,6 +100,17 @@ class VLSController {
     async deleteVLS(req, res, next) {
         try {
             const id = req.params.id;
+
+            const vls = await VLS.findById(id);
+            const mainChat = vls.mainChat;
+            const otherChats = vls.currentSemesterChats;
+            const allChats = [mainChat, ...otherChats];
+
+            await Chat.deleteMany({
+                _id: {
+                    $in: allChats
+                }
+            })
             const deleted = await VLS.findByIdAndDelete(id);
 
             res.json(deleted);

@@ -2,12 +2,25 @@ import React from 'react';
 import {Form, useLoaderData} from "react-router-dom";
 import GroupsService from "../../services/GroupsService";
 import Table, {TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
-import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 
 export async function loader() {
     return await GroupsService.getGroups();
+}
+
+export async function action({request}){
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+
+    switch (intent){
+        case "deleteGroup":
+            const groupId = formData.get("group_id");
+            return await GroupsService.deleteGroup(groupId);
+        default:
+            return null;
+    }
 }
 
 const Groups = () => {
@@ -23,8 +36,6 @@ const Groups = () => {
                         <TableCell>Наименование</TableCell>
                         <TableCell>Специальность</TableCell>
                         <TableCell>Действия</TableCell>
-                        {/*<th>Студенты</th>*/}
-                        {/*<th>Куратор</th>*/}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -33,19 +44,6 @@ const Groups = () => {
                             <TableCell>{group.year}</TableCell>
                             <TableCell>{group.name}</TableCell>
                             <TableCell>{group.specialty.name}</TableCell>
-                            {/*<TableCell>*/}
-                            {/*    <div>*/}
-                            {/*        {group.students.map(student =>*/}
-                            {/*            <p key={student._id}>*/}
-                            {/*                {student.surname} {student.name}{student.middlename && ` ${student.middlename}`}*/}
-                            {/*                {student.roles.map(role => role === "headman" &&*/}
-                            {/*                    <b key={role}><i> (Староста)</i></b>*/}
-                            {/*                )}*/}
-                            {/*            </p>*/}
-                            {/*        )}*/}
-                            {/*    </div>*/}
-                            {/*</TableCell>*/}
-                            {/*<TableCell>{group.curator.surname} {group.curator.name} {group.curator.middlename}</TableCell>*/}
                             <TableCell>
                                 <ImageButton
                                     className="button-table-action"
@@ -64,16 +62,16 @@ const Groups = () => {
                     )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
-                <DialogWindow
-                    confirmType="submit"
+            <div className="admin-modals">
+                <DialogWindowForm
                     name="delete-group-dialog"
                     title="Удалить группу со всеми студентами?"
                     warningText={(group) => `Будет удалена группа ${group?.name} с ${group?.students.length} студентами`}
-                    positiveButtonClick={async (group) => {
-                        await GroupsService.deleteGroup(group._id);
-                    }}/>
-            </Form>
+                    actions={(group) => [
+                        {name: "intent", value : "deleteGroup"},
+                        {name: "group_id", value : group._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

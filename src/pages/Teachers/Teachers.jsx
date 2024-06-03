@@ -11,6 +11,7 @@ import Button from "../../components/ui/Button/Button";
 import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 
 export async function loader() {
     const disciplines = await ADService.getAcademicDisciplines();
@@ -27,13 +28,19 @@ export async function loader() {
 
 export async function action({request}) {
     const formData = await request.formData();
+    const intent = formData.get("intent");
 
-    const [surname, name, middlename] = formData.get("fullTeacherName").split(" ");
-    const disciplines = formData.getAll("disciplines");
-
-    await TeachersService.addTeacher(surname, name, middlename, disciplines);
-
-    return null;
+    switch (intent){
+        case "addTeacher":
+            const [surname, name, middlename] = formData.get("fullTeacherName").split(" ");
+            const disciplines = formData.getAll("disciplines");
+            return await TeachersService.addTeacher(surname, name, middlename, disciplines);
+        case "deleteTeacher":
+            const teacherId = formData.get("teacher_id");
+            return await TeachersService.deleteTeacher(teacherId);
+        default:
+            return null;
+    }
 }
 
 const Teachers = () => {
@@ -46,11 +53,7 @@ const Teachers = () => {
         <div className="teachers-page">
             <h1>Преподаватели</h1>
             <h2>Добавить</h2>
-            <Form method="post" onSubmit={(e) => {
-                if (!fullName || fullName.trim() === "") {
-                    e.preventDefault();
-                }
-
+            <Form method="post" onSubmit={() => {
                 setSelectedDisciplines([]);
                 setFullName("");
             }}>
@@ -101,7 +104,9 @@ const Teachers = () => {
                     </Table>
                 }
                 <Button
-                    disabled={!(selectedDisciplines.length > 0 && fullName !== "")}
+                    name="intent"
+                    value="addTeacher"
+                    disabled={!(selectedDisciplines.length > 0 && fullName.trim() !== "")}
                     type="submit">
                     Готово
                 </Button>
@@ -144,7 +149,7 @@ const Teachers = () => {
                     )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
+            <div className="admin-modals">
                 <DialogWindow
                     name="generate-psw-dialog"
                     title="Продолжить?"
@@ -152,15 +157,15 @@ const Teachers = () => {
                     positiveButtonClick={async (teacher) => {
                         await AdminManager.generateLoginAndPasswordForOne(teacher, teacher.userId);
                     }}/>
-                <DialogWindow
-                    confirmType="submit"
+                <DialogWindowForm
                     name="delete-teacher-dialog"
                     title="Удалить преподавателя?"
                     warningText={(teacher) => `Будет удалён преподаватель ${teacher?.surname} ${teacher?.name} ${teacher?.middlename}`}
-                    positiveButtonClick={async (teacher) => {
-                        await TeachersService.deleteTeacher(teacher._id);
-                    }}/>
-            </Form>
+                    actions={(teacher) => [
+                        {name: "intent", value : "deleteTeacher"},
+                        {name: "teacher_id", value : teacher._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

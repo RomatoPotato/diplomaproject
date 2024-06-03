@@ -113,7 +113,7 @@ class GroupController {
                 const [surname, name, middlename] = student.initials.split(" ");
                 const roles = ["student"];
 
-                if (student.id === headman) {
+                if (headman && student.id === headman) {
                     roles.push("headman");
                 }
 
@@ -174,6 +174,14 @@ class GroupController {
     async deleteGroup(req, res, next) {
         try {
             const id = req.params.id;
+
+            const students = (await Group.findById(id)).students;
+
+            await User.deleteMany({
+                _id: {
+                    $in: students
+                }
+            });
             const deleted = await Group.findByIdAndDelete(id);
 
             res.json(deleted);

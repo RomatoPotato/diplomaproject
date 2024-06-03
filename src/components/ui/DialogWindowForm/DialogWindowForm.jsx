@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import "./DialogWindow.css";
+import "./DialogWindowForm.css";
 import listener from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 import Dialog from "../components/Dialog/Dialog";
+import {Form} from "react-router-dom";
 
-const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeButtonClick}) => {
+const DialogWindowForm = ({name, title, warningText, actions}) => {
     const [isShown, setIsShown] = useState(false);
     const [receivedData, setReceivedData] = useState(null);
 
@@ -28,20 +29,22 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
             }</div>
             <div className="dialog-window__buttons">
                 <div className="dialog-window__action-buttons-box">
-                    <button
-                        type="button"
-                        className="dialog-window__positive-button dialog-window__action-button"
-                        onClick={() => {
-                            positiveButtonClick(receivedData);
-                            close();
-                        }}>Да
-                    </button>
+                    <Form method="post" className="dialog-window__form">
+                        {receivedData && actions(receivedData).map(action =>
+                            <input key={action.name} type="hidden" name={action.name} value={action.value}/>
+                        )}
+                        <button
+                            className="dialog-window__positive-button dialog-window__action-button"
+                            onClick={() => {
+                                close();
+                            }}>Да
+                        </button>
+                    </Form>
                     <button
                         type="button"
                         className="dialog-window__negative-button dialog-window__action-button"
-                        onClick={() => {
-                            negativeButtonClick ? negativeButtonClick() : close();
-                        }}>Нет
+                        onClick={close}>
+                        Нет
                     </button>
                 </div>
                 <button
@@ -55,4 +58,4 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
     );
 };
 
-export default DialogWindow;
+export default DialogWindowForm;

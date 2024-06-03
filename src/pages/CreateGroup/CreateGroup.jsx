@@ -11,7 +11,7 @@ import ImageButton from "../../components/ui/ImageButton/ImageButton";
 import Button from "../../components/ui/Button/Button";
 import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 
-let nextId = 0;
+let nextId = 2024;
 
 export async function loader() {
     const specialties = await SpecialtiesService.getSpecialties();
@@ -53,7 +53,6 @@ const CreateGroup = () => {
     const [isYearSelected, setIsYearSelected] = useState(false);
     const [isSpecialtySelected, setIsSpecialtySelected] = useState(false);
     const [hasName, setHasName] = useState(false);
-    const [isHeadmanSelected, setIsHeadmanSelected] = useState(false);
     const [isCuratorSelected, setIsCuratorSelected] = useState(false);
 
     return (
@@ -66,6 +65,7 @@ const CreateGroup = () => {
                         onChange={(value) => {
                             setIsYearSelected(value !== "" && value);
                         }}
+                        value={""}
                         name="year"
                         min={1}/>
                     <span>Специальность:&nbsp;</span>
@@ -112,9 +112,6 @@ const CreateGroup = () => {
                     <span>Староста:&nbsp;</span>
                     <BetterSelect
                         name="headman"
-                        onChange={(value) => {
-                            setIsHeadmanSelected(value !== "" && value !== null);
-                        }}
                         defaultElement={{text: "Не выбран", value: null}}
                         elements={Array.from(students.entries()).map(([id, student]) => ({
                             text: `${student.surname} ${student.name} ${student.middlename}`,
@@ -133,8 +130,7 @@ const CreateGroup = () => {
                         }))}/>
                 </div>
                 <Button
-                    disabled={!(isSpecialtySelected && hasName && students.size > 0
-                        && isHeadmanSelected && isCuratorSelected && isYearSelected)}
+                    disabled={!(isSpecialtySelected && hasName && students.size > 0 && isCuratorSelected && isYearSelected)}
                     className="button-add-group"
                     type="submit">
                     Готово
@@ -207,12 +203,11 @@ const StudentsList = ({students, onStudentRemove}) => {
             </TableHead>
             <TableBody>
                 {Array.from(students.entries()).map(([id, student]) =>
-                    <TableRow>
+                    <TableRow key={id}>
                         <TableActionCell text={`${student.surname} ${student.name} ${student.middlename}`}>
                             <input type="hidden" name="students"
                                    value={`${student.surname} ${student.name} ${student.middlename}`}/>
-                            <input type="hidden" name="students_ids"
-                                   value={student.id}/>
+                            <input type="hidden" name="students_ids" value={id}/>
                             <ImageButton
                                 className="button-remove-student"
                                 src="../static/images/delete.png"

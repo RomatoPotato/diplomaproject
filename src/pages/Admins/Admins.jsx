@@ -9,7 +9,7 @@ import Button from "../../components/ui/Button/Button";
 import Table, {TableActionCell, TableBody, TableCell, TableHead, TableRow} from "../../components/ui/Table/Table";
 import {show} from "../../utils/GlobalEventListeners/ShowModalsEventListener";
 import ImageButton from "../../components/ui/ImageButton/ImageButton";
-import DialogWindow from "../../components/ui/DialogWindow/DialogWindow";
+import DialogWindowForm from "../../components/ui/DialogWindowForm/DialogWindowForm";
 
 export async function loader() {
     const staff = await StaffService.getStaff();
@@ -21,15 +21,24 @@ export async function loader() {
 
 export async function action({request}) {
     const formData = await request.formData();
+    const intent = formData.get("intent");
     const addingMethod = formData.get("addingMethod");
 
-    switch (addingMethod) {
-        case "fromStaff":
-            const staffId = formData.get("staff");
-            return await RolesService.addRoleToUser(staffId, "admin");
-        case "fromTeachers":
-            const teacherId = formData.get("teacher");
-            return await RolesService.addRoleToUser(teacherId, "admin");
+    switch (intent) {
+        case "addAdmin":
+            switch (addingMethod) {
+                case "fromStaff":
+                    const staffId = formData.get("staff");
+                    return await RolesService.addRoleToUser(staffId, "admin");
+                case "fromTeachers":
+                    const teacherId = formData.get("teacher");
+                    return await RolesService.addRoleToUser(teacherId, "admin");
+                default:
+                    return null;
+            }
+        case "deleteAdmin":
+            const adminId = formData.get("admin_id");
+            return await RolesService.removeRoleFromUser(adminId, "admin");
         default:
             return null;
     }
@@ -39,25 +48,11 @@ const Admins = () => {
     const [addingMethod, setAddingMethod] = useState("fromStaff");
     const [staff, teachers, admins] = useLoaderData();
 
-    const [addingName, setAddingName] = useState("");
-    const [addingSurname, setAddingSurname] = useState("");
-    const [addingMiddlename, setAddingMiddlename] = useState("");
-
     return (
         <div>
             <h1>Админы</h1>
             <h2>Добавить</h2>
-            <Form method="post" onSubmit={(e) => {
-                if (addingMethod === "fromCreating") {
-                    if (addingName !== "" && addingSurname !== "" && addingMiddlename !== "") {
-                        setAddingName("");
-                        setAddingSurname("");
-                        setAddingMiddlename("");
-                    }else {
-                        e.preventDefault();
-                    }
-                }
-            }}>
+            <Form method="post">
                 <label>Выбрать из сотрудников университета:&nbsp;
                     <input
                         type="radio"
@@ -84,7 +79,7 @@ const Admins = () => {
                             elements={staff.map(s => ({
                                 text: `${s.surname} ${s.name} ${s.middlename}`,
                                 value: s.userId
-                            }))} />
+                            }))}/>
                     </div>
                 }
                 {addingMethod === "fromTeachers" &&
@@ -98,7 +93,13 @@ const Admins = () => {
                             }))}/>
                     </div>
                 }
-                <Button className="button-add-admin" type="submit">Готово</Button>
+                <Button
+                    name="intent"
+                    value="addAdmin"
+                    className="button-add-admin"
+                    type="submit">
+                    Готово
+                </Button>
             </Form>
             <h2>Список администраторов</h2>
             <Table>
@@ -108,30 +109,30 @@ const Admins = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                {admins.map(admin =>
-                    <TableRow key={admin._id}>
-                        <TableActionCell text={`${admin.surname} ${admin.name} ${admin.middlename}`}>
-                            <ImageButton
-                                className="button-table-action"
-                                src="../static/images/delete.png"
-                                onClick={() => {
-                                    show("delete-admin-dialog", admin);
-                                }}/>
-                        </TableActionCell>
-                    </TableRow>
-                )}
+                    {admins.map(admin =>
+                        <TableRow key={admin._id}>
+                            <TableActionCell text={`${admin.surname} ${admin.name} ${admin.middlename}`}>
+                                <ImageButton
+                                    className="button-table-action"
+                                    src="../static/images/delete.png"
+                                    onClick={() => {
+                                        show("delete-admin-dialog", admin);
+                                    }}/>
+                            </TableActionCell>
+                        </TableRow>
+                    )}
                 </TableBody>
             </Table>
-            <Form className="admin-modals">
-                <DialogWindow
-                    confirmType="submit"
+            <div className="admin-modals">
+                <DialogWindowForm
                     name="delete-admin-dialog"
                     title="Удалить админа?"
                     warningText={(admin) => `Вы удалите админа ${admin?.surname} ${admin?.name} ${admin?.middlename}`}
-                    positiveButtonClick={async (admin) => {
-                        await RolesService.removeRoleFromUser(admin._id, "admin");
-                    }}/>
-            </Form>
+                    actions={(admin) => [
+                        {name: "intent", value : "deleteAdmin"},
+                        {name: "admin_id", value : admin._id}
+                    ]}/>
+            </div>
         </div>
     );
 };

@@ -100,7 +100,7 @@ io.on("connection", (socket) => {
     socket.on("message", (message) => {
         socket.to(message.to).emit("message", {
             ...message,
-            from: socket.user._id
+            // from: socket.user._id
         });
     });
 

@@ -16,7 +16,7 @@ const Chat = ({selectedChat, currentUser, selectMode}) => {
     let messageDate;
     const msgs = Array.from(messages, ([datetime, messages]) => ({datetime, messages})).map(msg => {
         lastSender = null;
-        messageDate = DateHelper.getDayMonth(msg.datetime);
+        messageDate = DateHelper.getFormattedDay(msg.datetime);
 
         return (
             <Fragment key={msg.datetime}>
