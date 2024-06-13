@@ -8,7 +8,7 @@ const PasswordInput = ({name, placeholder, errorData, ...attrs}) => {
 
     return (
         <TextInput
-            minLength={2}
+            minLength={8}
             required={true}
             type={isShown ? "text" : "password"}
             icon={"../static/images/gen_psw_icon.png"}

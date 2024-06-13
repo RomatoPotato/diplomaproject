@@ -1,13 +1,30 @@
 .chat {
+  width: 100%;
+  height: 100%;
+  overflow-x: clip;
+  display: flex;
+  background-color: #615f7a;
+  flex-direction: column;
+  border-radius: 5px;
+}
+.chat__messages-list {
   height: 100%;
   padding: 5px;
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
 }
-.chat__wrapper {
+.chat__messages-wrapper {
   display: flex;
   flex-direction: column;
+}
+.chat__modals {
+  position: absolute;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
 }
 .chat__date {
   font-weight: bold;

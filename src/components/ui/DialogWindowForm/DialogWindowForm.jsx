@@ -34,7 +34,7 @@ const DialogWindowForm = ({name, title, warningText, actions}) => {
                             <input key={action.name} type="hidden" name={action.name} value={action.value}/>
                         )}
                         <button
-                            className="dialog-window__positive-button dialog-window__action-button"
+                            className="positive-button"
                             onClick={() => {
                                 close();
                             }}>Да
@@ -42,14 +42,14 @@ const DialogWindowForm = ({name, title, warningText, actions}) => {
                     </Form>
                     <button
                         type="button"
-                        className="dialog-window__negative-button dialog-window__action-button"
+                        className="negative-button"
                         onClick={close}>
                         Нет
                     </button>
                 </div>
                 <button
                     type="button"
-                    className="dialog-window__cancel-button dialog-window__action-button"
+                    className="neutral-button"
                     onClick={close}>
                     Отменить
                 </button>

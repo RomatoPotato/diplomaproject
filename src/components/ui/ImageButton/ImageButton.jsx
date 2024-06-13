@@ -6,7 +6,7 @@ const ImageButton = ({src, className, type, children, ...attrs}) => {
         <div className={"image-button " + (className || "")}>
             <button tabIndex={-1} type={type ? type : "button"} {...attrs} style={{
                 maskImage: "url(" + src + ")"
-            }}></button>
+            }}>{children}</button>
         </div>
     );
 };

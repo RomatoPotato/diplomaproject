@@ -7,4 +7,14 @@ export default class FilesManager {
         element.click();
         URL.revokeObjectURL(element.href);
     }
+
+    static getFileSize(fileSize) {
+        if (fileSize / 1024 < 1) {
+            return `${fileSize.toFixed(2)} байт`;
+        } else if (fileSize / 1024 / 1024 < 1) {
+            return `${(fileSize / 1024).toFixed(2)} Кб`;
+        } else {
+            return `${(fileSize / 1024 / 1024).toFixed(2)} Мб`;
+        }
+    }
 }

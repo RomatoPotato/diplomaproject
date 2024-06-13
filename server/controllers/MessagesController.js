@@ -2,9 +2,9 @@ const Message = require("../models/Message");
 const Chat = require("../models/Chat");
 const config = require("../config");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 
 class MessagesController {
     async getMessages(req, res, next) {
@@ -42,6 +42,8 @@ class MessagesController {
                         messages: {
                             $push: {
                                 _id: "$_id",
+                                type: "$type",
+                                attachments: "$attachments",
                                 text: "$text",
                                 sender: {
                                     _id: "$from._id",
@@ -74,6 +76,8 @@ class MessagesController {
             const message = req.body.message;
 
             const _id = message._id;
+            const type = message.type;
+            const attachments = message.attachments;
             const text = message.text;
             const from = message.sender._id;
             const chatId = message.chatId;
@@ -82,7 +86,9 @@ class MessagesController {
 
             const newMessage = await Message.create({
                 _id,
+                type,
                 text,
+                attachments,
                 from,
                 to,
                 chatId,
@@ -99,7 +105,7 @@ class MessagesController {
         try {
             const messages = req.body.messages;
 
-            for (let i = 0; i < messages.length; i++){
+            for (let i = 0; i < messages.length; i++) {
                 messages[i] = {
                     ...messages[i],
                     from: messages[i].sender._id
@@ -117,7 +123,7 @@ class MessagesController {
         }
     }
 
-    async editMessage(req, res, next){
+    async editMessage(req, res, next) {
         try {
             const messageId = req.body.messageId;
             const text = req.body.text;
@@ -128,24 +134,31 @@ class MessagesController {
             }, config.updateOptions);
 
             res.json(edited);
-        }catch (err){
+        } catch (err) {
             next(err);
         }
     }
 
-    async deleteMessageForAll(req, res, next){
+    async deleteMessageForAll(req, res, next) {
         try {
             const messageId = req.body.messageId;
 
             const deleted = await Message.findByIdAndDelete(messageId);
 
-            res.json(deleted);
-        }catch (err){
+            if (deleted.type === "attachment") {
+                deleteAttachments(deleted);
+            }
+
+            res.json({
+                deletedMessage: deleted,
+                deletedFiles: deleted.attachments
+            });
+        } catch (err) {
             next(err);
         }
     }
 
-    async deleteMessageForSelf(req, res, next){
+    async deleteMessageForSelf(req, res, next) {
         try {
             const userId = req.body.userId;
             const chatId = req.body.chatId;
@@ -156,78 +169,96 @@ class MessagesController {
             message.deletedUsers.push(userId);
 
             let deleted;
-            if (message.deletedUsers.length === chat.users.length){
+            if (message.deletedUsers.length === chat.users.length) {
                 deleted = await Message.findByIdAndDelete(messageId);
-            }else {
+
+                if (deleted.type === "attachment") {
+                    deleteAttachments(deleted);
+                }
+            } else {
                 deleted = await Message.findByIdAndUpdate(messageId, message, config.updateOptions);
             }
 
             res.json(deleted);
-        }catch (err){
+        } catch (err) {
             next(err);
         }
     }
 
-    async deleteManyMessagesForAll(req, res, next){
+    async deleteManyMessagesForAll(req, res, next) {
         try {
-            const messages = req.body.messages;
+            const messagesIds = req.body.messagesIds;
 
-            const ids = [];
-            for (const message of messages){
-                ids.push(message._id);
+            const messagesFromDB = await Message.find({
+                _id: {
+                    $in: messagesIds
+                }
+            });
+
+            for (const message of messagesFromDB){
+                if (message.type === "attachment") {
+                    deleteAttachments(message);
+                }
             }
 
             const deleted = await Message.deleteMany({
                 _id: {
-                    $in: ids
+                    $in: messagesIds
                 }
             });
 
             res.json(deleted);
-        }catch (err){
+        } catch (err) {
             next(err);
         }
     }
 
-    async deleteManyMessagesForSelf(req, res, next){
+    async deleteManyMessagesForSelf(req, res, next) {
         try {
             const userId = req.body.userId;
             const chatId = req.body.chatId;
-            const messages = req.body.messages;
-
-            const ids = [];
-            for (const message of messages){
-                ids.push(message._id);
-            }
+            const messagesIds = req.body.messagesIds;
 
             const chat = await Chat.findById(chatId);
-            const messageFromDB = await Message.find({
+            const messagesFromDB = await Message.find({
                 _id: {
-                    $in: ids
+                    $in: messagesIds
                 }
             });
 
             const messagesToDelete = [];
             const messagesToUpdate = [];
-            for (const message of messageFromDB){
+            for (const message of messagesFromDB) {
                 message.deletedUsers.push(userId);
 
-                if (message.deletedUsers.length === chat.users.length){
+                if (message.deletedUsers.length === chat.users.length) {
                     messagesToDelete.push(message._id);
-                }else {
+                } else {
                     messagesToUpdate.push(message._id);
                 }
             }
 
             let deleted;
-            if (messagesToDelete.length > 0){
+            if (messagesToDelete.length > 0) {
                 deleted = await Message.deleteMany({
                     _id: {
                         $in: messagesToDelete
                     }
                 });
+
+                const messagesFromDBToDelete = await Message.find({
+                    _id: {
+                        $in: messagesToDelete
+                    }
+                });
+
+                for (const message of messagesFromDBToDelete){
+                    if (message.type === "attachment") {
+                        deleteAttachments(message);
+                    }
+                }
             }
-            if (messagesToUpdate.length > 0){
+            if (messagesToUpdate.length > 0) {
                 deleted = await Message.updateMany({
                     _id: {
                         $in: messagesToUpdate
@@ -240,10 +271,18 @@ class MessagesController {
             }
 
             res.json(deleted);
-        }catch (err){
+        } catch (err) {
             next(err);
         }
     }
 }
 
 module.exports = new MessagesController();
+
+function deleteAttachments(message) {
+    for (const attachment of message.attachments) {
+        if (fs.existsSync(attachment.path)) {
+            fs.unlinkSync(attachment.path);
+        }
+    }
+}

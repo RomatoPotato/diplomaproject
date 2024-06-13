@@ -19,11 +19,13 @@ const curriculumRoute = require("./routes/curriculum_route");
 const staffRoute = require("./routes/staff_route");
 const rolesRoute = require("./routes/roles_route");
 const messagesRoute = require("./routes/messages_route");
+const filesRoute = require("./routes/files_route");
+
 const errorMiddleware = require("./middlewares/ErrorMiddleware");
 
 const app = express();
 const httpServer = createServer(app);
-const client_url = `${config.client.host}:${config.client.port}`;
+const client_url = config.client.url;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -43,6 +45,7 @@ app.use("/api/curriculums", curriculumRoute);
 app.use("/api/staff", staffRoute);
 app.use("/api/roles", rolesRoute);
 app.use("/api/messages", messagesRoute);
+app.use("/api/files", filesRoute);
 
 app.use(errorMiddleware);
 
@@ -99,8 +102,7 @@ io.on("connection", (socket) => {
 
     socket.on("message", (message) => {
         socket.to(message.to).emit("message", {
-            ...message,
-            // from: socket.user._id
+            ...message
         });
     });
 

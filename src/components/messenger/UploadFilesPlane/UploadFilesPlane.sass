@@ -1,0 +1,84 @@
+@import "../../../theme"
+
+.upload-files-plane
+  background-color: $neutral_dark800
+  display: flex
+  border-radius: $border-radius
+  margin: 0 $offset
+
+  &__wrapper
+    margin: 0 $offset
+    padding: $offset 0
+    gap: $offset
+    display: flex
+    flex-flow: wrap
+    width: 100%
+
+$max-heigth: 50px
+
+.selected-file
+  max-height: $max-heigth
+  height: 50px
+  position: relative
+  display: flex
+  align-items: center
+  justify-content: center
+  background-color: $neutral_dark600
+  border-radius: $border-radius
+
+  &__video
+    height: inherit
+    border-radius: $border-radius
+
+  &__image
+    display: flex
+    justify-content: center
+    height: inherit
+    width: 50px
+    background-size: cover
+    background-position: center
+    border-radius: $border-radius
+
+  &__other
+    display: flex
+    gap: 5px
+    margin: 5px
+    max-width: 200px
+    justify-content: center
+
+    &-icon
+      width: 40px
+      height: 40px
+      +mask-image("../../../images/file.png")
+      mask-position: center
+      background-color: $neutral_dark900
+      border-radius: $border-radius
+
+  &__info
+    display: flex
+    flex-direction: column
+    line-height: 1.1em
+    justify-content: center
+    overflow-x: hidden
+
+    p
+      +one-stroke-text
+
+  &__actions-box
+    position: absolute
+    opacity: 0
+    top: 0
+    display: flex
+    align-items: center
+    justify-content: center
+    border-radius: $border-radius
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0.5)
+
+    &:hover
+      opacity: 1
+
+  &__action-button
+    width: 20px
+    height: 20px

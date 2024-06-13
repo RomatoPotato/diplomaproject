@@ -91,4 +91,20 @@
   color: #F1EDFF;
 }
 
+.attachments-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.attachments-box__media-content {
+  display: flex;
+  gap: 3px;
+}
+.attachments-box__non-media-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.2em;
+}
+
 /*# sourceMappingURL=Message.css.map */

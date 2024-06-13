@@ -1,15 +1,32 @@
 @import "../../../theme"
 
 .chat
+  width: 100%
   height: 100%
-  padding: 5px
-  overflow-y: auto
+  overflow-x: clip
   display: flex
-  flex-direction: column-reverse
+  background-color: $neutral_dark700
+  flex-direction: column
+  border-radius: $border-radius
 
-  &__wrapper
+  &__messages-list
+    height: 100%
+    padding: 5px
+    overflow-y: auto
+    display: flex
+    flex-direction: column-reverse
+
+  &__messages-wrapper
     display: flex
     flex-direction: column
+
+  &__modals
+    position: absolute
+    pointer-events: none
+    width: 100%
+    height: 100%
+    left: 0
+    top: 0
 
   &__date
     font-weight: bold

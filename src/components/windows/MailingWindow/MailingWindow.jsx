@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import "./MailingWindow.css";
 import ChatsFilter from "../../messenger/ChatsFilter/ChatsFilter";
 import Window from "../../ui/components/Window/Window";
@@ -10,11 +10,14 @@ import {ContextMenu} from "../../ui/ContextMenu/ContextMenu";
 import EditMessagePlane from "../../messenger/EditMessagePlane/EditMessagePlane";
 import {show, hide} from "../../../utils/GlobalEventListeners/ShowModalsEventListener";
 import DialogWindow from "../../ui/DialogWindow/DialogWindow";
+import {ChatsDispatchContext} from "../../../contexts/ChatsContext";
+import mongoose from "mongoose";
+import socketHelper from "../../../utils/MessengerSocketHelper";
 
 const windowName = "Создание рассылки";
 let newMessageId = 0;
 
-const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
+const MailingWindow = ({chats, currentUser}) => {
     const [chatsArray] = useState(Array.from(chats, ([, value]) => (value)));
     const [chatsFilter, setChatsFilter] = useState(() => (f) => f);
     const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -27,6 +30,7 @@ const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
         return map;
     });
     const [editMode, setEditMode] = useState({enabled: false, message: null});
+    const dispatch = useContext(ChatsDispatchContext);
 
     return (
         <Window name={windowName} className="mailing-window">
@@ -131,11 +135,12 @@ const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
                 }
                 <div className="mailing-window__send-area">
                     <ChatInput
+                        source="mailing-window"
                         text={editMode.enabled ? editMode.message.text : ""}
                         onMessageSubmit={(text) => {
                             if (editMode.enabled) {
                                 const editMessages = messages.map(message => {
-                                    if (message.id === editMode.message.id){
+                                    if (message.id === editMode.message.id) {
                                         message.text = text;
                                     }
                                     return message;
@@ -146,7 +151,7 @@ const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
                                     enabled: false,
                                     message: null
                                 });
-                            }else {
+                            } else {
                                 setMessages([
                                     ...messages,
                                     {
@@ -162,18 +167,35 @@ const MailingWindow = ({chats, currentUser, onSendMailingClick}) => {
                     <ImageButton
                         className="mailing-window__button-send-mailing"
                         src="static/images/send-mailing.png"
-                        onClick={() => {
-                            onSendMailingClick(messages, (() => {
-                                const chatIds = [];
+                        onClick={async () => {
+                            const chatIds = [];
+                            const sendDate = new Date();
+                            const messagesForSend = [];
 
-                                for (const [id, checked] of checkedMap.entries()) {
-                                    if (checked) {
-                                        chatIds.push(id);
-                                    }
+                            for (const [id, checked] of checkedMap.entries()) {
+                                if (checked) {
+                                    chatIds.push(id);
                                 }
+                            }
 
-                                return chatIds;
-                            })());
+                            for (const chatId of chatIds) {
+                                for (const message of messages) {
+                                    messagesForSend.push({
+                                        _id: new mongoose.Types.ObjectId().toString(),
+                                        text: message.text,
+                                        sender: currentUser,
+                                        to: chatId,
+                                        chatId: chatId,
+                                        datetime: sendDate
+                                    });
+                                }
+                            }
+
+                            dispatch({
+                                type: "manyMessagesAdded",
+                                messages: messagesForSend
+                            });
+                            await socketHelper.sendMailing(currentUser, chatIds, messagesForSend);
 
                             setMessages([]);
                             setSelectAllChecked(false);

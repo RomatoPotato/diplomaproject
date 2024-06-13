@@ -1,18 +1,16 @@
 import "./ChatInput.css"
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ImageButton from "../../ui/ImageButton/ImageButton";
 
 const maxLinesNumber = 10;
 
-export default function ChatInput({onMessageSubmit, text}) {
+export default function ChatInput({onSelectFilesClick, onSelectFilesChange, onMessageSubmit, text}) {
     const [message, setMessage] = useState(text);
     const textAreaRef = useRef();
 
-    function handleSubmitMessage(){
-        if (message.trim().length > 0) {
-            onMessageSubmit(message.replace(/\s{2,}/g, " ").trim()); // to remove redundant spaces
-            setMessage("");
-        }
+    function handleSubmitMessage() {
+        onMessageSubmit(message);
+        setMessage("");
     }
 
     useEffect(() => {
@@ -27,8 +25,9 @@ export default function ChatInput({onMessageSubmit, text}) {
 
     return (
         <div className="chat-input">
-            <div className="chat-input__input-field">
-                <div className="input-field-wrapper">
+            <div className="chat-input__wrapper">
+                <div className="chat-input__input-wrapper">
+                    <div className="chat-input__input-field">
                     <textarea
                         rows={1}
                         ref={textAreaRef}
@@ -48,15 +47,29 @@ export default function ChatInput({onMessageSubmit, text}) {
                                 handleSubmitMessage();
                             }
                         }}/>
+                    </div>
                 </div>
-            </div>
-            <div className="chat-input__buttons-box">
-                <ImageButton src="static/images/attach-file.png" className="chat-input__button file-button">
-                    <input type="file"/>
-                </ImageButton>
-                <ImageButton src="static/images/send.png" className="chat-input__button send-button" onClick={handleSubmitMessage}>
-                    <input type="submit"/>
-                </ImageButton>
+                <div className="chat-input__buttons-box">
+                    <ImageButton src="static/images/attach-file.png" className="chat-input__button file-button">
+                        <label>
+                            <input
+                                type="file"
+                                multiple
+                                onClick={(e) => {
+                                    onSelectFilesClick(e);
+                                }}
+                                onChange={(e) => {
+                                    onSelectFilesChange(e);
+                                }}/>
+                        </label>
+                    </ImageButton>
+                    <ImageButton
+                        src="static/images/send.png"
+                        className="chat-input__button send-button"
+                        onClick={handleSubmitMessage}>
+                        <input type="submit"/>
+                    </ImageButton>
+                </div>
             </div>
         </div>
     )

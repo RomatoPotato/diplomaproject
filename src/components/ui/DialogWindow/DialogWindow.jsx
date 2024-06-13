@@ -30,7 +30,7 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
                 <div className="dialog-window__action-buttons-box">
                     <button
                         type="button"
-                        className="dialog-window__positive-button dialog-window__action-button"
+                        className="positive-button"
                         onClick={() => {
                             positiveButtonClick(receivedData);
                             close();
@@ -38,7 +38,7 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
                     </button>
                     <button
                         type="button"
-                        className="dialog-window__negative-button dialog-window__action-button"
+                        className="negative-button"
                         onClick={() => {
                             negativeButtonClick ? negativeButtonClick() : close();
                         }}>Нет
@@ -46,7 +46,7 @@ const DialogWindow = ({name, title, warningText, positiveButtonClick, negativeBu
                 </div>
                 <button
                     type="button"
-                    className="dialog-window__cancel-button dialog-window__action-button"
+                    className="neutral-button"
                     onClick={close}>
                     Отменить
                 </button>

@@ -1,0 +1,23 @@
+.media-window {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 200;
+  left: 0;
+  top: 0;
+}
+.media-window__backdrop {
+  width: inherit;
+  height: inherit;
+  background-color: rgba(0, 0, 0, 0.72);
+  pointer-events: all;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media-window__content {
+  height: 80%;
+}
+
+/*# sourceMappingURL=MediaWindow.css.map */

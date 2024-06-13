@@ -56,11 +56,19 @@ class UsersService {
     }
 
     async updateLoginData(id, login, password){
+        const data = await User.findOne({
+            login
+        });
+
+        if (data){
+            throw ApiError.BadRequest({error: "UserExisted"});
+        }
+
         const hash = generatePasswordHash(password);
 
         return (await User.findByIdAndUpdate(id, {
-            login,
-            password: hash
+           login,
+           password: hash
         }, config.updateOptions));
     }
 }

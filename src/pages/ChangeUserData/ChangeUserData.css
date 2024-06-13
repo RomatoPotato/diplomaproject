@@ -1,8 +1,11 @@
 .change_user_data {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #8987a9;
+  color: #26243b;
+  padding: 10px;
+  border-radius: 5px;
 }
 .change_user_data__form {
   display: flex;

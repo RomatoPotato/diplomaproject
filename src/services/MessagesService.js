@@ -18,10 +18,11 @@ export default class MessagesService {
         }))).data;
     }
 
-    static async editMessage(messageId, text){
+    static async editMessage(messageId, text, attachments){
         return (await (axiosInstance.put("messages", {
             messageId,
-            text
+            text,
+            attachments
         }))).data;
     }
 
@@ -39,17 +40,17 @@ export default class MessagesService {
         }))).data;
     }
 
-    static async deleteManyMessagesForAll(messages){
+    static async deleteManyMessagesForAll(messagesIds){
         return (await (axiosInstance.post("messages/delete-many/all", {
-            messages
-        })))
+            messagesIds
+        })));
     }
 
-    static async deleteManyMessagesForSelf(userId, chatId, messages){
+    static async deleteManyMessagesForSelf(userId, chatId, messagesIds){
         return (await (axiosInstance.post("messages/delete-many/self", {
             userId,
             chatId,
-            messages
-        })))
+            messagesIds
+        })));
     }
 }

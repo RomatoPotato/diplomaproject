@@ -1,0 +1,18 @@
+.dialog-alert {
+  max-width: 250px;
+  background-color: #615f7a;
+}
+.dialog-alert__top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.dialog-alert__icon {
+  width: 1.1em;
+  height: 1.1em;
+  background-color: #ff5959 !important;
+}
+
+/*# sourceMappingURL=DialogAlert.css.map */

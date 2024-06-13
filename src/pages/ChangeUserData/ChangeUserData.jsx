@@ -1,7 +1,10 @@
-import React, {useRef, useState} from 'react';
-import {Form, redirect, useLoaderData} from "react-router-dom";
+import React, {useEffect, useRef, useState} from 'react';
+import {Form, redirect, useActionData, useLoaderData} from "react-router-dom";
 import "./ChangeUserData.css";
 import UserService from "../../services/UserService";
+import TextInput from "../../components/ui/TextInput/TextInput";
+import PasswordInput from "../../components/ui/PasswordInput/PasswordInput";
+import Button from "../../components/ui/Button/Button";
 
 export async function action({request}) {
     const formData = await request.formData();
@@ -9,67 +12,104 @@ export async function action({request}) {
     const userId = formData.get("userId");
     const login = formData.get("login");
     const password = formData.get("password");
+    let status = {};
 
-    await UserService.updateLoginData(userId, login, password);
+    await UserService.updateLoginData(userId, login, password)
+        .then(() => {
+            status.value = "success";
+        }).catch((err) => {
+            let error = {}
+            status.value = "error";
+            status.data = error;
 
-    return redirect("../messenger");
+            const errorInfo = JSON.parse(err.response.data.message);
+
+            if (errorInfo.error === "UserExisted"){
+                error.login = `Пользователь с логином ${login} существует!`
+            }
+        });
+
+    switch (status.value) {
+        case "success":
+            return redirect("../messenger");
+        case "error":
+            return status.data;
+        default:
+            return null;
+    }
 }
 
 const ChangeUserData = () => {
     const user = useLoaderData();
-    const passwordInput = useRef(null);
+    const actionData = useActionData();
 
-    const [changingPsw, setChangingPsw] = useState(false);
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loginError, setLoginError] = useState(null);
+    const [passwordError, setPasswordError] = useState(null);
+
+    useEffect(() => {
+        if (actionData?.login) {
+            setLoginError(actionData.login);
+        }else {
+            setLoginError(false);
+        }
+    }, [actionData]);
 
     return (
         <div className="change_user_data">
-            <h1>Добро пожаловать, {user.name} {user.surname}</h1>
+            <h1>Добро пожаловать, {user.surname} {user.name}{user.middlename ? ` ${user.middlename}` : ""}!</h1>
             <h2>Измените данные для входа</h2>
-            <Form method="post" className="change_user_data__form">
-                <input type="hidden" name="userId" value={user._id}/>
-                <label>Логин:&nbsp;
-                    <input
-                        type="text"
-                        name="login"
-                        required={true}
-                        minLength="5"
-                        value={login}
-                        onChange={(e) => {
-                            setLogin(e.target.value);
-                        }}/>
-                    <input type="button" onClick={() => {
-                        setLogin(user.login);
-                    }} value="Использовать тот же"/>
-                </label>
-                <label>Пароль:
-                    <input
-                        type="password"
-                        value={password}
-                        ref={passwordInput}
-                        name="password"
-                        required={true}
-                        minLength="8"
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                        }}/>
-                    {
-                        changingPsw ?
-                            <input type="button" onClick={() => {
-                                setChangingPsw(false);
-                                passwordInput.current.type = "password";
-                            }} value="❌"/> :
-                            <input type="button" onClick={() => {
-                                setChangingPsw(true);
-                                passwordInput.current.type = "text";
-                            }} value="👁️"/>
+            <Form
+                method="post"
+                className="change_user_data__form"
+                onSubmit={(e) => {
+                    if (password !== confirmPassword) {
+                        setPasswordError("Пароли не совпадают!");
+                        e.preventDefault();
                     }
-                    <input type="button" onClick={() => {
-                        setPassword(user.login);
-                    }} value="Использовать тот же"/>
-                </label>
-                <input type="submit" value="Готово"/>
+                }}>
+                <input type="hidden" name="userId" value={user._id}/>
+                <TextInput
+                    icon="../static/images/user-initials.png"
+                    name="login"
+                    required={true}
+                    minLength="5"
+                    value={login}
+                    placeholder="Новый логин"
+                    onFocus={() => {
+                        setLoginError(false);
+                    }}
+                    onClearText={() => {
+                        setLoginError(false);
+                    }}
+                    onChange={(value) => {
+                        setLogin(value);
+                    }}
+                    errorData={loginError}/>
+                <PasswordInput
+                    value={password}
+                    name="password"
+                    placeholder="Новый пароль"
+                    onChange={(value) => {
+                        setPassword(value);
+                    }}/>
+                <PasswordInput
+                    value={confirmPassword}
+                    name="password"
+                    placeholder="Повторите пароль"
+                    errorData={passwordError}
+                    onFocus={() => {
+                        setPasswordError(false);
+                    }}
+                    onClearText={() => {
+                        setPasswordError(false);
+                    }}
+                    onChange={(value) => {
+                        setConfirmPassword(value);
+                    }}/>
+                <Button type="submit">Готово</Button>
             </Form>
         </div>
     );

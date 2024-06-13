@@ -1,0 +1,62 @@
+.attachment {
+  max-height: inherit;
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+}
+.attachment_select-mode:hover .attachment__file-thumbnail {
+  mask-image: url("../../../images/download.png");
+  mask-size: 25px;
+  mask-position: center;
+}
+.attachment:nth-child(1) {
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.attachment:nth-last-child(1) {
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.attachment__image-thumbnail {
+  width: 60px;
+  height: 60px;
+  background-size: cover;
+  background-color: white;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: inherit;
+}
+.attachment__video-thumbnail {
+  height: 60px;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.attachment__video-thumbnail:hover .button-play__icon {
+  background-color: white !important;
+}
+.attachment__video-thumbnail video {
+  height: inherit;
+}
+.attachment__file-thumbnail {
+  width: 40px;
+  height: 40px;
+  mask-image: url("../../../images/file.png");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  background-color: #26243b;
+  border-radius: 5px;
+}
+
+.button-play {
+  position: absolute;
+}
+.button-play__icon {
+  width: 30px;
+  height: 30px;
+  background-color: rgba(211, 211, 211, 0.58) !important;
+}
+
+/*# sourceMappingURL=Attachment.css.map */

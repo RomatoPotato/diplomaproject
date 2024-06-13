@@ -10,15 +10,12 @@ export async function action({request}) {
     const formData = await request.formData();
     const login = formData.get("login");
     const password = formData.get("password");
-
     let status = {};
 
     await AuthService.login(login, password)
         .then((value) => {
-            if (value.status === 200) {
-                status.value = "success";
-                status.data = value.data;
-            }
+            status.value = "success";
+            status.data = value.data;
         })
         .catch((err) => {
             let error = {};

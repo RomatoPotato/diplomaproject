@@ -1,6 +1,9 @@
 import "./ChatTab.css"
+import {useContext} from "react";
+import {ChatsContext} from "../../../contexts/ChatsContext";
 
-export default function ChatTab({chat, showGroup, onChatTabClick, selected}) {
+export default function ChatTab({chatId, showGroup, onChatTabClick, selected}) {
+    const chat = useContext(ChatsContext).get(chatId);
     let icon;
 
     if (chat.type === "dialog") {
@@ -36,7 +39,11 @@ export default function ChatTab({chat, showGroup, onChatTabClick, selected}) {
                     }
                     <div className="chat-tab__message-info">
                         {chat.lastMessage &&
-                            <p className="chat-tab__last-msg"><b>{chat.lastMessage.sender.name}: </b>{chat.lastMessage.text}</p>
+                            <p className="chat-tab__last-msg">
+                                <b>{chat.lastMessage.sender.name}: </b>
+                                {chat.lastMessage.text}
+                                {chat.lastMessage.type === "attachment" && " [вложение]"}
+                            </p>
                         }
                         {chat.hasNewMessages &&
                             <div className="chat-tab__new-message-info">

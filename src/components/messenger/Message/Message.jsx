@@ -1,10 +1,20 @@
 import "./Message.css";
 
 import {ContextMenuTrigger} from "../../ui/ContextMenu/ContextMenu";
+import Attachment from "../Attachment/Attachment";
 
 let paragraphId = 0;
 
-export default function Message({message, messageDate, lastSender, contextMenuName, selectMode = {enabled: false}}) {
+export default function Message(
+    {
+        message,
+        messageDate,
+        lastSender,
+        contextMenuName,
+        selectMode = {enabled: false},
+        onOpenMediaClick
+    }
+) {
     let icon = message.sender.icon;
 
     if (!icon || icon === "") {
@@ -19,7 +29,8 @@ export default function Message({message, messageDate, lastSender, contextMenuNa
                     <span className="sender__name">{message.sender.surname} {message.sender.name}</span>
                 </div>
             }
-            <MessageWrapper selectMode={selectMode}
+            <MessageWrapper
+                selectMode={selectMode}
                 className={"message" + (message.self ? " message_self" : "") + (selectMode.enabled ? " message_select-mode" : "")}>
                 {selectMode.enabled &&
                     <input
@@ -56,14 +67,18 @@ export default function Message({message, messageDate, lastSender, contextMenuNa
                                 <p key={paragraphId++}>{text}</p>
                             )}
                         </div>
+                        {message.type === "attachment" &&
+                            <AttachmentsBox
+                                message={message}
+                                isSelectModeEnabled={selectMode.enabled}
+                                onMediaClick={onOpenMediaClick}/>
+                        }
                         <div className={"message__info" + (message.self ? " message__info_self" : "")}>
                             <p className={"message__date" + (message.self ? " message__date_self" : "")}>
-                                {
-                                    new Date(message.datetime).toLocaleTimeString("ru-RU", {
-                                        hour: "numeric",
-                                        minute: "numeric"
-                                    })
-                                }
+                                {new Date(message.datetime).toLocaleTimeString("ru-RU", {
+                                    hour: "numeric",
+                                    minute: "numeric"
+                                })}
                             </p>
                             {message.edited &&
                                 <p><i>изм.</i></p>
@@ -81,5 +96,43 @@ const MessageWrapper = ({selectMode, children, ...attrs}) => {
         selectMode.enabled ?
             <label {...attrs}>{children}</label> :
             <div {...attrs}>{children}</div>
+    )
+}
+
+const AttachmentsBox = ({message, isSelectModeEnabled, onMediaClick}) => {
+    const mediaAttachments = [];
+    const otherAttachments = [];
+
+    for (const attachment of message.attachments) {
+        if (attachment.mimetype.startsWith("image") || attachment.mimetype.startsWith("video")) {
+            mediaAttachments.push(attachment);
+        } else {
+            otherAttachments.push(attachment);
+        }
+    }
+
+    return (
+        <div className="attachments-box">
+            {mediaAttachments.length > 0 &&
+                <div className="attachments-box__media-content">
+                    {mediaAttachments.map(attachment =>
+                        <Attachment
+                            key={attachment.path}
+                            file={attachment}
+                            onMediaClick={onMediaClick}/>
+                    )}
+                </div>
+            }
+            {otherAttachments.length > 0 &&
+                <div className="attachments-box__non-media-content">
+                    {otherAttachments.map(attachment =>
+                        <Attachment
+                            key={attachment.path}
+                            file={attachment}
+                            isSelectModeEnabled={isSelectModeEnabled}/>
+                    )}
+                </div>
+            }
+        </div>
     )
 }

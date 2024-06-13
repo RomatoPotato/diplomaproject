@@ -1,0 +1,60 @@
+@import "../../../theme"
+
+.attachment
+  max-height: inherit
+  display: flex
+  gap: 5px
+  cursor: pointer
+
+  &_select-mode
+    &:hover
+      .attachment__file-thumbnail
+        mask-image: url("../../../images/download.png")
+        mask-size: 25px
+        mask-position: center
+
+  &:nth-child(1)
+    border-bottom-left-radius: $border-radius
+    border-top-left-radius: $border-radius
+
+  &:nth-last-child(1)
+    border-bottom-right-radius: $border-radius
+    border-top-right-radius: $border-radius
+
+  &__image-thumbnail
+    width: 60px
+    height: 60px
+    background-size: cover
+    background-color: white
+    background-repeat: no-repeat
+    background-position: center
+    border-radius: inherit
+
+  &__video-thumbnail
+    height: 60px
+    border-radius: inherit
+    display: flex
+    align-items: center
+    justify-content: center
+    position: relative
+
+    &:hover .button-play__icon
+      background-color: white !important
+
+    video
+      height: inherit
+
+  &__file-thumbnail
+    width: 40px
+    height: 40px
+    +mask-image("../../../images/file.png")
+    background-color: $neutral_dark900
+    border-radius: $border-radius
+
+.button-play
+  position: absolute
+
+  &__icon
+    width: 30px
+    height: 30px
+    background-color: rgba(211, 211, 211, 0.58) !important

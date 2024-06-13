@@ -1,11 +1,11 @@
 import axios from "axios";
 import config from "../config";
 
-const { host, port } = config.server;
+const serverURL = config.server.url;
 
 const instance = axios.create({
     withCredentials: true,
-    baseURL: `${host}:${port}/api`
+    baseURL: `${serverURL}/api`
 });
 
 instance.interceptors.request.use((axiosRequestConfig) => {

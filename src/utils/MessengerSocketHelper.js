@@ -1,7 +1,5 @@
 import socket from "./socket";
 import MessagesService from "../services/MessagesService";
-import chatsStateManager from "./ChatsStateManager";
-import mongoose from "mongoose";
 
 class MessengerSocketHelper {
     connectUser(currentUser){
@@ -74,120 +72,51 @@ class MessengerSocketHelper {
         socket.off("user disconnected");
     }
 
-    addMessagesListeners(setChats, chats){
-        socket.on("message", (message) => {
-            let destinationChat = chats.get(message.to);
-
-            const receivedMessage = {
-                _id: message.id,
-                text: message.text,
-                sender: destinationChat.users.get(message.from),
-                chatId: destinationChat._id,
-                datetime: message.date
-            };
-
-            chatsStateManager.addMessage(destinationChat, setChats, chats, receivedMessage);
-        });
-
-        socket.on("delete message", (messageData) => {
-            chatsStateManager.deleteMessage(setChats, chats, messageData);
-        });
-
-        socket.on("delete messages", (messagesData) => {
-            chatsStateManager.deleteManyMessages(setChats, chats, messagesData);
-        });
-
-        socket.on("edit message", ({messageData, text}) => {
-            chatsStateManager.editMessage(setChats, chats, messageData, text);
-        });
-
-        socket.on("mailing", (messages) => {
-            chatsStateManager.addManyMessages(setChats, chats, messages);
-        });
-    }
-
-    removeMessagesListeners(){
-        socket.off("message");
-        socket.off("delete message");
-        socket.off("delete messages");
-        socket.off("edit message");
-        socket.off("mailing");
-    }
-
-    async sendMessage(setChats, chats, selectedChat, currentUser, text){
-        const sendDate = new Date();
-        const newMessageId = new mongoose.Types.ObjectId().toString();
-
+    async sendMessage(currentChat, currentUser, newMessage){
         socket.emit("message", {
-            id: newMessageId,
-            from: currentUser._id, // new
-            date: sendDate,
-            text: text,
-            to: selectedChat._id
+            id: newMessage._id,
+            from: currentUser._id,
+            date: newMessage.datetime,
+            text: newMessage.text,
+            to: currentChat._id,
+            type: newMessage.type,
+            attachments: newMessage.attachments
         });
 
-        const newMessage = {
-            _id: newMessageId,
-            text: text,
-            sender: currentUser,
-            chatId: selectedChat._id,
-            datetime: sendDate
-        };
-
-        chatsStateManager.addMessage(selectedChat, setChats, chats, newMessage);
-
-        const to = selectedChat.type === "dialog" ? selectedChat.interlocutor._id : selectedChat._id;
+        const to = currentChat.type === "dialog" ? currentChat.interlocutor._id : currentChat._id;
         await MessagesService.saveMessage(newMessage, to);
     }
 
-    async sendMailing(setChats, chats, currentUser, messages, chatIds){
-        const sendDate = new Date();
-
-        const messagesForSend = [];
-        for (const chatId of chatIds) {
-            for (const message of messages) {
-                messagesForSend.push({
-                    _id: new mongoose.Types.ObjectId().toString(),
-                    text: message.text,
-                    sender: currentUser,
-                    to: chatId,
-                    chatId: chatId,
-                    datetime: sendDate
-                });
-            }
-        }
-
+    async sendMailing(currentUser, chatIds, messagesForSend){
         socket.emit("mailing", {
             chats: chatIds,
             messages: messagesForSend
         });
 
-        chatsStateManager.addManyMessages(setChats, chats, messagesForSend);
-
         await MessagesService.saveManyMessages(messagesForSend);
     }
 
-    async deleteMessage(selectedChat, messageData, deletedUserId){
+    async deleteMessage(messageData, currentChatId, deletedUserId){
         if (messageData.deleteForAll) {
             socket.emit("delete message", messageData);
             await MessagesService.deleteMessageForAll(messageData.message._id);
         }
         if (messageData.deleteForSelf){
-            await MessagesService.deleteMessageForSelf(deletedUserId, selectedChat._id, messageData.message._id);
+            await MessagesService.deleteMessageForSelf(deletedUserId, currentChatId, messageData.message._id);
         }
     }
 
-    async deleteManyMessages(selectedChat, messagesData, deletedUserId, deleteForAll = false){
-        const messages = [];
+    async deleteManyMessages(currentChatId, messagesData, deletedUserId, deleteForAll = false){
+        const messagesIds = [];
         for (const messageData of messagesData){
-            messages.push(messageData.message);
+            messagesIds.push(messageData.message._id);
         }
 
         if (deleteForAll){
             socket.emit("delete messages", messagesData);
-            await MessagesService.deleteManyMessagesForAll(messages);
+            await MessagesService.deleteManyMessagesForAll(messagesIds);
         }else {
-            await MessagesService.deleteManyMessagesForSelf(deletedUserId, selectedChat._id, messages);
+            await MessagesService.deleteManyMessagesForSelf(deletedUserId, currentChatId, messagesIds);
         }
 
     }

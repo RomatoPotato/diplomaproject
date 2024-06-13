@@ -63,6 +63,7 @@ export const ContextMenu = ({name, contextMenuItems}) => {
 
     return (
         <div
+            onContextMenu={(e) => e.preventDefault()}
             ref={contextMenuRef}
             className="context-menu"
             style={{

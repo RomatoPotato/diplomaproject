@@ -26,3 +26,36 @@
     flex-direction: column
     gap: 2px
     box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.51)
+
+=dialog-button
+  padding: 3px
+  border-radius: 5px
+  font-weight: bold
+  border: none
+  font-size: 1.2em
+  cursor: pointer
+  width: 100%
+
+.positive-button
+  +dialog-button
+  background-color: $positive
+  color: $on_positive
+
+  &:hover
+    background-color: $positive_hover
+
+.negative-button
+  +dialog-button
+  background-color: $negative
+  color: $on_negative
+
+  &:hover
+    background-color: $negative_hover
+
+.neutral-button
+  +dialog-button
+  background-color: $neutral
+  color: $on_neutral
+
+  &:hover
+    background-color: $neutral_hover

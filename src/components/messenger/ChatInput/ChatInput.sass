@@ -1,20 +1,44 @@
 @import "../../../theme"
 
 $line_height: 1.4em
-$offset: 5px
 
 .chat-input
-  border-radius: $border-radius
   display: flex
-  flex: 1
-  justify-content: flex-end
-  align-items: flex-end
+  flex-direction: column
+  border-radius: $border-radius
   margin: $offset
-  gap: $offset
 
-  &__input-field
+  &__wrapper
+    display: flex
+    align-items: flex-end
+    gap: $offset
+
+  &__input-wrapper
     width: 100%
     display: flex
+    gap: $offset
+    flex-direction: column-reverse
+    overflow-x: hidden
+
+  &__input-field
+    display: flex
+    background-color: $neutral_dark800
+    border-radius: $border-radius
+    align-items: start
+    justify-content: center
+    padding: $offset
+
+    textarea
+      width: 100%
+      font-size: 1em
+      line-height: $line_height
+      border: none
+      resize: none
+      background: transparent
+      color: $on_neutral_dark800
+
+      &:focus
+        outline: none
 
   &__buttons-box
     display: flex
@@ -33,33 +57,15 @@ $offset: 5px
       button
         background-color: $primary_hover_light
 
-.input-field-wrapper
-  width: 100%
-  display: flex
-  background-color: $neutral_dark800
-  align-items: center
-  justify-content: center
-  border-radius: 5px
-  padding: 5px
-
-  textarea
-    width: 100%
-    font-size: 1em
-    line-height: $line_height
-    border: none
-    resize: none
-    background: transparent
-    color: $on_neutral_dark800
-
-    &:focus
-      outline: none
-
-    &::-webkit-scrollbar
-      display: none
-
 .file-button
   input[type=file]
-    opacity: 0
+    width: 0
+
+  label
+    width: 100%
+    height: 100%
+    display: block
+    cursor: pointer
 
 .send-button
   input[type=submit]

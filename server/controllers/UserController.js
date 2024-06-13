@@ -151,7 +151,7 @@ class UserController {
 
 const accessTokenCookieOptions = {
     httpOnly: true,
-    secure: true,
+    //secure: true,
     sameSite: "strict",
     maxAge: config.cookies.access_token_expiration * 1000
 }
