@@ -199,9 +199,6 @@ const Chat = ({selectedChatId, currentUser, onCloseChatClick}) => {
                 selectedChat={currentChat}
                 onCloseButtonClick={() => {
                     onCloseChatClick();
-                    /*disableEditMode();
-                    disableSelectMode();
-                    setSelectedFiles([]);*/
                 }}
                 onChatInfoClick={() => setShowChatInfo(true)}/>
             {selectMode.enabled &&

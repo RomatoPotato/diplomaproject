@@ -39,7 +39,7 @@ const Attachment = ({file, onMediaClick, isSelectModeEnabled = false}) => {
                     </div> :
                     <div
                         className="attachment__image-thumbnail"
-                        style={{backgroundImage: `url(${file.path})`}}>
+                        style={{backgroundImage: `url('${file.path}')`}}>
                     </div>
             )}
             {file.type === "other" &&

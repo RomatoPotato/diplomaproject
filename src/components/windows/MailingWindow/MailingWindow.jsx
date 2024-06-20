@@ -13,9 +13,11 @@ import DialogWindow from "../../ui/DialogWindow/DialogWindow";
 import {ChatsDispatchContext} from "../../../contexts/ChatsContext";
 import mongoose from "mongoose";
 import socketHelper from "../../../utils/MessengerSocketHelper";
+import UploadFilesPlane from "../../messenger/UploadFilesPlane/UploadFilesPlane";
 
 const windowName = "Создание рассылки";
 let newMessageId = 0;
+const maxFileSize = 16777216; //16Mb
 
 const MailingWindow = ({chats, currentUser}) => {
     const [chatsArray] = useState(Array.from(chats, ([, value]) => (value)));
@@ -30,7 +32,31 @@ const MailingWindow = ({chats, currentUser}) => {
         return map;
     });
     const [editMode, setEditMode] = useState({enabled: false, message: null});
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const dispatch = useContext(ChatsDispatchContext);
+
+    async function handleSelectFilesChange(e) {
+        const allFiles = [];
+        const addedFiles = Object.values(e.target.files);
+
+        e.target.value = null;
+
+        /*if (addedFiles.length + selectedFiles.length > 10) {
+            show("cut-files-dialog_messenger", addedFiles.slice(0, 10 - selectedFiles.length));
+            return;
+        }*/
+
+        for (const file of addedFiles) {
+            if (file.size > maxFileSize) {
+                show("too-big-file");
+                return;
+            }
+
+            allFiles.push(file);
+        }
+
+        setSelectedFiles(selectedFiles.concat(allFiles));
+    }
 
     return (
         <Window name={windowName} className="mailing-window">
@@ -133,10 +159,24 @@ const MailingWindow = ({chats, currentUser}) => {
                         message={editMode.message}
                         onCloseButtonClick={() => setEditMode({enabled: false, message: null})}/>
                 }
+                {selectedFiles.length > 0 &&
+                    <UploadFilesPlane
+                        files={selectedFiles}
+                        onRemoveFileClick={(file => {
+                            setSelectedFiles(selectedFiles.filter(f => f !== file));
+                        })}/>
+                }
                 <div className="mailing-window__send-area">
                     <ChatInput
                         source="mailing-window"
                         text={editMode.enabled ? editMode.message.text : ""}
+                        onSelectFilesClick={(e) => {
+                            if (selectedFiles.length >= 10) {
+                                show("too-many-files-alert_messenger");
+                                e.preventDefault();
+                            }
+                        }}
+                        onSelectFilesChange={handleSelectFilesChange}
                         onMessageSubmit={(text) => {
                             if (editMode.enabled) {
                                 const editMessages = messages.map(message => {

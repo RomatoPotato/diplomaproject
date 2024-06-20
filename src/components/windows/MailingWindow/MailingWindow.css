@@ -37,7 +37,8 @@
   overflow-y: auto;
 }
 .mailing-window__send-area {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 50px;
   padding-top: 5px;
 }
 .mailing-window__button-send-mailing {
